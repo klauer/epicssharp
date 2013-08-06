@@ -1,0 +1,83 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace PSI.EpicsClient2
+{
+    /// <summary>
+    /// extended epics control type <br/> serves severity, status, value, precision (for double and float), unittype 
+    /// and a bunch of limits. 
+    /// </summary>
+    /// <typeparam name="TType">generic datatype for value</typeparam>
+    public class ExtControl<TType> : ExtGraphic<TType>
+    {
+        internal ExtControl()
+        {
+        }
+
+        /// <summary>
+        /// Lowest Value which can be set
+        /// </summary>
+        public TType LowControlLimit { get; internal set; }
+        /// <summary>
+        /// Highest Value which can be set
+        /// </summary>
+        public TType HighControlLimit { get; internal set; }
+
+        internal override void Decode(EpicsChannel channel, uint nbElements)
+        {
+            Status = (Status)channel.DecodeData<ushort>(1, 0);
+            Severity = (Severity)channel.DecodeData<ushort>(1, 2);
+            int pos = 4;
+            if (typeof(double) == typeof(TType) || typeof(float) == typeof(TType))
+            {
+                Precision = channel.DecodeData<short>(1, pos);
+                // Odd seems to be padded?
+                pos += 4;
+            }
+            if (typeof(TType) != typeof(string))
+            {
+                EGU = channel.DecodeData<string>(1, pos, 8);
+                pos += 8;
+                int tSize = TypeHandling.EpicsSize(typeof(TType));
+
+                HighDisplayLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+                LowDisplayLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+                HighAlertLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+                HighWarnLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+                LowWarnLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+                LowAlertLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+                LowControlLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+                HighControlLimit = channel.DecodeData<TType>(1, pos);
+                pos += tSize;
+            }
+            else
+            {
+                EGU = "";
+            }
+
+            Value = channel.DecodeData<TType>(nbElements, pos);
+        }
+
+        /// <summary>
+        /// builds a string line of all properties
+        /// </summary>
+        /// <returns>comma seperated string of keys and values</returns>
+        public override string ToString()
+        {
+            return String.Format("Value:{0},Status:{1},Severity:{2},EGU:{3},Precision:{4}," +
+                                 "LowDisplayLimit:{5},LowAlertLimit:{6},LowWarnLimit:{7}," +
+                                 "HighWarnLimit:{8},HighAlertLimit:{9},HighDisplayLimit:{10},"+
+                                 "LowControlLimit:{11},HighControlLimit:{12}",
+                                 Value, Status, Severity, EGU, Precision, LowDisplayLimit, LowAlertLimit, LowWarnLimit,
+                                 HighWarnLimit, HighAlertLimit, HighDisplayLimit,LowControlLimit,HighControlLimit);
+        }
+    }
+}
