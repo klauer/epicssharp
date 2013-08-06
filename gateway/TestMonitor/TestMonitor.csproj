@@ -47,7 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CaSharpServer\EpicsClient2\EpicsClient2.csproj">
+    <ProjectReference Include="..\..\EpicsClient2\EpicsClient2.csproj">
       <Project>{A1BED09B-5D49-4480-A6DD-736B681493A6}</Project>
       <Name>EpicsClient2</Name>
     </ProjectReference>

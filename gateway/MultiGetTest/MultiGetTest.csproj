@@ -47,11 +47,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CaSharpServer\CaSharpServer\CaSharpServer.csproj">
+    <ProjectReference Include="..\..\CaSharpServer\CaSharpServer.csproj">
       <Project>{F4E955E5-E6D7-49A4-BD5B-43FED09E801A}</Project>
       <Name>CaSharpServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\CaSharpServer\EpicsClient2\EpicsClient2.csproj">
+    <ProjectReference Include="..\..\EpicsClient2\EpicsClient2.csproj">
       <Project>{A1BED09B-5D49-4480-A6DD-736B681493A6}</Project>
       <Name>EpicsClient2</Name>
     </ProjectReference>

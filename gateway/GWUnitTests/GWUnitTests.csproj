@@ -60,10 +60,6 @@
     <Compile Include="TestUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CaSharpServer\CaSharpServer\CaSharpServer.csproj">
-      <Project>{F4E955E5-E6D7-49A4-BD5B-43FED09E801A}</Project>
-      <Name>CaSharpServer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\GatewayDebugData\GatewayDebugData.csproj">
       <Project>{37612E86-33F4-45B8-BB15-01969E4622CE}</Project>
       <Name>GatewayDebugData</Name>

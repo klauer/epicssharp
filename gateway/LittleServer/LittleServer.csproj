@@ -47,7 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CaSharpServer\CaSharpServer\CaSharpServer.csproj">
+    <ProjectReference Include="..\..\CaSharpServer\CaSharpServer.csproj">
       <Project>{F4E955E5-E6D7-49A4-BD5B-43FED09E801A}</Project>
       <Name>CaSharpServer</Name>
     </ProjectReference>

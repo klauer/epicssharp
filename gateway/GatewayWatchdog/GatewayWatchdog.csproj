@@ -72,13 +72,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CaSharpServer\EpicsClient2\EpicsClient2.csproj">
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\EpicsClient2\EpicsClient2.csproj">
       <Project>{A1BED09B-5D49-4480-A6DD-736B681493A6}</Project>
       <Name>EpicsClient2</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
