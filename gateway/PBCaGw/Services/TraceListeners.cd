@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PBCaGw.Services.GWConsoleTraceListener" Collapsed="true">
+    <Position X="3.5" Y="3.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Services\GWConsoleTraceListener.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Services.GWFileTraceListener" Collapsed="true">
+    <Position X="2.75" Y="2.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Services\GWFileTraceListener.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Services.GWCriticalStartStopFilter" Collapsed="true">
+    <Position X="0.5" Y="2.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\GWCriticalStartStopFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Services.PseudoConsoleTraceListener" Collapsed="true">
+    <Position X="6" Y="3.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAABAAAAAAAAAQACAAAAAAAIABAAAA=</HashCode>
+      <FileName>Services\PseudoConsoleTraceListener.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="System.Diagnostics.ConsoleTraceListener" Collapsed="true">
+    <Position X="5" Y="2.25" Width="1.75" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="System.Diagnostics.TextWriterTraceListener" Collapsed="true">
+    <Position X="3.75" Y="1" Width="2" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="System.Diagnostics.TraceFilter" Collapsed="true">
+    <Position X="0.75" Y="1" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

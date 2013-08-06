@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DE294E77-141D-43CF-84EC-41C1FA731820}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PBCaGw</RootNamespace>
+    <AssemblyName>PBCaGw</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BeaconSender.cs" />
+    <Compile Include="Configurations\AllFilter.cs" />
+    <Compile Include="Configurations\GroupFilter.cs" />
+    <Compile Include="Configurations\Groups.cs" />
+    <Compile Include="Configurations\HostFilter.cs" />
+    <Compile Include="Configurations\IPFilter.cs" />
+    <Compile Include="Configurations\Security.cs" />
+    <Compile Include="Configurations\SecurityAccess.cs" />
+    <Compile Include="Configurations\SecurityFilter.cs" />
+    <Compile Include="Configurations\SecurityRule.cs" />
+    <Compile Include="Configurations\UserFilter.cs" />
+    <Compile Include="DataPacket.cs" />
+    <Compile Include="DataPacketKind.cs" />
+    <Compile Include="DiagnosticServer.cs" />
+    <Compile Include="Gateway.cs" />
+    <Compile Include="Handlers\ProtoError.cs" />
+    <Compile Include="Services\DebugTraceListener.cs" />
+    <Compile Include="Services\GWCriticalStartStopFilter.cs" />
+    <Compile Include="Services\GWFileTraceListener.cs" />
+    <Compile Include="Services\GWConsoleTraceListener.cs" />
+    <Compile Include="Handlers\AccessRights.cs" />
+    <Compile Include="Handlers\Beacon.cs" />
+    <Compile Include="Handlers\ClientName.cs" />
+    <Compile Include="Handlers\CommandHandler.cs" />
+    <Compile Include="Handlers\ClearChannel.cs" />
+    <Compile Include="Handlers\HostName.cs" />
+    <Compile Include="Handlers\CreateChannel.cs" />
+    <Compile Include="Handlers\DoNothing.cs" />
+    <Compile Include="Handlers\Echo.cs" />
+    <Compile Include="Handlers\EventAdd.cs" />
+    <Compile Include="Handlers\EventCancel.cs" />
+    <Compile Include="Handlers\Search.cs" />
+    <Compile Include="Handlers\Version.cs" />
+    <Compile Include="Handlers\ReadNotify.cs" />
+    <Compile Include="Handlers\Write.cs" />
+    <Compile Include="Handlers\WriteNotify.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="GwTcpListener.cs" />
+    <Compile Include="Services\AutoCleaningStorageService.cs" />
+    <Compile Include="Services\CidGenerator.cs" />
+    <Compile Include="Configurations\Configuration.cs" />
+    <Compile Include="Configurations\ConfigurationType.cs" />
+    <Compile Include="Services\DataQueue.cs" />
+    <Compile Include="Services\InfoService.cs" />
+    <Compile Include="Services\Log.cs" />
+    <Compile Include="Services\LogEntry.cs" />
+    <Compile Include="Services\NetworkPacket.cs" />
+    <Compile Include="Services\ObservableConcurrentBag.cs" />
+    <Compile Include="Services\Record.cs" />
+    <Compile Include="Services\SearchChannel.cs" />
+    <Compile Include="Services\StorageService.cs" />
+    <Compile Include="Services\TcpManager.cs" />
+    <Compile Include="Workers\BeaconCommand.cs" />
+    <Compile Include="Workers\ChainSide.cs" />
+    <Compile Include="Workers\CommandWorker.cs" />
+    <Compile Include="Workers\DebugPortWorker.cs" />
+    <Compile Include="Workers\PacketPacker.cs" />
+    <Compile Include="Workers\PacketWorker.cs" />
+    <Compile Include="Workers\ReceiverWorker.cs" />
+    <Compile Include="Workers\SenderWorker.cs" />
+    <Compile Include="Workers\TcpClientSender.cs" />
+    <Compile Include="Workers\ResponseCommand.cs" />
+    <Compile Include="Workers\TcpReceiver.cs" />
+    <Compile Include="Workers\TcpIocSender.cs" />
+    <Compile Include="Workers\UdpReceiver.cs" />
+    <Compile Include="Workers\RequestCommand.cs" />
+    <Compile Include="Workers\PacketSplitter.cs" />
+    <Compile Include="Workers\UdpSender.cs" />
+    <Compile Include="Workers\Worker.cs" />
+    <Compile Include="Workers\WorkerChain.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CaSharpServer\CaSharpServer\CaSharpServer.csproj">
+      <Project>{F4E955E5-E6D7-49A4-BD5B-43FED09E801A}</Project>
+      <Name>CaSharpServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GatewayDebugData\GatewayDebugData.csproj">
+      <Project>{37612E86-33F4-45B8-BB15-01969E4622CE}</Project>
+      <Name>GatewayDebugData</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Handlers\CommandHandler.cd" />
+    <None Include="Services\TraceListeners.cd" />
+    <None Include="Workers\Workers.cd" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

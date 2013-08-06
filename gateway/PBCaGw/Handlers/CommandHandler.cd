@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PBCaGw.Handlers.CommandHandler">
+    <Position X="12.5" Y="2" Width="2" />
+    <Members>
+      <Method Name="CommandHandler" Hidden="true" />
+      <Field Name="handlers" Hidden="true" />
+      <Field Name="name" Hidden="true" />
+      <Method Name="ProcessRequest" Hidden="true" />
+      <Method Name="ProcessResponse" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAgAAAAAAAABAAAgQCAAAEAABAAAAAAgAAAIA=</HashCode>
+      <FileName>Handlers\CommandHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.AccessRights" Collapsed="true">
+    <Position X="11.75" Y="6.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="7.062" />
+        <Point X="13.25" Y="7.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\AccessRights.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.Beacon" Collapsed="true">
+    <Position X="13.75" Y="5.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="6.062" />
+        <Point X="13.75" Y="6.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\Beacon.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.ClearChannel" Collapsed="true">
+    <Position X="15.75" Y="4.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="4.564" />
+        <Point X="15.51" Y="4.564" />
+        <Point X="15.51" Y="5.125" />
+        <Point X="15.75" Y="5.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\ClearChannel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.ClientName" Collapsed="true">
+    <Position X="9.75" Y="4.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="4.564" />
+        <Point X="11.49" Y="4.564" />
+        <Point X="11.49" Y="5.125" />
+        <Point X="11.25" Y="5.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\ClientName.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.CreateChannel" Collapsed="true">
+    <Position X="11.75" Y="4.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="5.125" />
+        <Point X="13.25" Y="5.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\CreateChannel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.DoNothing" Collapsed="true">
+    <Position X="11.75" Y="7.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="8.125" />
+        <Point X="13.25" Y="8.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\DoNothing.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.Echo" Collapsed="true">
+    <Position X="13.75" Y="6.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="7.062" />
+        <Point X="13.75" Y="7.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\Echo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.EventAdd" Collapsed="true">
+    <Position X="15.75" Y="5.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="4.564" />
+        <Point X="15.51" Y="4.564" />
+        <Point X="15.51" Y="6.062" />
+        <Point X="15.75" Y="6.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\EventAdd.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.EventCancel" Collapsed="true">
+    <Position X="9.75" Y="6.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="4.564" />
+        <Point X="11.49" Y="4.564" />
+        <Point X="11.49" Y="7.125" />
+        <Point X="11.25" Y="7.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\EventCancel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.HostName" Collapsed="true">
+    <Position X="9.75" Y="5.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="4.564" />
+        <Point X="11.49" Y="4.564" />
+        <Point X="11.49" Y="6.125" />
+        <Point X="11.25" Y="6.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\HostName.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.ReadNotify" Collapsed="true">
+    <Position X="13.75" Y="4.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="5.125" />
+        <Point X="13.75" Y="5.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\ReadNotify.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.Search" Collapsed="true">
+    <Position X="13.75" Y="7.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="8.125" />
+        <Point X="13.75" Y="8.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\Search.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.Version" Collapsed="true">
+    <Position X="15.75" Y="6.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="4.564" />
+        <Point X="15.51" Y="4.564" />
+        <Point X="15.51" Y="7.125" />
+        <Point X="15.75" Y="7.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\Version.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.Write" Collapsed="true">
+    <Position X="9.75" Y="7.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="4.564" />
+        <Point X="11.49" Y="4.564" />
+        <Point X="11.49" Y="8.062" />
+        <Point X="11.25" Y="8.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\Write.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Handlers.WriteNotify" Collapsed="true">
+    <Position X="11.75" Y="5.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Handlers.CommandHandler" FixedToPoint="true">
+      <Path>
+        <Point X="13.5" Y="4.324" />
+        <Point X="13.5" Y="6.062" />
+        <Point X="13.25" Y="6.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Handlers\WriteNotify.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

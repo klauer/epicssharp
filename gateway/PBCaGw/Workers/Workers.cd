@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PBCaGw.Workers.Worker">
+    <Position X="6" Y="2.25" Width="1.5" />
+    <Members>
+      <Event Name="ReceiveData" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>FgAAAAAAIIAAAAAAAAAAAAAAAAAAQAAAAEAgAAAAAAA=</HashCode>
+      <FileName>Workers\Worker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.TcpReceiver" Collapsed="true">
+    <Position X="3.25" Y="7.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Workers.ReceiverWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="3.062" Y="6.441" />
+        <Point X="3.062" Y="8.125" />
+        <Point X="3.25" Y="8.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAIAAAAAACAAAAAAAAAAAAAAIAAAAQAAAAFAAAAAAAA=</HashCode>
+      <FileName>Workers\TcpReceiver.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.UdpReceiver" Collapsed="true">
+    <Position X="3.25" Y="6.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Workers.ReceiverWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="3.062" Y="6.441" />
+        <Point X="3.062" Y="7.125" />
+        <Point X="3.25" Y="7.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAoAAACAACAAAAAAAAAAgAAAAAAAQAAAAAAAQAAAAAA=</HashCode>
+      <FileName>Workers\UdpReceiver.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.ReceiverWorker" Collapsed="true">
+    <Position X="2.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\ReceiverWorker.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Orientation="Left" Position="0.341" />
+  </Class>
+  <Class Name="PBCaGw.Workers.CommandWorker" Collapsed="true">
+    <Position X="5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\CommandWorker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.RequestCommand" Collapsed="true">
+    <Position X="5.5" Y="7.75" Width="1.75" />
+    <InheritanceLine Type="PBCaGw.Workers.CommandWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.375" Y="6.441" />
+        <Point X="5.375" Y="8.062" />
+        <Point X="5.5" Y="8.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\RequestCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.ResponseCommand" Collapsed="true">
+    <Position X="5.5" Y="6.75" Width="1.75" />
+    <InheritanceLine Type="PBCaGw.Workers.CommandWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.375" Y="6.441" />
+        <Point X="5.375" Y="7.188" />
+        <Point X="5.5" Y="7.188" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\ResponseCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.BeaconCommand" Collapsed="true">
+    <Position X="5.5" Y="8.75" Width="1.75" />
+    <InheritanceLine Type="PBCaGw.Workers.CommandWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.375" Y="6.441" />
+        <Point X="5.375" Y="9.125" />
+        <Point X="5.5" Y="9.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\BeaconCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.PacketPacker" Collapsed="true">
+    <Position X="8" Y="7.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Workers.PacketWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="6.441" />
+        <Point X="7.75" Y="8.125" />
+        <Point X="8" Y="8.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAACAAAIAAA=</HashCode>
+      <FileName>Workers\PacketPacker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.PacketSplitter" Collapsed="true">
+    <Position X="8" Y="6.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Workers.PacketWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="6.441" />
+        <Point X="7.75" Y="7.125" />
+        <Point X="8" Y="7.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\PacketSplitter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.PacketWorker" Collapsed="true">
+    <Position X="7.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\PacketWorker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.UdpSender" Collapsed="true">
+    <Position X="10.5" Y="6.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Workers.SenderWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="10.125" Y="6.441" />
+        <Point X="10.125" Y="7.062" />
+        <Point X="10.5" Y="7.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\UdpSender.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.TcpIocSender" Collapsed="true">
+    <Position X="10.5" Y="8.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Workers.SenderWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="10.125" Y="6.441" />
+        <Point X="10.125" Y="9.062" />
+        <Point X="10.5" Y="9.062" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\TcpIocSender.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.TcpClientSender" Collapsed="true">
+    <Position X="10.5" Y="7.75" Width="1.5" />
+    <InheritanceLine Type="PBCaGw.Workers.SenderWorker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="10.125" Y="6.441" />
+        <Point X="10.125" Y="8.125" />
+        <Point X="10.5" Y="8.125" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\TcpClientSender.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Workers.SenderWorker" Collapsed="true">
+    <Position X="9.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Workers\SenderWorker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
