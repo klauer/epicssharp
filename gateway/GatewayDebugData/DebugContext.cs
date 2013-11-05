@@ -65,7 +65,14 @@ namespace GatewayDebugData
             }
             catch
             {
-                address = Dns.GetHostEntry(p[0]).AddressList.First();
+                try
+                {
+                    address = Dns.GetHostEntry(p[0]).AddressList.First();
+                }
+                catch
+                {
+                    return;
+                }
             }
 
             int port = 5064;
