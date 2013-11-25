@@ -48,7 +48,10 @@ namespace PSI.EpicsClient2
                                      {
                                          DataPacket p = DataPacket.Create(16 + 16);
                                          p.Command = (ushort) CommandID.CA_PROTO_EVENT_ADD;
-                                         p.DataType = (ushort) TypeHandling.Lookup[typeof (TType)];
+                                         Type t = typeof(TType);
+                                         if (t.IsArray)
+                                             t = t.GetElementType();
+                                         p.DataType = (ushort)TypeHandling.Lookup[t];
                                          p.DataCount = ChannelDataCount;
                                          p.Parameter1 = SID;
                                          p.Parameter2 = CID;
@@ -96,7 +99,10 @@ namespace PSI.EpicsClient2
                                          //Console.WriteLine("Sending new event add");
                                          DataPacket p = DataPacket.Create(16 + 16);
                                          p.Command = (ushort) CommandID.CA_PROTO_EVENT_ADD;
-                                         p.DataType = (ushort) TypeHandling.Lookup[typeof (TType)];
+                                         Type t = typeof(TType);
+                                         if (t.IsArray)
+                                             t = t.GetElementType();
+                                         p.DataType = (ushort) TypeHandling.Lookup[t];
                                          p.DataCount = ChannelDataCount;
                                          p.Parameter1 = SID;
                                          p.Parameter2 = CID;
