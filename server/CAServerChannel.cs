@@ -65,6 +65,7 @@ namespace CaSharpServer
                     return EpicsType.Double;
                 case "Int32":
                     return EpicsType.Int;
+                case "Single":
                 case "Float":
                     return EpicsType.Float;
                 case "String":
