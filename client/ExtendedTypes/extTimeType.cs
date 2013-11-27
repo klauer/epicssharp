@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace PSI.EpicsClient2
 {
@@ -24,7 +25,12 @@ namespace PSI.EpicsClient2
             Status = (Status)channel.DecodeData<ushort>(1, 0);
             Severity = (Severity)channel.DecodeData<ushort>(1, 2);
             Time = channel.DecodeData<DateTime>(1, 4);
-            Value = channel.DecodeData<TType>(nbElements, 8);
+            //Value = channel.DecodeData<TType>(nbElements, 8);
+            //Value = channel.DecodeData<TType>(nbElements, 16);
+            Type t = typeof(TType);
+            if (t.IsArray)
+                t = t.GetElementType();
+            Value = channel.DecodeData<TType>(nbElements, 8+TypeHandling.EpicsSize(t));
         }
 
         /// <summary>

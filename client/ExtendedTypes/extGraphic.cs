@@ -28,28 +28,28 @@ namespace PSI.EpicsClient2
         /// <summary>
         /// Low limit for correct operation.
         /// </summary>
-        public TType LowWarnLimit { get; internal set; }
+        public double LowWarnLimit { get; internal set; }
         /// <summary>
         /// Low limit for incorrect operation
         /// </summary>
-        public TType LowAlertLimit { get; internal set; }
+        public double LowAlertLimit { get; internal set; }
         /// <summary>
         /// Lowest possible value which is visible
         /// </summary>
-        public TType LowDisplayLimit { get; internal set; }
+        public double LowDisplayLimit { get; internal set; }
 
         /// <summary>
         /// High limit for correct operation  
         /// </summary>
-        public TType HighWarnLimit { get; internal set; }
+        public double HighWarnLimit { get; internal set; }
         /// <summary>
         /// High limit for incorrect operation
         /// </summary>
-        public TType HighAlertLimit { get; internal set; }
+        public double HighAlertLimit { get; internal set; }
         /// <summary>
         /// Highest possible value which is visible
         /// </summary>
-        public TType HighDisplayLimit { get; internal set; }
+        public double HighDisplayLimit { get; internal set; }
 
         internal override void Decode(EpicsChannel channel, uint nbElements)
         {
@@ -63,24 +63,37 @@ namespace PSI.EpicsClient2
                 pos += 4;
             }
 
-            if (typeof(TType) != typeof(string))
+            Type t = typeof(TType);
+            if (t.IsArray)
+                t = t.GetElementType();
+
+            if (t != typeof(string))
             {
                 EGU = channel.DecodeData<string>(1, pos, 8);
                 pos += 8;
-                int tSize = TypeHandling.EpicsSize(typeof(TType));
+                int tSize = TypeHandling.EpicsSize(t);
 
-                HighDisplayLimit = channel.DecodeData<TType>(1, pos);
+                //HighDisplayLimit = channel.DecodeData<TType>(1, pos);
+                HighDisplayLimit = Convert.ToDouble(channel.DecodeData(t,1, pos));
                 pos += tSize;
-                LowDisplayLimit = channel.DecodeData<TType>(1, pos);
+                //LowDisplayLimit = channel.DecodeData<TType>(1, pos);
+                LowDisplayLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                HighAlertLimit = channel.DecodeData<TType>(1, pos);
+                //HighAlertLimit = channel.DecodeData<TType>(1, pos);
+                HighAlertLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                HighWarnLimit = channel.DecodeData<TType>(1, pos);
+                //HighWarnLimit = channel.DecodeData<TType>(1, pos);
+                HighWarnLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                LowWarnLimit = channel.DecodeData<TType>(1, pos);
+                //LowWarnLimit = channel.DecodeData<TType>(1, pos);
+                LowWarnLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                LowAlertLimit = channel.DecodeData<TType>(1, pos);
+                //LowAlertLimit = channel.DecodeData<TType>(1, pos);
+                LowAlertLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
+
+                if (t != typeof(int))
+                    pos += 4;
             }
             else
             {
