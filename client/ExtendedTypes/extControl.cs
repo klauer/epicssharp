@@ -18,11 +18,11 @@ namespace PSI.EpicsClient2
         /// <summary>
         /// Lowest Value which can be set
         /// </summary>
-        public TType LowControlLimit { get; internal set; }
+        public double LowControlLimit { get; internal set; }
         /// <summary>
         /// Highest Value which can be set
         /// </summary>
-        public TType HighControlLimit { get; internal set; }
+        public double HighControlLimit { get; internal set; }
 
         internal override void Decode(EpicsChannel channel, uint nbElements)
         {
@@ -35,28 +35,43 @@ namespace PSI.EpicsClient2
                 // Odd seems to be padded?
                 pos += 4;
             }
-            if (typeof(TType) != typeof(string))
+            Type t = typeof(TType);
+            if (t.IsArray)
+                t = t.GetElementType();
+
+            if (t != typeof(string))
             {
                 EGU = channel.DecodeData<string>(1, pos, 8);
                 pos += 8;
-                int tSize = TypeHandling.EpicsSize(typeof(TType));
+                int tSize = TypeHandling.EpicsSize(t);
 
-                HighDisplayLimit = channel.DecodeData<TType>(1, pos);
+                //HighDisplayLimit = channel.DecodeData<TType>(1, pos);
+                HighDisplayLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                LowDisplayLimit = channel.DecodeData<TType>(1, pos);
+                //LowDisplayLimit = channel.DecodeData<TType>(1, pos);
+                LowDisplayLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                HighAlertLimit = channel.DecodeData<TType>(1, pos);
+                //HighAlertLimit = channel.DecodeData<TType>(1, pos);
+                HighAlertLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                HighWarnLimit = channel.DecodeData<TType>(1, pos);
+                //HighWarnLimit = channel.DecodeData<TType>(1, pos);
+                HighWarnLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                LowWarnLimit = channel.DecodeData<TType>(1, pos);
+                //LowWarnLimit = channel.DecodeData<TType>(1, pos);
+                LowWarnLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                LowAlertLimit = channel.DecodeData<TType>(1, pos);
+                //LowAlertLimit = channel.DecodeData<TType>(1, pos);
+                LowAlertLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                LowControlLimit = channel.DecodeData<TType>(1, pos);
+                LowControlLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
-                HighControlLimit = channel.DecodeData<TType>(1, pos);
+                //HighControlLimit = channel.DecodeData<TType>(1, pos);
+                HighControlLimit = Convert.ToDouble(channel.DecodeData(t, 1, pos));
                 pos += tSize;
+
+                //pos += 4;
+                if (t != typeof(int))
+                    pos += 4;
             }
             else
             {
@@ -74,10 +89,10 @@ namespace PSI.EpicsClient2
         {
             return String.Format("Value:{0},Status:{1},Severity:{2},EGU:{3},Precision:{4}," +
                                  "LowDisplayLimit:{5},LowAlertLimit:{6},LowWarnLimit:{7}," +
-                                 "HighWarnLimit:{8},HighAlertLimit:{9},HighDisplayLimit:{10},"+
+                                 "HighWarnLimit:{8},HighAlertLimit:{9},HighDisplayLimit:{10}," +
                                  "LowControlLimit:{11},HighControlLimit:{12}",
                                  Value, Status, Severity, EGU, Precision, LowDisplayLimit, LowAlertLimit, LowWarnLimit,
-                                 HighWarnLimit, HighAlertLimit, HighDisplayLimit,LowControlLimit,HighControlLimit);
+                                 HighWarnLimit, HighAlertLimit, HighDisplayLimit, LowControlLimit, HighControlLimit);
         }
     }
 }

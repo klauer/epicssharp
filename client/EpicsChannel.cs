@@ -66,7 +66,7 @@ namespace PSI.EpicsClient2
         /// Allows to get informed when the channel connection status changes.
         /// </summary>
         public event EpicsStatusDelegate StatusChanged;
-        protected List<Action<EpicsChannel>> AfterAction=new List<Action<EpicsChannel>>();
+        protected List<Action<EpicsChannel>> AfterAction = new List<Action<EpicsChannel>>();
         internal event EpicsDelegate AfterReadNotify;
         protected bool Disposed = false;
         internal DataPacket SearchPacket;
@@ -273,7 +273,7 @@ namespace PSI.EpicsClient2
 
                 System.Collections.IList res = (System.Collections.IList)Activator.CreateInstance(genList);
 
-                int pos = 16;
+                int pos = 16 + startPost;
                 int elementSize = TypeHandling.EpicsSize(baseT);
                 for (int i = 0; i < nbElements; i++)
                 {
@@ -392,7 +392,7 @@ namespace PSI.EpicsClient2
                     AfterAction.Add(action);
                     return;
                 }
-            }   
+            }
 
             //Console.WriteLine("Add after connect");
             if (Client.Configuration.DebugTiming)
@@ -538,7 +538,7 @@ namespace PSI.EpicsClient2
             packet.Parameter2 = (uint)EpicsConstants.CA_MINOR_PROTOCOL_REVISION;
             packet.SetDataAsString(ChannelName);
 
-            if(ioc != null)
+            if (ioc != null)
                 ioc.Send(packet);
             else
             {
@@ -630,7 +630,7 @@ namespace PSI.EpicsClient2
         {
             if (Disposed)
                 return;
-            if(ioc != null)
+            if (ioc != null)
                 ioc.RemoveChannel(this);
             lock (ConnectionLock)
             {
@@ -655,8 +655,8 @@ namespace PSI.EpicsClient2
 
                                          p.SetUInt16(12 + 16, (ushort)MonitorMask);
 
-                                         if(ioc != null)
-                                            ioc.Send(p);
+                                         if (ioc != null)
+                                             ioc.Send(p);
                                          else
                                              Disconnect();
                                      });
