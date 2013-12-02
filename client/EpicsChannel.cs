@@ -301,9 +301,10 @@ namespace PSI.EpicsClient2
 
             if (baseT == typeof(DateTime))
             {
-                int secs = RawData.GetInt32((int)RawData.HeaderSize + startPost);
-                int nanoSecs = RawData.GetInt32((int)RawData.HeaderSize + startPost + 4);
-                return (new DateTime(timestampBase.Ticks + (secs * 10000000) + (nanoSecs / 100))).ToLocalTime();
+                long secs = RawData.GetUInt32((int)RawData.HeaderSize + startPost);
+                long nanoSecs = RawData.GetUInt32((int)RawData.HeaderSize + startPost + 4);
+                DateTime d = (new DateTime(timestampBase.Ticks + (secs * 10000000L) + (nanoSecs / 100L))).ToLocalTime();
+                return d;
             }
 
             switch (TypeHandling.Lookup[baseT])
