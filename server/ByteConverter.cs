@@ -173,7 +173,8 @@ namespace CaSharpServer
                 return new byte[0];
 
             byte[] dateTimeBytes = new byte[8];
-            long Diff = time.Ticks - TimestampBase.ToUniversalTime().Ticks;
+            //long Diff = time.Ticks - TimestampBase.ToUniversalTime().Ticks;
+            long Diff = time.Ticks - TimestampBase.ToLocalTime().Ticks;
 
             UInt32 secs = (UInt32)Math.Round((double)(Diff / 10000000));
             UInt32 nanosecs = (UInt32)(Diff - (secs * 10000000)) * 100;
