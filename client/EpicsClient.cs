@@ -45,7 +45,7 @@ namespace PSI.EpicsClient2
                 {
                     DateTime now = DateTime.Now;
                     toEcho=Iocs.Values.Where(row => (row.LastMessage - now).TotalSeconds > 20).Select(row => (TcpReceiver)row[0]).ToList();
-                    //toEcho = Iocs.Select(row => (TcpReceiver)row.Value[0]).ToList();
+                    toEcho = Iocs.Select(row => (TcpReceiver)row.Value[0]).ToList();
                 }
                 foreach (var i in toEcho)
                 {
