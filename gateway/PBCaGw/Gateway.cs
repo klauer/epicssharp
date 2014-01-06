@@ -46,7 +46,7 @@ namespace PBCaGw
         /// <summary>
         ///  Max UDP packet size (3x 8192... don't ask me from where it comes, found while looking on the net)
         /// </summary>
-        public const int BUFFER_SIZE = 8192 * 3;
+        public const int BUFFER_SIZE = 8192 * 30;
 
         public const int TCP_FLUSH_TIME = 10;
         //public const int TCP_FLUSH_TIME = 200;

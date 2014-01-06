@@ -67,7 +67,22 @@ namespace PBCaGw.Configurations
         static public IPEndPoint ParseAddress(string addr)
         {
             string[] parts = addr.Split(new char[] { ':' });
-            return new IPEndPoint(IPAddress.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+            try
+            {
+                return new IPEndPoint(IPAddress.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    return new IPEndPoint(Dns.GetHostEntry(parts[0]).AddressList.First(), int.Parse(parts[1].Trim()));
+                }
+                catch (Exception ex2)
+                {
+                    PBCaGw.Services.Log.TraceEvent(System.Diagnostics.TraceEventType.Critical, -1, "Wrong IP: " + addr);
+                    throw ex2;
+                }
+            }
         }
 
         static private List<IPEndPoint> ParseListAddress(string list)
