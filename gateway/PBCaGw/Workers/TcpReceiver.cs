@@ -63,9 +63,6 @@ namespace PBCaGw.Workers
 
         public void Send(DataPacket packet)
         {
-            /*byte[] buff = new byte[packet.BufferSize];
-            Buffer.BlockCopy(packet.Data, packet.Offset, buff, 0, packet.BufferSize);*/
-
             if (Gateway.BufferedSockets)
             {
                 lock (stream)
@@ -76,7 +73,6 @@ namespace PBCaGw.Workers
             }
             else
             {
-                //Log.TraceEvent(TraceEventType.Information, Chain.ChainId, "Sending " + Handlers.CommandHandler.GetCommandName(packet.Command) + " (" + packet.Command+")");
                 socket.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
             }
         }
@@ -151,26 +147,6 @@ namespace PBCaGw.Workers
                 this.Chain.LastMessage = Gateway.Now;
                 if (n > 0)
                 {
-                    /*if (buffer[1] == 1 && n % 64 == 0)
-                    {
-                        for (int i = 0; i < n; i += 64)
-                        {
-                            if (buffer[i + 11] == 1 && buffer[i + 20] != 35)
-                            {
-                                string res = "";
-                                for (int j = 0; j < n; j++)
-                                {
-                                    if(j%64 == 0)
-                                        res+="----------------------\r\n";
-                                    res += ""+(j%64)+": " + buffer[j] + "\r\n";
-                                }
-                                File.WriteAllText("c:\\temp\\buffer.txt",res);
-                                Console.WriteLine("Wrong receive!!!!");
-                                break;
-                            }
-                        }
-                    }*/
-
                     DataPacket p = DataPacket.Create(buffer, n, this.Chain, true);
                     p.Sender = (IPEndPoint)socket.RemoteEndPoint;
                     this.SendData(p);

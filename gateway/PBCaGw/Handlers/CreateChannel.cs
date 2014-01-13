@@ -5,6 +5,7 @@ using PBCaGw.Configurations;
 using PBCaGw.Workers;
 using System.Net;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace PBCaGw.Handlers
 {
@@ -250,8 +251,8 @@ namespace PBCaGw.Handlers
                 Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Got response for " + record.Channel + ".");
 
             record.SID = packet.Parameter2;
-            chain.Channels.Add(record.Channel);
-
+            if(!chain.Channels.Any(row=>row == record.Channel))
+                chain.Channels.Add(record.Channel);
 
             object lockOper = locks.GetOrAdd(record.Channel, new object());
 

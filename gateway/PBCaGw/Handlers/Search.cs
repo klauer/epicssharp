@@ -235,7 +235,8 @@ namespace PBCaGw.Handlers
             // We can't connect to the IOC...
             if (ioc == null)
                 return;
-            ioc.Channels.Add(channelName);
+            if (!ioc.Channels.Any(row => row == channelName))
+                ioc.Channels.Add(channelName);
             Record channel = InfoService.ChannelEndPoint[channelName];
             if (channel == null)
                 channel = InfoService.ChannelEndPoint.Create(channelName);
