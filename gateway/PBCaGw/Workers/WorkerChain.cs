@@ -80,7 +80,7 @@ namespace PBCaGw.Workers
             nbWaitToExecute--;
             if (nbWaitToExecute > 0)
                 return;
-            nbWaitToExecute = 30;
+            nbWaitToExecute = 3;
 
             List<WorkerChain> toWakeUp;
             /*lock (lockChainManagement)
@@ -114,6 +114,15 @@ namespace PBCaGw.Workers
                         Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, chain.ChainId, "Sending echo to client " + (newPacket.Destination == null ? "" : newPacket.Destination.ToString()));
                     TcpManager.SendClientPacket(newPacket);
                 }
+            }
+
+            toWakeUp = knownChains.Where(row =>
+                row.Side != ChainSide.DEBUG_PORT &&
+                row[0] is TcpReceiver &&
+                (Gateway.Now - row.LastMessage).TotalSeconds > Gateway.ECHO_INTERVAL*2).ToList();
+            foreach (WorkerChain chain in toWakeUp)
+            {
+                chain.Dispose();
             }
 
             // Cleanup server chains (IOC) which are not used since more than Gateway.IOC_KEEP_ALIVE_CONNECTION
