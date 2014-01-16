@@ -16,7 +16,7 @@ namespace LittleServer
 
         static void Main(string[] args)
         {
-            CAServer server = new CAServer(IPAddress.Parse("127.0.0.1"), 5432, 5432);
+            CAServer server = new CAServer(IPAddress.Parse("129.129.130.118"), 5062, 5062);
             intRecord = server.CreateRecord<CAIntRecord>("PCTOTO2:INT");
             intRecord.PrepareRecord += new EventHandler(intRecord_PrepareRecord);
             intRecord.Scan = CaSharpServer.Constants.ScanAlgorithm.HZ10;
