@@ -186,6 +186,7 @@ namespace PBCaGw.Workers
             packet.Sender = (IPEndPoint)epSender;
 
             lastReceived = Gateway.Now;
+            ((PacketSplitter)this.Chain[1]).Reset();
             try
             {
                 this.SendData(packet);
@@ -197,7 +198,6 @@ namespace PBCaGw.Workers
                 if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Critical, Chain.ChainId, "Error in UDPReceiver: " + ex + "\r\n" + ex.StackTrace);
             }
-            ((PacketSplitter)this.Chain[1]).Reset();
 
             // Start Accepting again
             try
