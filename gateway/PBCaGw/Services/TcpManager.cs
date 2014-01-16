@@ -6,6 +6,7 @@ using PBCaGw.Workers;
 using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System;
 
 namespace PBCaGw.Services
 {
@@ -65,7 +66,7 @@ namespace PBCaGw.Services
                 List<TcpReceiver> receivers;
                 lock (clientConnections)
                 {
-                    receivers = clientChains.Select(row => ((TcpReceiver)row.Value[0])).Where(row=>row.IsDirty).ToList();
+                    receivers = clientChains.Select(row => ((TcpReceiver)row.Value[0])).Where(row => row.IsDirty).ToList();
                 }
 
                 lock (iocConnections)
@@ -160,27 +161,40 @@ namespace PBCaGw.Services
                 return null;
 
             WorkerChain chain = WorkerChain.TcpResponseChain(gateway, ChainSide.SERVER_CONN, endPoint, endPoint);
-            WorkerChain result;
+            WorkerChain result = null;
 
             lock (iocConnections)
             {
                 if (iocConnections.ContainsKey(endPoint))
-                {
                     result = iocChains[endPoint];
-                }
                 else
                 {
                     Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
                     try
                     {
-                        socket.Connect(endPoint);
+                        //SocketAsyncEventArgs async = new SocketAsyncEventArgs();
+                        if (!SocketConnect(socket, endPoint, 200))
+                        {
+                            try
+                            {
+                                socket.Dispose();
+                            }
+                            catch
+                            {
+
+                            }
+                            return null;
+                        }
+                        //socket.Connect(endPoint);
+                        //socket.ConnectAsync(new SocketAsyncEventArgs { RemoteEndPoint = endPoint });
+                        //socket.BeginConnect(endPoint, SocketConnected, null);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         socket.Dispose();
                         return null;
                     }
-                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
 
                     iocConnections.Add(endPoint, socket);
                     // Add a monitor on the known channels
@@ -193,9 +207,28 @@ namespace PBCaGw.Services
                     result = chain;
                 }
             }
+
             if (!object.ReferenceEquals(result, chain))
                 chain.Dispose();
             return result;
+        }
+
+        static bool SocketConnect(Socket socket, EndPoint endPoint, int connTimeout)
+        {
+            IAsyncResult result = socket.BeginConnect(endPoint, null, null);
+            bool succeed = result.AsyncWaitHandle.WaitOne(connTimeout, true);
+            if (!succeed)
+            {
+                try
+                {
+                    socket.Close();
+                }
+                catch
+                {
+
+                }
+            }
+            return succeed;
         }
 
         /// <summary>
@@ -365,6 +398,8 @@ namespace PBCaGw.Services
             {
                 return;
             }
+
+            Socket toDisconnect = null;
             lock (iocConnections)
             {
                 if (!iocConnections.ContainsKey(endPoint))
@@ -372,27 +407,31 @@ namespace PBCaGw.Services
 
                 if (Log.WillDisplay(System.Diagnostics.TraceEventType.Stop))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Stop, iocChains[endPoint].ChainId, "Disposing IOC chain " + endPoint);
-                try
-                {
-                    iocConnections[endPoint].Disconnect(false);
-                }
-                catch
-                {
-                }
+
+                toDisconnect = iocConnections[endPoint];
 
                 iocConnections.Remove(endPoint);
                 iocChains.Remove(endPoint);
-
-                // Cleanup which shall not be usefull but somehow we get wrong data..
-                // It's a work around not the real fix sadly.
-                List<string> toCleanup = InfoService.ChannelEndPoint.OfType<KeyValuePair<string, Record>>()
-                    .Where(row => row.Value.Destination != null
-                        && row.Value.Destination.ToString() == endPoint.ToString())
-                    .Select(row => row.Key).ToList();
-
-                foreach (var i in toCleanup)
-                    InfoService.ChannelEndPoint.Remove(i);
             }
+
+            try
+            {
+                toDisconnect.Disconnect(false);
+            }
+            catch
+            {
+            }
+
+            // Cleanup which shall not be usefull but somehow we get wrong data..
+            // It's a work around not the real fix sadly.
+            List<string> toCleanup = InfoService.ChannelEndPoint.OfType<KeyValuePair<string, Record>>()
+                .Where(row => row.Value.Destination != null
+                    && row.Value.Destination.ToString() == endPoint.ToString())
+                .Select(row => row.Key).ToList();
+
+            foreach (var i in toCleanup)
+                InfoService.ChannelEndPoint.Remove(i);
+
             chain.Gateway.DoDropIoc(endPoint.ToString());
             chain.Dispose();
         }
