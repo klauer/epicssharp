@@ -47,7 +47,7 @@ namespace PSI.EpicsClient2
                     AfterConnect(action =>
                                      {
                                          DataPacket p = DataPacket.Create(16 + 16);
-                                         p.Command = (ushort) CommandID.CA_PROTO_EVENT_ADD;
+                                         p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
                                          Type t = typeof(TType);
                                          if (t.IsArray)
                                              t = t.GetElementType();
@@ -56,9 +56,10 @@ namespace PSI.EpicsClient2
                                          p.Parameter1 = SID;
                                          p.Parameter2 = CID;
 
-                                         p.SetUInt16(12 + 16, (ushort) MonitorMask);
+                                         p.SetUInt16(12 + 16, (ushort)MonitorMask);
 
-                                         ioc.Send(p);
+                                         if(ioc != null)
+                                            ioc.Send(p);
                                      });
                 }
                 PrivMonitorChanged += value;
@@ -75,7 +76,8 @@ namespace PSI.EpicsClient2
                     p.DataCount = ChannelDataCount;
                     p.Parameter1 = SID;
                     p.Parameter2 = CID;
-                    ioc.Send(p);
+                    if (ioc != null)
+                        ioc.Send(p);
                 }
             }
         }
@@ -98,19 +100,19 @@ namespace PSI.EpicsClient2
                                      {
                                          //Console.WriteLine("Sending new event add");
                                          DataPacket p = DataPacket.Create(16 + 16);
-                                         p.Command = (ushort) CommandID.CA_PROTO_EVENT_ADD;
+                                         p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
                                          Type t = typeof(TType);
                                          if (t.IsArray)
                                              t = t.GetElementType();
-                                         p.DataType = (ushort) TypeHandling.Lookup[t];
+                                         p.DataType = (ushort)TypeHandling.Lookup[t];
                                          p.DataCount = ChannelDataCount;
                                          p.Parameter1 = SID;
                                          p.Parameter2 = CID;
 
-                                         p.SetUInt16(12 + 16, (ushort) MonitorMask);
+                                         p.SetUInt16(12 + 16, (ushort)MonitorMask);
 
-                                         if(ioc != null)
-                                            ioc.Send(p);
+                                         if (ioc != null)
+                                             ioc.Send(p);
                                      });
                 }
             }
