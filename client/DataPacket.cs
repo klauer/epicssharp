@@ -312,6 +312,13 @@ namespace PSI.EpicsClient2
             return BitConverter.ToSingle(uintBytes, 0);
         }
 
+        public sbyte GetSByte(int position)
+        {
+            sbyte[] sBytes = new sbyte[1];
+            Buffer.BlockCopy(Data, position, sBytes, 0, 1);
+            return sBytes[0];
+        }
+
         public void SetDouble(int position, double value)
         {
             byte[] uintBytes = BitConverter.GetBytes(value);
@@ -346,6 +353,12 @@ namespace PSI.EpicsClient2
         public void SetBytes(int position, byte[] buff)
         {
             Buffer.BlockCopy(buff, 0, Data, position, buff.Length);
+        }
+
+        public void SetSByte(int position, sbyte value)
+        {
+            sbyte[] sbytes = new sbyte[] { value };
+            Buffer.BlockCopy(sbytes, 0, Data, position, 1);
         }
 
         /// <summary>

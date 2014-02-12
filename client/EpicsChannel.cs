@@ -212,6 +212,9 @@ namespace PSI.EpicsClient2
                 case EpicsType.String:
                     packet.SetDataAsString((string)(object)newValue);
                     break;
+                case EpicsType.SByte:
+                    packet.SetSByte((int)packet.HeaderSize, (sbyte)(object)newValue);
+                    break;
                 default:
                     throw new Exception("Type not currently supported.");
             }
@@ -290,6 +293,9 @@ namespace PSI.EpicsClient2
                             break;
                         case EpicsType.Double:
                             res.Add(RawData.GetDouble(pos));
+                            break;
+                        case EpicsType.SByte:
+                            res.Add(RawData.GetSByte(pos));
                             break;
                         default:
                             throw new Exception("Type not supported");
