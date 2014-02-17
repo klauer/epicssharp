@@ -32,6 +32,7 @@ namespace PBCaGw.Handlers
             handlers[21] = new HostName();
             handlers[22] = new AccessRights();
             handlers[23] = new Echo();
+            handlers[27] = new ChannelDisconnect();
         }
 
         /// <summary>
