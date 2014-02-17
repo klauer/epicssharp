@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 namespace PBCaGw.Services
 {
@@ -58,6 +59,52 @@ namespace PBCaGw.Services
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return Records.GetEnumerator();
+        }
+
+        public void DeleteForGWCID(uint gwcid)
+        {
+            var toDelete = Records.Where(row => row.Value.GWCID == gwcid).Select(row => row.Key).ToList();
+            Record o;
+            foreach (var i in toDelete)
+            {
+                Records.TryRemove(i, out o);
+            }
+        }
+
+        public void DeleteForSID(uint sid)
+        {
+            var toDelete = Records.Where(row => row.Value.SID == sid).Select(row => row.Key).ToList();
+            Record o;
+            foreach (var i in toDelete)
+            {
+                Records.TryRemove(i, out o);
+            }
+        }
+
+        public TType SearchKeyForGWCID(uint gwcid)
+        {
+            try
+            {
+                var r = Records.First(row => row.Value.GWCID == gwcid);
+                return r.Key;
+            }
+            catch
+            {
+                return default(TType);
+            }
+        }
+
+        public TType SearchKeyForCID(uint cid)
+        {
+            try
+            {
+                var r = Records.First(row => row.Value.CID == cid);
+                return r.Key;
+            }
+            catch
+            {
+                return default(TType);
+            }
         }
     }
 }
