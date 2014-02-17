@@ -8,37 +8,46 @@ using System.Collections;
 
 namespace PBCaGw.Services
 {
-    public delegate void ConcurrentBagModification<T>(ObservableConcurrentBag<T> bag,T newItem);
+    public delegate void ConcurrentBagModification<T>(ObservableConcurrentBag<T> bag, T newItem, T removedItem);
 
     public class ObservableConcurrentBag<T> : IEnumerable<T>
     {
-        readonly ConcurrentBag<T> data=new ConcurrentBag<T>();
+        readonly ConcurrentBag<T> data = new ConcurrentBag<T>();
         public event ConcurrentBagModification<T> BagModified;
 
         public IEnumerator<T> GetEnumerator()
         {
-// ReSharper disable AssignNullToNotNullAttribute
+            // ReSharper disable AssignNullToNotNullAttribute
             return data.GetEnumerator();
-// ReSharper restore AssignNullToNotNullAttribute
+            // ReSharper restore AssignNullToNotNullAttribute
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-// ReSharper disable AssignNullToNotNullAttribute
+            // ReSharper disable AssignNullToNotNullAttribute
             return data.GetEnumerator();
-// ReSharper restore AssignNullToNotNullAttribute
+            // ReSharper restore AssignNullToNotNullAttribute
         }
 
         public void Add(T item)
         {
             data.Add(item);
             if (BagModified != null)
-                BagModified(this, item);
+                BagModified(this, item, default(T));
+        }
+
+        public bool TryTake(T item)
+        {
+            T o=item;
+            bool result = data.TryTake(out o);
+            if (BagModified != null)
+                BagModified(this, default(T), item);
+            return result;
         }
 
         public void CopyTo(T[] array, int index)
         {
-            data.CopyTo(array,index);
+            data.CopyTo(array, index);
         }
 
         public T[] ToArray()
