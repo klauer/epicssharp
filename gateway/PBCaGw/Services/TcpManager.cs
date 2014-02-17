@@ -52,17 +52,6 @@ namespace PBCaGw.Services
                 sw.Reset();
                 sw.Start();
 
-                /*List<TcpReceiver> receivers;
-                lock (clientConnections)
-                {
-                    receivers = clientChains.Select(row => ((TcpReceiver)row.Value[0])).ToList();
-                }
-
-                lock (iocConnections)
-                {
-                    receivers.AddRange(iocChains.Select(row => (TcpReceiver)row.Value[0]));
-                }*/
-
                 List<TcpReceiver> receivers;
                 lock (clientConnections)
                 {
@@ -85,17 +74,6 @@ namespace PBCaGw.Services
                             DisposeSocket(row.Socket);
                         }
                     });
-                /*foreach (var i in receivers)
-                {
-                    try
-                    {
-                        i.Flush();
-                    }
-                    catch
-                    {
-                        DisposeSocket(i.Socket);
-                    }
-                }*/
 
                 sw.Stop();
                 diff = (int)sw.ElapsedMilliseconds;
@@ -104,6 +82,36 @@ namespace PBCaGw.Services
         }
         // ReSharper restore FunctionNeverReturns
 
+
+        public static void DisposeGlobalChannel(string channelName)
+        {
+            Record r = InfoService.ChannelEndPoint[channelName];
+            if (r != null)
+            {
+                InfoService.IOID.DeleteForSID(r.GWCID.Value);
+            }
+            InfoService.ChannelEndPoint.Remove(channelName);
+
+            lock (clientConnections)
+            {
+                foreach (var i in clientChains.Where(row => row.Value.ChannelCid.Any(r2 => r2.Key == channelName)))
+                {
+                    DataPacket packet = DataPacket.Create(16);
+                    packet.Destination = i.Key;
+                    packet.Command = 27;
+                    packet.PayloadSize = 0;
+                    packet.DataCount = 0;
+                    packet.DataType = 0;
+                    packet.Parameter1 = i.Value.ChannelCid[channelName];
+                    packet.Parameter2 = 0;
+                    ((TcpReceiver)i.Value[0]).Send(packet);
+
+                    uint u;
+                    i.Value.ChannelCid.TryRemove(channelName, out u);
+                    i.Value.Channels.TryTake(channelName);
+                }
+            }
+        }
 
         /// <summary>
         /// Disposes a socket
@@ -198,7 +206,7 @@ namespace PBCaGw.Services
 
                     iocConnections.Add(endPoint, socket);
                     // Add a monitor on the known channels
-                    chain.Channels.BagModified += (ConcurrentBagModification<string>)((bag, newItem) => gateway.DoIocConnectedChannels(endPoint.ToString(), newItem));
+                    chain.Channels.BagModified += (ConcurrentBagModification<string>)((bag, newItem, oldItem) => gateway.DoIocConnectedChannels(endPoint.ToString(), newItem, oldItem));
                     ((TcpReceiver)chain[0]).Socket = socket;
                     iocChains.Add(endPoint, chain);
 
@@ -358,7 +366,7 @@ namespace PBCaGw.Services
 
                         ((TcpReceiver)chain[0]).Send(packet);
                     }
-                    ((TcpReceiver)chain[0]).Flush();
+                    //((TcpReceiver)chain[0]).Flush();
                 }
                 catch
                 {
