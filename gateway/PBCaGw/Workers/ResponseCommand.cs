@@ -47,6 +47,7 @@ namespace PBCaGw.Workers
                 if (!Handlers.CommandHandler.IsAllowed(packet.Command))
                 {
                     packet.Chain.Dispose();
+                    Log.TraceEvent(System.Diagnostics.TraceEventType.Critical, Chain.ChainId, "Unkown command: " + packet.Command);
                     //packet.Dispose();
                     return;
                 }
