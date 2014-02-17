@@ -128,12 +128,8 @@ namespace PBCaGw.Handlers
                     // Gives the create channel answer
                     newPacket = DataPacket.Create(0, packet.Chain);
                     newPacket.Command = 18;
-                    // ReSharper disable PossibleInvalidOperationException
                     newPacket.DataType = channelInfo.DBRType.Value;
-                    // ReSharper restore PossibleInvalidOperationException
-                    // ReSharper disable PossibleInvalidOperationException
                     newPacket.DataCount = channelInfo.DataCount.Value;
-                    // ReSharper restore PossibleInvalidOperationException
                     newPacket.Parameter1 = packet.Parameter1;
                     newPacket.Parameter2 = channelInfo.GWCID.Value;
                     newPacket.Sender = packet.Sender;
