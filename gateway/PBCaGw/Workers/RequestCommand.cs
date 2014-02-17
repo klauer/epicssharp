@@ -39,6 +39,7 @@ namespace PBCaGw.Workers
                 {
                     if (packet.Chain[0] is TcpReceiver)
                     {
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Critical, Chain.ChainId, "Unkown command: " + packet.Command);
                         packet.Chain.Dispose();
                         //packet.Dispose();
                     }
