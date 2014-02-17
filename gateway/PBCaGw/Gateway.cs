@@ -360,19 +360,28 @@ namespace PBCaGw
             }
         }
 
-        internal void DoIocConnectedChannels(string server, string newItem)
+        internal void DoIocConnectedChannels(string server, string newItem, string oldItem)
         {
             if (!KnownIocs.ContainsKey(server))
                 KnownIocs.TryAdd(server, new ConcurrentBag<string>());
-            KnownIocs[server].Add(newItem);
+            if (newItem != null)
+            {
+                KnownIocs[server].Add(newItem);
 
-            try
-            {
-                if (NewIocChannel != null)
-                    NewIocChannel(server, newItem);
+                try
+                {
+                    if (NewIocChannel != null)
+                        NewIocChannel(server, newItem);
+                }
+                catch
+                {
+                }
             }
-            catch
+            else
             {
+                string o=oldItem;
+                KnownIocs[server].TryTake(out o);
+
             }
 
             channelListIsDirty = true;
