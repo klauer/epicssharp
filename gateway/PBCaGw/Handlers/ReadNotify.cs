@@ -31,9 +31,14 @@ namespace PBCaGw.Handlers
                 WorkerChain chain = TcpManager.GetClientChain(record.Destination);
                 if (chain == null)
                     return;
-                if (Log.WillDisplay(TraceEventType.Error))
+                /*if (Log.WillDisplay(TraceEventType.Error))
                     Log.TraceEvent(TraceEventType.Error, chain.ChainId, "IOID operation timeout. Dropping client, with the hope to recover the situation.");
-                chain.Dispose();
+                chain.Dispose();*/
+
+                if (Log.WillDisplay(TraceEventType.Error))
+                    Log.TraceEvent(TraceEventType.Error, chain.ChainId, "IOID operation timeout. Disposing client channel.");
+
+                chain.DisposeChannel(InfoService.ChannelEndPoint.SearchKeyForGWCID(record.SID.Value), record.SID.Value);
             }
         }
 
@@ -44,6 +49,7 @@ namespace PBCaGw.Handlers
             Record record = InfoService.IOID.Create(gwioid);
             record.Destination = packet.Sender;
             record.IOID = packet.Parameter2;
+            record.SID = packet.Parameter1;
 
             record = InfoService.ChannelCid[packet.Parameter1];
 
