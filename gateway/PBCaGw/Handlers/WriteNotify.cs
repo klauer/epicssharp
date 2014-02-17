@@ -42,10 +42,14 @@ namespace PBCaGw.Handlers
             {
                 if (Log.WillDisplay(TraceEventType.Critical))
                     Log.TraceEvent(TraceEventType.Critical, chain.ChainId, "Write without SID");
-                WorkerChain ioc = TcpManager.GetIocChain(null, channelInfo.Destination);
+                // Error packet.
+                newPacket.ReverseAnswer = true;
+                newPacket.Destination = packet.Sender;
+                newPacket.Command = 11;
+                /*WorkerChain ioc = TcpManager.GetIocChain(null, channelInfo.Destination);
                 if (ioc != null)
                     ioc.Dispose();
-                chain.Dispose();
+                chain.Dispose();*/
                 return;
             }
 
