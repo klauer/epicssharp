@@ -34,22 +34,26 @@ namespace CaSharpServer
         TcpListener tcpListener;
 
         public CAServer()
-            : this(null, 5064, 5064)
+            : this(null, 5064, 5064, 5065)
         {
         }
 
         public CAServer(IPAddress serverAddress)
-            : this(serverAddress, 5064, 5064)
+            : this(serverAddress, 5064, 5064, 5065)
         {
         }
 
         public CAServer(IPAddress serverAddress, int tcpPort)
-            : this(serverAddress, tcpPort, 5064)
+            : this(serverAddress, tcpPort, 5064, 5065)
         {
         }
 
-        //public CAServer(IPAddress serverAddress = null, int tcpPort = 5064, int udpPort = 5064)
         public CAServer(IPAddress serverAddress, int tcpPort, int udpPort)
+            : this(serverAddress, tcpPort, udpPort, udpPort + 1)
+        {
+        }
+
+        public CAServer(IPAddress serverAddress, int tcpPort, int udpPort, int beaconPort)
         {
             if (serverAddress == null)
                 serverAddress = IPAddress.Any;
@@ -66,7 +70,7 @@ namespace CaSharpServer
             checkConnections.IsBackground = true;
             checkConnections.Start();
 
-            beacon = new CABeacon(this, udpPort);
+            beacon = new CABeacon(this, udpPort, beaconPort);
         }
 
         void ConnectionChecker()
@@ -206,13 +210,13 @@ namespace CaSharpServer
             Records.Dispose();
 
             List<CAServerChannel> channelsToRemove;
-            lock(channelList)
+            lock (channelList)
                 channelsToRemove = channelList.Values.ToList();
             foreach (var i in channelsToRemove)
                 i.Dispose();
 
             List<CATcpConnection> connsToRemove;
-            lock(openConnection)
+            lock (openConnection)
                 connsToRemove = openConnection.Values.ToList();
             foreach (var i in connsToRemove)
                 i.Dispose();
