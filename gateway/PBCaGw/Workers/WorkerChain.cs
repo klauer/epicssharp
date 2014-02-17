@@ -68,6 +68,40 @@ namespace PBCaGw.Workers
             Gateway.TenSecJobs += new EventHandler(GatewayTenSecJobs);
         }
 
+        public void DisposeChannel(string channelName, uint GWCID)
+        {
+            if (channelName == null)
+            {
+                Log.TraceEvent(TraceEventType.Critical, this.chainId, "Dispose channel null? => lost info, dropping chain.");
+                this.Dispose();
+                return;
+            }
+            if (this.ChannelCid.ContainsKey(channelName))
+            {
+                DataPacket packet = DataPacket.Create(16);
+                packet.Destination = this.ClientEndPoint;
+                packet.Command = 27;
+                packet.PayloadSize = 0;
+                packet.DataCount = 0;
+                packet.DataType = 0;
+                packet.Parameter1 = this.ChannelCid[channelName];
+                packet.Parameter2 = 0;
+                ((TcpReceiver)this[0]).Send(packet);
+            }
+
+            //PBCaGw.Handlers.EventAdd.Unsubscribe()
+
+            uint u;
+            if (Subscriptions.Any(row => row.Value == GWCID))
+            {
+                Handlers.EventAdd.Unsubscribe(GWCID);
+                var v = Subscriptions.FirstOrDefault(row => row.Value == GWCID);
+                Subscriptions.TryRemove(v.Key, out u);
+            }
+
+            this.ChannelCid.TryRemove(channelName, out u);
+            this.Channels.TryTake(channelName);
+        }
 
         static int nbWaitToExecute = 0;
         /// <summary>
@@ -119,7 +153,7 @@ namespace PBCaGw.Workers
             toWakeUp = knownChains.Where(row =>
                 row.Side != ChainSide.DEBUG_PORT &&
                 row[0] is TcpReceiver &&
-                (Gateway.Now - row.LastMessage).TotalSeconds > Gateway.ECHO_INTERVAL*2).ToList();
+                (Gateway.Now - row.LastMessage).TotalSeconds > Gateway.ECHO_INTERVAL * 2).ToList();
             foreach (WorkerChain chain in toWakeUp)
             {
                 chain.Dispose();
@@ -141,7 +175,7 @@ namespace PBCaGw.Workers
         && row.lastNonUsed != null
         && (Gateway.Now - row.lastNonUsed.Value).TotalSeconds > Gateway.IOC_KEEP_ALIVE_CONNECTION).ToList();
 
-            List<string> chainRemoved=new List<string>();
+            List<string> chainRemoved = new List<string>();
             foreach (WorkerChain chain in toDrop)
             {
                 if (chainRemoved.Contains(chain.ServerEndPoint.ToString()))
