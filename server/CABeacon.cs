@@ -16,12 +16,14 @@ namespace CaSharpServer
         List<IPAddress> serverIps = new List<IPAddress>();
         IPEndPoint endPoint;
         Thread runningThread;
+        int udpPort = 5064;
 
-        public CABeacon(CAServer server, int udpPort)
+        public CABeacon(CAServer server, int udpPort, int beaconPort)
         {
-            endPoint = new IPEndPoint(IPAddress.Broadcast, udpPort);
+            this.udpPort = 5064;
+            endPoint = new IPEndPoint(IPAddress.Broadcast, beaconPort);
             if (server.ServerAddress == IPAddress.Any)
-                serverIps.AddRange(Dns.GetHostAddresses(Dns.GetHostName()).Where(row=>!row.IsIPv6LinkLocal && !row.IsIPv6Multicast && !row.IsIPv6SiteLocal));
+                serverIps.AddRange(Dns.GetHostAddresses(Dns.GetHostName()).Where(row => !row.IsIPv6LinkLocal && !row.IsIPv6Multicast && !row.IsIPv6SiteLocal));
             else
                 serverIps.Add(server.ServerAddress);
 
@@ -46,9 +48,9 @@ namespace CaSharpServer
                     loops = 0;
                     if (loopInterval < maxLoopInterval)
                         loopInterval *= 2;
-                    foreach(var i in serverIps)
+                    foreach (var i in serverIps)
                     {
-                        byte[] buff=beaconMessage(endPoint.Port,(counter++),i.GetAddressBytes());
+                        byte[] buff = beaconMessage(this.udpPort, (counter++), i.GetAddressBytes());
                         udp.Send(buff, buff.Length, endPoint);
                     }
                 }
