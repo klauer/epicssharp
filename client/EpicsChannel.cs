@@ -111,7 +111,7 @@ namespace PSI.EpicsClient2
 
             SearchPacket = DataPacket.Create(16 + ChannelName.Length + TypeHandling.Padding(ChannelName.Length));
             SearchPacket.Command = (ushort)CommandID.CA_PROTO_SEARCH;
-            SearchPacket.DataType = (ushort)EpicsConstants.DO_REPLY;
+            SearchPacket.DataType = (ushort)EpicsConstants.DONT_REPLY;
             SearchPacket.DataCount = (ushort)EpicsConstants.CA_MINOR_PROTOCOL_REVISION;
             SearchPacket.Parameter1 = cid;
             SearchPacket.Parameter2 = cid;
