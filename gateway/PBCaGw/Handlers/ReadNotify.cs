@@ -67,6 +67,7 @@ namespace PBCaGw.Handlers
                 if (Log.WillDisplay(TraceEventType.Error))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Error, chain.ChainId, "Readnotify without SID");
                 chain.Dispose();
+                //chain.DisposeChannel(packet.Parameter1);
                 return;
             }
 

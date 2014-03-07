@@ -63,6 +63,7 @@
     <Compile Include="DataPacketKind.cs" />
     <Compile Include="DiagnosticServer.cs" />
     <Compile Include="Gateway.cs" />
+    <Compile Include="Handlers\ChannelDisconnect.cs" />
     <Compile Include="Handlers\ProtoError.cs" />
     <Compile Include="Services\DebugTraceListener.cs" />
     <Compile Include="Services\GWCriticalStartStopFilter.cs" />

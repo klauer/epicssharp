@@ -136,8 +136,8 @@ namespace PBCaGw.Workers
             // Time to quit!
             if (n == 0)
             {
-                if (Log.WillDisplay(System.Diagnostics.TraceEventType.Error))
-                    Log.TraceEvent(System.Diagnostics.TraceEventType.Error, Chain.ChainId, "Socket closed on the other side");
+                if (Log.WillDisplay(System.Diagnostics.TraceEventType.Verbose))
+                    Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, Chain.ChainId, "Socket closed on the other side");
                 Dispose();
                 return;
             }

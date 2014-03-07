@@ -17,10 +17,10 @@ namespace PBCaGw.Handlers
         {
             var ba = a.GetAddressBytes();
             var bb = b.GetAddressBytes();
-            for (int i = 0; i < ba.Length-1; i++)
+            for (int i = 0; i < ba.Length - 1; i++)
             {
                 if (ba[i] != bb[i])
-                    return false;            
+                    return false;
             }
             return true;
         }
@@ -29,8 +29,8 @@ namespace PBCaGw.Handlers
         {
             // From ourself? Skip it.
             if (packet.Sender.Equals(chain.ClientEndPoint))
-                    return;
-    
+                return;
+
             /*// Not coming from one of the allowed destination
             if (chain.Destinations.Any(i => CompareNetC(i.Address, packet.Sender.Address)))
                 return;*/
@@ -41,7 +41,7 @@ namespace PBCaGw.Handlers
             if (packet.Sender == null)
                 return;
             if (Log.WillDisplay(TraceEventType.Verbose))
-                Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, chain.ChainId, "Search from: " + packet.Sender);
+                Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, chain.ChainId, "Search from: " + packet.Sender + " " + packet.GetDataAsString());
 
             //if(chain.Gateway.Configuration.LocalSideA.Port == chain.Gateway.Configuration.LocalSideB.Port)
 
@@ -77,11 +77,11 @@ namespace PBCaGw.Handlers
                 record = InfoService.ChannelEndPoint[channelName];
                 bool knownChannel = false;
                 if (chain.Side == ChainSide.SIDE_A && record.knownFromSideA == true)
-                    knownChannel=true;
+                    knownChannel = true;
                 else if (chain.Side == ChainSide.SIDE_B && record.knownFromSideB == true)
-                    knownChannel=true;
+                    knownChannel = true;
 
-                if(knownChannel)
+                if (knownChannel)
                 {
                     if (Log.WillDisplay(TraceEventType.Information))
                         Log.TraceEvent(TraceEventType.Information, chain.ChainId, "Cached search " + channelName);
