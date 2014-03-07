@@ -51,6 +51,7 @@ namespace PBCaGw.Handlers
                 if (ioc != null)
                     ioc.Dispose();
                 chain.Dispose();
+                //chain.DisposeChannel();
                 return;
             }
 

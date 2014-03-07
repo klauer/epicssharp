@@ -22,7 +22,17 @@ namespace PBCaGw.Handlers
                 packet.Chain.Dispose();
                 return;
             }
-            SecurityAccess access = chain.Gateway.Configuration.Security.EvaluateSideA(channelInfo.Channel, chain.Username, chain.Hostname, packet.Sender.Address.ToString());
+
+            SecurityAccess access;
+            switch (chain.Side)
+            {
+                case Workers.ChainSide.SIDE_A:
+                    access = chain.Gateway.Configuration.Security.EvaluateSideA(channelInfo.Channel, chain.Username, chain.Hostname, packet.Sender.Address.ToString());
+                    break;
+                default:
+                    access = chain.Gateway.Configuration.Security.EvaluateSideB(channelInfo.Channel, chain.Username, chain.Hostname, packet.Sender.Address.ToString());
+                    break;
+            }
             // We don't have write access quit!
             if (!access.Has(SecurityAccess.WRITE))
             {

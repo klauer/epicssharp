@@ -137,6 +137,10 @@ namespace PBCaGw
             channelBuild = diagServer.CreateRecord<CAStringRecord>(gateway.Configuration.GatewayName + ":BUILD");
             channelBuild.CanBeRemotlySet = false;
             channelBuild.Value = BuildTime.ToString(CultureInfo.InvariantCulture);
+
+            /*var strca= diagServer.CreateRecord<CAStringRecord>(gateway.Configuration.GatewayName + ":TESTPUT");
+            strca.CanBeRemotlySet = true;
+            strca.Value = "TEST";*/
         }
 
         // ReSharper disable InconsistentNaming
