@@ -23,7 +23,7 @@ namespace CaSharpServer
             this.udpPort = 5064;
             endPoint = new IPEndPoint(IPAddress.Broadcast, beaconPort);
             if (server.ServerAddress == IPAddress.Any)
-                serverIps.AddRange(Dns.GetHostAddresses(Dns.GetHostName()).Where(row => !row.IsIPv6LinkLocal && !row.IsIPv6Multicast && !row.IsIPv6SiteLocal));
+                serverIps.AddRange(Dns.GetHostAddresses(Dns.GetHostName()).Where(row => !row.IsIPv6LinkLocal && !row.IsIPv6Multicast && !row.IsIPv6SiteLocal && row.AddressFamily == AddressFamily.InterNetwork));
             else
                 serverIps.Add(server.ServerAddress);
 

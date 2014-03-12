@@ -161,8 +161,8 @@ namespace CaSharpServer
                 case CommandID.CA_PROTO_ECHO:
                     lock (Server.openConnection)
                     {
-                       /* if (Server.openConnection.ContainsKey(iep.ToString()))
-                            Server.openConnection[iep.ToString()].Send(EchoMessage);*/
+                       if (Server.openConnection.ContainsKey(iep.ToString()))
+                            Server.openConnection[iep.ToString()].Send(EchoMessage);
                     }
                     break;
             }
