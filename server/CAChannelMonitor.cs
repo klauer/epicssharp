@@ -51,6 +51,15 @@ namespace CaSharpServer
         {
             object newValue = Record[Property];
             object newValueCheck = newValue;
+
+            //If the client was started before the IOC then it is possible
+            //that the client will request a value before the first "scan"
+            //In which case ignore the request
+            if (Record[Property] == null)
+            {
+                return;
+            }
+
             if (Record[Property].GetType().IsArray)
             {
                 string full = "";
