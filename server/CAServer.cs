@@ -85,7 +85,10 @@ namespace CaSharpServer
                     list = openConnection.Values.ToArray();
                 }
                 foreach (var i in list)
+                {
+                    i.EchoSent = true;
                     i.Send(CAServerFilter.EchoMessage);
+                }
             }
         }
 
