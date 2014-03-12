@@ -20,6 +20,7 @@ namespace CaSharpServer
         Pipe pipe = null;
         Thread processData;
         public event EventHandler Closing;
+        public bool EchoSent = false;
 
         internal CATcpConnection(Socket socket, CAServer server)
         {
