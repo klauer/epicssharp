@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using PBCaGw.Services;
+using System.Net.Sockets;
 
 namespace PBCaGw.Workers
 {
@@ -29,6 +30,7 @@ namespace PBCaGw.Workers
 
             if (packet.Destination != null)
             {
+                //Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, -1, "UDP From " + socket.LocalEndPoint + " to " + packet.Destination);
                 try
                 {
                     socket.SendTo(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None, packet.Destination);

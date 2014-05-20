@@ -13,7 +13,8 @@ namespace StressClient
         {
             using (EpicsClient client = new EpicsClient())
             {
-                client.Configuration.SearchAddress="129.129.130.87:6789";
+                client.Configuration.SearchAddress="129.129.130.44:6789";
+                client.Configuration.WaitTimeout = 5000;
 
                 if (args.Length > 0 && args[0] == "-m")
                 {
@@ -24,6 +25,7 @@ namespace StressClient
                         channels[j] = client.CreateChannel<string>("STRESS:INT:" + j / 2);
                         channels[j].MonitorChanged += new EpicsDelegate<string>(Program_MonitorChanged);
                     }
+                    client.MultiConnect(channels);
                     Thread.Sleep(5000);
                     int nbNotConnected = 0;
                     for (int j = 0; j < channels.Length; j++)
@@ -35,7 +37,7 @@ namespace StressClient
                     if (nbNotConnected > 0)
                     {
                         Console.WriteLine("Channels not connected: " + nbNotConnected);
-                        Console.Beep();
+                        //Console.Beep();
                         Thread.Sleep(10000);
                     }
 

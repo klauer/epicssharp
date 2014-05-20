@@ -186,7 +186,8 @@ namespace PBCaGw.Workers
             packet.Sender = (IPEndPoint)epSender;
 
             lastReceived = Gateway.Now;
-            ((PacketSplitter)this.Chain[1]).Reset();
+            if(this.Chain[1] != null)
+                ((PacketSplitter)this.Chain[1]).Reset();
             try
             {
                 this.SendData(packet);
@@ -210,6 +211,10 @@ namespace PBCaGw.Workers
                 {
                     throw;
                 }
+            }
+            catch (Exception ex)
+            {
+                Rebuild();
             }
         }
 

@@ -100,21 +100,27 @@ namespace PBCaGw.Handlers
 
                     if (record.CID.HasValue && InfoService.ChannelSubscription.Knows(record.CID.Value))
                     {
-                        if (InfoService.ChannelSubscription[record.CID.Value].PacketCount == 0 && InfoService.ChannelSubscription[record.CID.Value].FirstValue == true)
+                        try
                         {
-                            if (Log.WillDisplay(TraceEventType.Verbose))
-                                Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Sending readnotify data on " + record.SID.Value);
+                            if (InfoService.ChannelSubscription[record.CID.Value].PacketCount == 0 && InfoService.ChannelSubscription[record.CID.Value].FirstValue == true)
+                            {
+                                if (Log.WillDisplay(TraceEventType.Verbose))
+                                    Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Sending readnotify data on " + record.SID.Value);
 
-                            newPacket.Command = 1;
-                            newPacket.Parameter1 = 1;
-                            newPacket.Parameter2 = record.SID.Value;
-                            newPacket.Destination = record.Destination;
-                            newPacket.DataCount = record.DataCount.Value;
-                            newPacket.DataType = record.DBRType.Value;
+                                newPacket.Command = 1;
+                                newPacket.Parameter1 = 1;
+                                newPacket.Parameter2 = record.SID.Value;
+                                newPacket.Destination = record.Destination;
+                                newPacket.DataCount = record.DataCount.Value;
+                                newPacket.DataType = record.DBRType.Value;
 
-                            sendData(newPacket);
-                            InfoService.ChannelSubscription[record.CID.Value].FirstValue = false;
-                            InfoService.ChannelSubscription[record.CID.Value].PacketCount = 1;
+                                sendData(newPacket);
+                                InfoService.ChannelSubscription[record.CID.Value].FirstValue = false;
+                                InfoService.ChannelSubscription[record.CID.Value].PacketCount = 1;
+                            }
+                        }
+                        catch
+                        {
                         }
                     }
                     return;
