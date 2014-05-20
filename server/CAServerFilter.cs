@@ -125,13 +125,15 @@ namespace CaSharpServer
                     int mask = payload.ToUInt16(12);
                     lock (Server.channelList)
                     {
-                        Server.channelList[(int)Parameter1].AddMonitor((EpicsType)DataType, (int)DataCount, (int)Parameter2, (MonitorMask)mask);
+                        if (Server.channelList.ContainsKey((int)Parameter1))
+                            Server.channelList[(int)Parameter1].AddMonitor((EpicsType)DataType, (int)DataCount, (int)Parameter2, (MonitorMask)mask);
                     }
                     break;
                 case CommandID.CA_PROTO_EVENT_CANCEL:
                     lock (Server.channelList)
                     {
-                        Server.channelList[(int)Parameter1].RemoveMonitor((int)Parameter2);
+                        if (Server.channelList.ContainsKey((int)Parameter1))
+                            Server.channelList[(int)Parameter1].RemoveMonitor((int)Parameter2);
                     }
                     break;
                 case CommandID.CA_PROTO_EVENTS_OFF:
@@ -145,16 +147,18 @@ namespace CaSharpServer
                 #region Read&Write
                 case CommandID.CA_PROTO_READ:
                 case CommandID.CA_PROTO_READ_NOTIFY:
-                    lock (Server.channelList)
+                    lock (Server.channelList)                    
                     {
-                        Server.channelList[(int)Parameter1].ReadValue((int)Parameter2, (EpicsType)DataType, (int)DataCount);
+                        if (Server.channelList.ContainsKey((int)Parameter1))
+                            Server.channelList[(int)Parameter1].ReadValue((int)Parameter2, (EpicsType)DataType, (int)DataCount);
                     }
                     break;
                 case CommandID.CA_PROTO_WRITE:
                 case CommandID.CA_PROTO_WRITE_NOTIFY:
                     lock (Server.channelList)
                     {
-                        Server.channelList[(int)Parameter1].PutValue((int)Parameter2, (EpicsType)DataType, (int)DataCount, payload);
+                        if (Server.channelList.ContainsKey((int)Parameter1))
+                            Server.channelList[(int)Parameter1].PutValue((int)Parameter2, (EpicsType)DataType, (int)DataCount, payload);
                     }
                     break;
                 #endregion
