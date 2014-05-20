@@ -53,8 +53,9 @@ namespace CaSharpServer
         {
         }
 
-        public CAServer(IPAddress serverAddress, int tcpPort, int udpPort, int beaconPort)
+        public CAServer(IPAddress serverAddress, int tcpPort, int udpPort, int beaconPort)        
         {
+            //Console.WriteLine("Server on "+serverAddress+" "+tcpPort+" "+udpPort+" "+beaconPort);
             if (serverAddress == null)
                 serverAddress = IPAddress.Any;
             ServerAddress = serverAddress;

@@ -102,11 +102,20 @@ namespace CaSharpServer
                 while (Server == null)
                     Thread.Sleep(10);
 
-                Server.Filter.ProcessReceivedData(pipe, Socket.RemoteEndPoint, 0, false);
+                try
+                {
+                    Server.Filter.ProcessReceivedData(pipe, Socket.RemoteEndPoint, 0, false);
+                }
+                catch
+                {
+                    this.Dispose();
+                }
             }
             catch (Exception e)
             {
+
                 Console.WriteLine(e.Message + "\n\r" + e.StackTrace);
+                this.Dispose();
             }
         }
 
@@ -186,6 +195,14 @@ namespace CaSharpServer
             try
             {
                 Socket.Close();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                Socket.Dispose();
             }
             catch
             {
