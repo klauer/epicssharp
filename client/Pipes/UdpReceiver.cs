@@ -17,6 +17,11 @@ namespace PSI.EpicsClient2.Pipes
 
         public UdpReceiver()
         {
+            InitUdp();
+        }
+
+        void InitUdp()
+        {
             udp = new UdpClient(0);
             try
             {
@@ -79,7 +84,8 @@ namespace PSI.EpicsClient2.Pipes
                     catch
                     {
                     }
-                    udp = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
+                    InitUdp();
+                    //udp = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
                     udp.BeginReceive(GotUdpMessage, null);
                 }
                 return;
@@ -90,7 +96,24 @@ namespace PSI.EpicsClient2.Pipes
             packet.Sender = (IPEndPoint)ipeSender;
 
             // Start Accepting again
-            udp.BeginReceive(GotUdpMessage, null);
+            //udp.BeginReceive(GotUdpMessage, null);
+            try
+            {
+                udp.BeginReceive(GotUdpMessage, null);
+            }
+            catch
+            {
+                ((PacketSplitter)this.Pipe[1]).Reset();
+                try
+                {
+                    udp.Close();
+                }
+                catch
+                {
+                }
+                InitUdp();
+                udp.BeginReceive(GotUdpMessage, null);
+            }
 
             SendData(packet);
         }
