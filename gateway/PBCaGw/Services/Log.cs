@@ -64,6 +64,7 @@ namespace PBCaGw.Services
                 return false;
 
             return cachedWillDisplay[eventType];
+            //return true;
         }
 
         static bool CalcWillDisplay(TraceEventType eventType)

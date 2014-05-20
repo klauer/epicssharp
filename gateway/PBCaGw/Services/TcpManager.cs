@@ -310,7 +310,7 @@ namespace PBCaGw.Services
                 }
                 catch
                 {
-                    if (Log.WillDisplay(TraceEventType.Stop))
+                    if (Log.WillDisplay(TraceEventType.Stop) && packet != null && packet.Chain != null)
                         Log.TraceEvent(System.Diagnostics.TraceEventType.Stop, packet.Chain.ChainId, "Closing Client TCP: Error while sending to " + packet.Destination);
                     clientChain.Dispose();
                 }
