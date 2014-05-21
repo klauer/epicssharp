@@ -265,17 +265,10 @@ namespace PBCaGw.Workers
 
             foreach (var i in workers)
                 i.Dispose();
-            //((IDisposable)workers[0]).Dispose();
 
-            //List<DataPacket> packets = new List<DataPacket>();
-            /*lock (lockChainManagement)
-            {*/
             // Unsubscribe all monitors used by a given client (used only by client chains)
             foreach (var monitor in Subscriptions)
-            {
                 Handlers.EventAdd.Unsubscribe(monitor.Value);
-            }
-            //}
 
             // Remove channel subscriptions
             foreach (var i in ChannelSubscriptions)
@@ -297,16 +290,12 @@ namespace PBCaGw.Workers
             // Remove all channels linked to this chain (used only by IOC chains)
             foreach (string channel in Channels)
             {
-                //InfoService.SearchChannelEndPoint.Remove(channel);
+                InfoService.SearchChannelEndPointA.Remove(channel);
+                InfoService.SearchChannelEndPointB.Remove(channel);
 
                 if (Log.WillDisplay(System.Diagnostics.TraceEventType.Verbose))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, ChainId, "Dropping channel " + channel);
                 List<WorkerChain> channelsToDrop;
-                /*lock (lockChainManagement)
-                {
-                    channelsToDrop = knownChains
-                        .Where(row => row.Side != ChainSide.SERVER_CONN && row.ChannelCid.ContainsKey(channel)).ToList();
-                }*/
                 channelsToDrop = knownChains
                         .Where(row => row.Side != ChainSide.SERVER_CONN && row.ChannelCid.ContainsKey(channel)).ToList();
                 // Disonnect all clients which use a channel
@@ -341,15 +330,6 @@ namespace PBCaGw.Workers
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, ChainId, "NB known channels: " + InfoService.ChannelEndPoint.Count);
             }
 
-
-            /*lock (lockChainManagement)
-            {
-                // Remove the chain from the known chains
-                knownChains.Remove(this);
-            }*/
-
-            //knownChains = new ConcurrentBag<WorkerChain>(knownChains.Where(row => row != this));
-
             // Remove the chain from the other chains
             WorkerChain outValue;
             foreach (WorkerChain chain in knownChains)
@@ -359,15 +339,6 @@ namespace PBCaGw.Workers
             foreach (var i in knownChains.Where(row => row.Side == ChainSide.SERVER_CONN
                         && row.usedBy.Count == 0 && row.lastNonUsed == null))
                 i.lastNonUsed = Gateway.Now;
-            /*IEnumerable<WorkerChain> markAsUnUsed;
-            lock (lockChainManagement)
-            {
-                markAsUnUsed = knownChains
-                    .Where(row => row.Side == ChainSide.SERVER_CONN
-                        && row.usedBy.Count == 0 && row.lastNonUsed == null).ToList();
-            }
-            foreach (WorkerChain chain in markAsUnUsed)
-                chain.lastNonUsed = Gateway.Now;*/
 
             IsDisposed = true;
         }

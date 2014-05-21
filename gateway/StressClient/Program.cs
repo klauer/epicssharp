@@ -14,7 +14,7 @@ namespace StressClient
             using (EpicsClient client = new EpicsClient())
             {
                 //System.Diagnostics.Debugger.Launch();
-                client.Configuration.SearchAddress="129.129.130.44:6789";
+                client.Configuration.SearchAddress = "129.129.130.44:6789";
                 client.Configuration.WaitTimeout = 5000;
 
                 if (args.Length > 0 && args[0] == "-m")
@@ -80,6 +80,9 @@ namespace StressClient
 
         static void Program_MonitorChanged(EpicsChannel<string> sender, string newValue)
         {
+            string id = sender.ChannelName.Split(new char[] { ':' }).Last();
+            if (id != newValue)
+                Console.WriteLine("!!!! Wrong value for channel " + sender.ChannelName + " (" + newValue + ")");
             //Console.WriteLine(newValue);
         }
 
