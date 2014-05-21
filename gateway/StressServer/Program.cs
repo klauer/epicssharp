@@ -16,7 +16,6 @@ namespace StressServer
 
         static void Main(string[] args)
         {
-
             CaSharpServer.CAServer server = new CaSharpServer.CAServer(IPAddress.Parse("127.0.0.1"), int.Parse(args[0]), int.Parse(args[0]), 100+ int.Parse(args[0]));
 
             singleInt = server.CreateRecord<CaSharpServer.CAIntRecord>("STRESS:INT");

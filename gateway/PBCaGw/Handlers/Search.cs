@@ -76,10 +76,13 @@ namespace PBCaGw.Handlers
             {
                 record = InfoService.ChannelEndPoint[channelName];
                 bool knownChannel = false;
-                if (chain.Side == ChainSide.SIDE_A && record.knownFromSideA == true)
-                    knownChannel = true;
-                else if (chain.Side == ChainSide.SIDE_B && record.knownFromSideB == true)
-                    knownChannel = true;
+                if (record != null)
+                {
+                    if (chain.Side == ChainSide.SIDE_A && record.knownFromSideA == true)
+                        knownChannel = true;
+                    else if (chain.Side == ChainSide.SIDE_B && record.knownFromSideB == true)
+                        knownChannel = true;
+                }
 
                 if (knownChannel)
                 {
@@ -225,10 +228,10 @@ namespace PBCaGw.Handlers
                 }
             }
 
-            if (chain.Side == ChainSide.SIDE_B || chain.Side == ChainSide.UDP_RESP_SIDE_A)
+            /*if (chain.Side == ChainSide.SIDE_B || chain.Side == ChainSide.UDP_RESP_SIDE_A)
                 InfoService.SearchChannelEndPointA.Remove(channelName);
             else
-                InfoService.SearchChannelEndPointB.Remove(channelName);
+                InfoService.SearchChannelEndPointB.Remove(channelName);*/
 
             IPEndPoint destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
             WorkerChain ioc = TcpManager.GetIocChain(chain.Gateway, destination);

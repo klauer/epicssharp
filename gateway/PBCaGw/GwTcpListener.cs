@@ -83,8 +83,8 @@ namespace PBCaGw
                 }
                 catch (Exception ex)
                 {
-                    if (Log.WillDisplay(System.Diagnostics.TraceEventType.Error))
-                        Log.TraceEvent(System.Diagnostics.TraceEventType.Error, -1, "Error: " + ex.Message);
+                    if (Log.WillDisplay(System.Diagnostics.TraceEventType.Verbose))
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, -1, "Cannot get socket stream: " + ex.Message);
                 }
             }
 

@@ -263,7 +263,7 @@ namespace StressTest
                     using (EpicsClient client = new EpicsClient())
                     {
                         client.Configuration.SearchAddress = "129.129.130.44:6789";
-                        client.Configuration.WaitTimeout = 1000;
+                        client.Configuration.WaitTimeout = 5000;
                         var channel = client.CreateChannel<string>("STRESSME:CPU");
                         Console.WriteLine(channel.Get());
                     }
@@ -307,10 +307,16 @@ namespace StressTest
 
                 Thread.Sleep(20000);
                 int p = rnd.Next(0, NbServers);
-                exeProcess[p].Suspend();
-                Console.WriteLine("Server suspended");
-                Thread.Sleep(30000);
-                exeProcess[p].Kill();
+                try
+                {
+                    /*exeProcess[p].Suspend();
+                    Console.WriteLine("Server suspended");
+                    Thread.Sleep(30000);*/
+                    exeProcess[p].Kill();
+                }
+                catch
+                {
+                }
                 exeProcess[p] = null;
                 Console.WriteLine("Server killed");
                 //Thread.Sleep(1000);
