@@ -44,23 +44,7 @@ namespace PSI.EpicsClient2
             {
                 if (PrivMonitorChanged == null)
                 {
-                    AfterConnect(action =>
-                                     {
-                                         DataPacket p = DataPacket.Create(16 + 16);
-                                         p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
-                                         Type t = typeof(TType);
-                                         if (t.IsArray)
-                                             t = t.GetElementType();
-                                         p.DataType = (ushort)TypeHandling.Lookup[t];
-                                         p.DataCount = ChannelDataCount;
-                                         p.Parameter1 = SID;
-                                         p.Parameter2 = CID;
-
-                                         p.SetUInt16(12 + 16, (ushort)MonitorMask);
-
-                                         if(ioc != null)
-                                            ioc.Send(p);
-                                     });
+                    AfterConnect(SendMonitor);
                 }
                 PrivMonitorChanged += value;
             }
@@ -73,6 +57,8 @@ namespace PSI.EpicsClient2
                     DataPacket p = DataPacket.Create(16);
                     p.Command = (ushort)CommandID.CA_PROTO_EVENT_CANCEL;
                     p.DataType = (ushort)TypeHandling.Lookup[typeof(TType)];
+                    if (ChannelDataCount == 0)
+                        throw new Exception("Datacount == 0");
                     p.DataCount = ChannelDataCount;
                     p.Parameter1 = SID;
                     p.Parameter2 = CID;
@@ -96,26 +82,31 @@ namespace PSI.EpicsClient2
 
                 if (PrivMonitorChanged != null)
                 {
-                    AfterConnect(action =>
-                                     {
-                                         //Console.WriteLine("Sending new event add");
-                                         DataPacket p = DataPacket.Create(16 + 16);
-                                         p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
-                                         Type t = typeof(TType);
-                                         if (t.IsArray)
-                                             t = t.GetElementType();
-                                         p.DataType = (ushort)TypeHandling.Lookup[t];
-                                         p.DataCount = ChannelDataCount;
-                                         p.Parameter1 = SID;
-                                         p.Parameter2 = CID;
-
-                                         p.SetUInt16(12 + 16, (ushort)MonitorMask);
-
-                                         if (ioc != null)
-                                             ioc.Send(p);
-                                     });
+                    AfterConnect(SendMonitor);
                 }
             }
+        }
+
+        void SendMonitor(EpicsChannel action)
+        {
+            if (ChannelDataCount == 0)
+                return;
+
+            //Console.WriteLine("Sending new event add");
+            DataPacket p = DataPacket.Create(16 + 16);
+            p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
+            Type t = typeof(TType);
+            if (t.IsArray)
+                t = t.GetElementType();
+            p.DataType = (ushort)TypeHandling.Lookup[t];
+            p.DataCount = ChannelDataCount;
+            p.Parameter1 = SID;
+            p.Parameter2 = CID;
+
+            p.SetUInt16(12 + 16, (ushort)MonitorMask);
+
+            if (ioc != null)
+                ioc.Send(p);
         }
 
         internal override void UpdateMonitor(DataPacket packet)
