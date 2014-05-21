@@ -28,12 +28,13 @@ namespace StressServer
             {
                 intRecs[i] = server.CreateRecord<CaSharpServer.CAIntRecord>("STRESS:INT:" + (i + int.Parse(args[1])));
                 intRecs[i].Scan = CaSharpServer.Constants.ScanAlgorithm.ON_CHANGE;
-                intRecs[i].Value = 1234 - i;
+                intRecs[i].Value = (i + int.Parse(args[1]));
+                //intRecs[i].Value = 1234 - i;
             }
 
-            Thread produceThread = new Thread(new ThreadStart(ProduceData));
+            /*Thread produceThread = new Thread(new ThreadStart(ProduceData));
             produceThread.IsBackground = true;
-            produceThread.Start();
+            produceThread.Start();*/
 
             //Console.WriteLine("Server ready " + args[0] + " " + args[1] + " " + args[2]);
 
