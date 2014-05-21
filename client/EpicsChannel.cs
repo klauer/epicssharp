@@ -507,6 +507,9 @@ namespace PSI.EpicsClient2
                         EpicsChannel chan = ioc.ConnectedChannels.FirstOrDefault(row => row.ChannelName == ChannelName && row.ChannelDataCount != 0);
                         if (chan != null)
                         {
+                            if (ChannelDataCount == 0)
+                                throw new Exception("Datacount == 0");
+
                             this.ChannelDataCount = chan.ChannelDataCount;
                             this.channelDefinedType = chan.ChannelDefinedType;
                             Status = ChannelStatus.CONNECTED;
