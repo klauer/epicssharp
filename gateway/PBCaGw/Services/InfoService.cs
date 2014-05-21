@@ -18,7 +18,7 @@ namespace PBCaGw.Services
             SearchChannel = new SearchChannel();
             SearchChannel.CleanupKey += SearchChannelCleanupKey;
             ChannelEndPoint = new StorageService<string>();
-            SearchChannelEndPointA = new AutoCleaningStorageService<string> { Lifetime =  20};
+            SearchChannelEndPointA = new AutoCleaningStorageService<string> { Lifetime = 20};
             SearchChannelEndPointB = new AutoCleaningStorageService<string> { Lifetime = 20 };
 
             //SearchChannelEndPoint = new StorageService<string>();

@@ -24,6 +24,31 @@ namespace PBCaGw.Handlers
             string channelName = packet.GetDataAsString();
             Record channelInfo = null;
 
+            SecurityAccess access;
+            switch (chain.Side)
+            {
+                case Workers.ChainSide.SIDE_A:
+                    access = chain.Gateway.Configuration.Security.EvaluateSideA(channelName, chain.Username, chain.Hostname, packet.Sender.Address.ToString());
+                    break;
+                default:
+                    access = chain.Gateway.Configuration.Security.EvaluateSideB(channelName, chain.Username, chain.Hostname, packet.Sender.Address.ToString());
+                    break;
+            }
+
+            // Don't have the right, return a fail create channel
+            if (!access.Has(SecurityAccess.READ))
+            {
+                if (Log.WillDisplay(TraceEventType.Warning))
+                    Log.TraceEvent(System.Diagnostics.TraceEventType.Warning, packet.Chain.ChainId, "Create channel " + channelName + " from " + packet.Sender + " while not having rights to read");
+                DataPacket newPacket = DataPacket.Create(0, chain);
+                newPacket.Command = 26;
+                newPacket.Parameter1 = packet.Parameter1;
+                newPacket.Sender = packet.Sender;
+                newPacket.Destination = packet.Sender;
+                sendData(newPacket);
+                return;
+            }
+
             // Get a lock object for this particula channel name
             object lockOper = locks.GetOrAdd(channelName, new object());
 
@@ -57,30 +82,7 @@ namespace PBCaGw.Handlers
             if (Log.WillDisplay(TraceEventType.Verbose))
                 Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Request " + channelName + " with cid " + packet.Parameter1);
 
-            SecurityAccess access;
-            switch (chain.Side)
-            {
-                case Workers.ChainSide.SIDE_A:
-                    access = chain.Gateway.Configuration.Security.EvaluateSideA(channelName, chain.Username, chain.Hostname, packet.Sender.Address.ToString());
-                    break;
-                default:
-                    access = chain.Gateway.Configuration.Security.EvaluateSideB(channelName, chain.Username, chain.Hostname, packet.Sender.Address.ToString());
-                    break;
-            }
 
-            // Don't have the right, return a fail create channel
-            if (!access.Has(SecurityAccess.READ))
-            {
-                if (Log.WillDisplay(TraceEventType.Warning))
-                    Log.TraceEvent(System.Diagnostics.TraceEventType.Warning, packet.Chain.ChainId, "Create channel " + channelName + " from " + packet.Sender + " while not having rights to read");
-                DataPacket newPacket = DataPacket.Create(0, chain);
-                newPacket.Command = 26;
-                newPacket.Parameter1 = packet.Parameter1;
-                newPacket.Sender = packet.Sender;
-                newPacket.Destination = packet.Sender;
-                sendData(newPacket);
-                return;
-            }
 
             var knownGWCID = false;
             var knownSID = false;
@@ -275,9 +277,10 @@ namespace PBCaGw.Handlers
             if (record.Client != null && record.Channel != null)
             {
                 WorkerChain destChain = TcpManager.GetClientChain(record.Client);
-                if (destChain != null)
+                if (destChain != null && destChain.ChannelCid.ContainsKey(record.Channel))
                 {
-                    Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Direct responce create channel cid " + destChain.ChannelCid[record.Channel]);
+                    if (Log.WillDisplay(TraceEventType.Verbose))
+                        Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Direct responce create channel cid " + destChain.ChannelCid[record.Channel]);
 
                     // Give back access rights before the create channel
                     DataPacket accessPacket = DataPacket.Create(0, packet.Chain);

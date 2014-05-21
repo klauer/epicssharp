@@ -13,6 +13,7 @@ namespace StressClient
         {
             using (EpicsClient client = new EpicsClient())
             {
+                //System.Diagnostics.Debugger.Launch();
                 client.Configuration.SearchAddress="129.129.130.44:6789";
                 client.Configuration.WaitTimeout = 5000;
 
