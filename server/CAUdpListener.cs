@@ -41,6 +41,7 @@ namespace CaSharpServer
             int size = 0;
 
             try
+
             {
                 size = UDPSocket.EndReceiveFrom(ar, ref epSender);
             }
@@ -55,10 +56,11 @@ namespace CaSharpServer
             int senderPort = sender.Port;
 
             // Get the data back
-            byte[] data = new byte[buff.Length];
-            buff.CopyTo(data, 0);
+            /*byte[] data = new byte[buff.Length];
+            buff.CopyTo(data, 0);*/
             Pipe pipe = new Pipe();
-            pipe.Write(data, 0, size);
+            //pipe.Write(data, 0, size);
+            pipe.Write(buff, 0, size);
             filter.ProcessReceivedData(pipe, epSender, size, false);
 
             // Start Accepting again
