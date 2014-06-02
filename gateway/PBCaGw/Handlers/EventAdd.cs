@@ -49,7 +49,9 @@ namespace PBCaGw.Handlers
                 // Not enough info
                 if (packet.MessageSize < 12 + 2 + packet.HeaderSize)
                 {
-
+                    if (Log.WillDisplay(TraceEventType.Error))
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Error, chain.ChainId, "Packet too small");
+                    packet.Chain.Dispose();
                 }
 
                 string recId = record.Channel + "/" + packet.DataType + "/" + packet.DataCount + "/" + packet.GetUInt16(12 + (int)packet.HeaderSize);
@@ -73,7 +75,8 @@ namespace PBCaGw.Handlers
                 // A new monitor
                 // Create a new subscription for the main channel
                 // And create a list of subscriptions
-                if (!InfoService.SubscribedChannel.Knows(recId))
+                if (!InfoService.SubscribedChannel.Knows(recId) || InfoService.SubscribedChannel[recId].SID != record.SID)
+                //if (true)
                 {
                     if (Log.WillDisplay(TraceEventType.Information))
                         Log.TraceEvent(System.Diagnostics.TraceEventType.Information, chain.ChainId, "Creating new monitor monitor");
@@ -83,6 +86,9 @@ namespace PBCaGw.Handlers
                     subscriptions.SubscriptionList = new ConcurrentBag<UInt32>();
                     subscriptions.SubscriptionList.Add(gwcid);
                     subscriptions.FirstValue = true;
+                    subscriptions.Channel = record.Channel;
+                    subscriptions.Server = record.Destination;
+                    subscriptions.SID = record.SID;
                     InfoService.SubscribedChannel[recId] = subscriptions;
 
                     // We don't need to skip till the first packet.
@@ -135,6 +141,7 @@ namespace PBCaGw.Handlers
                     // Channel never got the first answer
                     // So let's wait like the others
                     if (subscriptions.FirstValue)
+                    //if(true)
                     {
                         currentMonitor.FirstValue = true;
                         currentMonitor.PacketCount = 1;
@@ -143,12 +150,6 @@ namespace PBCaGw.Handlers
                     // Send a ReadNotify to get the first value
                     else
                     {
-                        /*DataPacket newPacket = (DataPacket)subscriptions.FirstPacket.Clone();
-                        newPacket.Destination = packet.Sender;
-                        newPacket.Parameter2 = packet.Parameter2;
-                        newPacket.Sender = packet.Sender;
-                        sendData(newPacket);*/
-
                         currentMonitor.FirstValue = true;
                         currentMonitor.PacketCount = 0;
 
@@ -189,8 +190,8 @@ namespace PBCaGw.Handlers
                 Record mainSubscription = InfoService.ChannelSubscription[packet.Parameter2];
                 if (mainSubscription == null)
                 {
-                    /*if (Log.WillDisplay(TraceEventType.Error))
-                        Log.TraceEvent(TraceEventType.Error, chain.ChainId, "Main monitor not found.");*/
+                    if (Log.WillDisplay(TraceEventType.Error))
+                        Log.TraceEvent(TraceEventType.Error, chain.ChainId, "Main monitor not found.");
                     //chain.Dispose();
                     return;
                 }

@@ -30,13 +30,14 @@ namespace PBCaGw
         /// <summary>
         /// Min. time (in sec) to keep the IOC connection before killing it when there is no more client connections to it.
         /// </summary>
-        //public const int IOC_KEEP_ALIVE_CONNECTION = 1;
-        public const int IOC_KEEP_ALIVE_CONNECTION = 120;
+        public const int IOC_KEEP_ALIVE_CONNECTION = 1;
+        //public const int IOC_KEEP_ALIVE_CONNECTION = 120;
 
         /// <summary>
         /// Time without any communication before sending an echo.
         /// </summary>
-        public const int ECHO_INTERVAL = 30;
+        //public const int ECHO_INTERVAL = 30;
+        public const int ECHO_INTERVAL = 1;
 
         /// <summary>
         /// Max size of UDP packet sent.
@@ -224,6 +225,12 @@ namespace PBCaGw
                 }
             }
             TenSecJobs += new EventHandler(StoreKnownChannels);
+            //TenSecJobs += new EventHandler(MemoryClean);
+        }
+
+        void MemoryClean(object sender, EventArgs e)
+        {
+            GC.Collect();
         }
 
         internal void StopGateway()

@@ -88,7 +88,7 @@ namespace StressTest
             cpuCheck.Start();
 
 
-            if (JetBrains.Profiler.Core.Api.PerformanceProfiler.IsActive)
+            /*if (JetBrains.Profiler.Core.Api.PerformanceProfiler.IsActive)
             {
                 Console.WriteLine("Running profiler test...");
                 Thread.Sleep(3000);
@@ -101,7 +101,7 @@ namespace StressTest
                 shouldRun = false;
             }
             else if (System.Diagnostics.Debugger.IsAttached)
-            {
+            {*/
                 bool toContinue = true;
                 while (toContinue)
                 {
@@ -130,12 +130,9 @@ namespace StressTest
                 }
 
                 shouldRun = false;
-            }
+            /*}
             else
             {
-                /*while (true)
-                    Console.ReadKey();*/
-
                 Thread.Sleep(33000);
                 Console.WriteLine("CPU Time: " + Process.GetCurrentProcess().TotalProcessorTime.ToString());
 
@@ -143,7 +140,7 @@ namespace StressTest
 
                 //Console.ReadKey();
 
-            }
+            }*/
 
             ps = Process.GetProcesses().Where(row => row.ProcessName.Contains("StressClient") || row.ProcessName.Contains("StressServer"));
             foreach (var i in ps)
@@ -223,6 +220,10 @@ namespace StressTest
             {
             }
             Console.WriteLine(e.Data);
+            if (e.Data.StartsWith("!!!! "))
+            {
+
+            }
         }
 
         static void InitServer()

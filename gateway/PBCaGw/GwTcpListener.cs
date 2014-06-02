@@ -12,7 +12,7 @@ namespace PBCaGw
     /// </summary>
     public class GwTcpListener : IDisposable
     {
-        readonly TcpListener tcpListener;
+        TcpListener tcpListener=null;
         bool disposed = false;
         readonly IPEndPoint ipSource;
         readonly ChainSide side = ChainSide.SIDE_A;
@@ -23,11 +23,31 @@ namespace PBCaGw
             this.gateway = gateway;
             this.ipSource = ipSource;
             this.side = side;
+
+            Rebuild();
+
+            if (Log.WillDisplay(System.Diagnostics.TraceEventType.Start))
+                Log.TraceEvent(System.Diagnostics.TraceEventType.Start, -1, "TCP Listener " + side.ToString() + " on " + ipSource);
+        }
+
+        void Rebuild()
+        {
+            if (disposed)
+                return;
+            if (tcpListener != null)
+            {
+                try
+                {
+                    tcpListener.Stop();
+                }
+                catch
+                {
+                }
+                System.Threading.Thread.Sleep(100);
+            }
             tcpListener = new TcpListener(ipSource);
             tcpListener.Start(10);
             tcpListener.BeginAcceptSocket(ReceiveConn, tcpListener);
-            if (Log.WillDisplay(System.Diagnostics.TraceEventType.Start))
-                Log.TraceEvent(System.Diagnostics.TraceEventType.Start, -1, "TCP Listener " + side.ToString() + " on " + ipSource);
         }
 
         void ReceiveConn(IAsyncResult result)
@@ -44,10 +64,10 @@ namespace PBCaGw
                 client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
                 //client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, 0);
             }
-            catch (ObjectDisposedException)
+            /*catch (ObjectDisposedException)
             {
                 return;
-            }
+            }*/
             catch (Exception ex)
             {
                 if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
@@ -94,14 +114,17 @@ namespace PBCaGw
                 Debug.Assert(listener != null, "listener != null");
                 listener.BeginAcceptSocket(new AsyncCallback(ReceiveConn), listener);
             }
-            catch (ObjectDisposedException)
+            /*catch (ObjectDisposedException)
             {
                 return;
-            }
+            }*/
             catch (Exception ex)
             {
                 if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Critical, -1, "Error: " + ex.Message);
+
+                if (!disposed)
+                    Rebuild();
             }
         }
 

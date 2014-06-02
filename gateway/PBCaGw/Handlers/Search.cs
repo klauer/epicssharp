@@ -40,6 +40,7 @@ namespace PBCaGw.Handlers
 
             if (packet.Sender == null)
                 return;
+
             if (Log.WillDisplay(TraceEventType.Verbose))
                 Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, chain.ChainId, "Search from: " + packet.Sender + " " + packet.GetDataAsString());
 

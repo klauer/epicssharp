@@ -86,10 +86,6 @@ namespace PBCaGw.Handlers
             if (record == null)
                 return;
 
-            // Removes it to avoid the cleaup            
-            InfoService.IOID.Remove(packet.Parameter2);
-            CidGenerator.ReleaseCid(packet.Parameter2);
-
             lock (EventAdd.lockObject)
             {
                 // It's the initial answer as get of "cached" monitor.
@@ -113,7 +109,6 @@ namespace PBCaGw.Handlers
                                 newPacket.Destination = record.Destination;
                                 newPacket.DataCount = record.DataCount.Value;
                                 newPacket.DataType = record.DBRType.Value;
-
                                 sendData(newPacket);
                                 InfoService.ChannelSubscription[record.CID.Value].FirstValue = false;
                                 InfoService.ChannelSubscription[record.CID.Value].PacketCount = 1;
@@ -123,6 +118,9 @@ namespace PBCaGw.Handlers
                         {
                         }
                     }
+                    // Removes it to avoid the cleaup            
+                    InfoService.IOID.Remove(packet.Parameter2);
+                    CidGenerator.ReleaseCid(packet.Parameter2);
                     return;
                 }
             }
@@ -131,6 +129,10 @@ namespace PBCaGw.Handlers
             newPacket.Parameter1 = 1;
             newPacket.Parameter2 = record.IOID.Value;
             sendData(newPacket);
+
+            // Removes it to avoid the cleaup            
+            InfoService.IOID.Remove(packet.Parameter2);
+            CidGenerator.ReleaseCid(packet.Parameter2);
         }
     }
 }

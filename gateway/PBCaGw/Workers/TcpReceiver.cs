@@ -73,7 +73,14 @@ namespace PBCaGw.Workers
             }
             else
             {
-                socket.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
+                try
+                {
+                    socket.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
+                }
+                catch
+                {
+                    this.Dispose();
+                }
             }
         }
 
@@ -83,7 +90,14 @@ namespace PBCaGw.Workers
             {
                 lock (stream)
                 {
-                    stream.Flush();
+                    try
+                    {
+                        stream.Flush();
+                    }
+                    catch
+                    {
+                        this.Dispose();
+                    }
                     isDirty = false;
                 }
             }
