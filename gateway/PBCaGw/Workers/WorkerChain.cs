@@ -236,15 +236,19 @@ namespace PBCaGw.Workers
         {
         }
 
+        static bool isCleaning = false;
+        static object cleaningLock = new object();
+
         /// <summary>
         /// Dispose the current chain.
         /// </summary>
         public void Dispose()
         {
-            knownChains = new ConcurrentBag<WorkerChain>(knownChains.Where(row => row != this));
             if (IsDisposed || IsDisposing)
                 return;
+
             IsDisposing = true;
+            knownChains = new ConcurrentBag<WorkerChain>(knownChains.Where(row => row != this));
 
             if (workers[0] is TcpReceiver)
             {
@@ -270,6 +274,24 @@ namespace PBCaGw.Workers
             foreach (var monitor in Subscriptions)
                 Handlers.EventAdd.Unsubscribe(monitor.Value);
 
+            var q = InfoService.SubscribedChannel.Where(row => row.Value.Server == this.ServerEndPoint).ToList();
+            foreach (var i in q)
+            {
+                Record r = i.Value;
+                if (r == null)
+                    continue;
+                Console.WriteLine("Removing "+i.Key);
+                foreach (var j in r.SubscriptionList)
+                {
+                    InfoService.ChannelSubscription.Remove(j);
+                    CidGenerator.ReleaseCid(j);
+                }
+                Debug.Assert(r.GWCID != null, "r.GWCID != null");
+                InfoService.ChannelSubscription.Remove(r.GWCID.Value);
+                CidGenerator.ReleaseCid(r.GWCID.Value);
+                InfoService.SubscribedChannel.Remove(i.Key);
+            }
+
             // Remove channel subscriptions
             foreach (var i in ChannelSubscriptions)
             {
@@ -293,6 +315,23 @@ namespace PBCaGw.Workers
                 InfoService.SearchChannelEndPointA.Remove(channel);
                 InfoService.SearchChannelEndPointB.Remove(channel);
 
+                q = InfoService.SubscribedChannel.Where(row => row.Value.Channel == channel).ToList();
+                foreach(var i in q)
+                {
+                    Record r = i.Value;
+                    if (r == null)
+                        continue;
+                    foreach (var j in r.SubscriptionList)
+                    {
+                        InfoService.ChannelSubscription.Remove(j);
+                        CidGenerator.ReleaseCid(j);
+                    }
+                    Debug.Assert(r.GWCID != null, "r.GWCID != null");
+                    InfoService.ChannelSubscription.Remove(r.GWCID.Value);
+                    CidGenerator.ReleaseCid(r.GWCID.Value);
+                    InfoService.SubscribedChannel.Remove(i.Key);
+                }
+
                 if (Log.WillDisplay(System.Diagnostics.TraceEventType.Verbose))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, ChainId, "Dropping channel " + channel);
                 List<WorkerChain> channelsToDrop;
@@ -302,17 +341,6 @@ namespace PBCaGw.Workers
                 foreach (WorkerChain chain in channelsToDrop)
                     chain.Dispose();
 
-                /*// Send CA_PROTO_SERVER_DISCONN to all clients which use a channel
-                foreach (WorkerChain chain in channelsToDrop)
-                {
-                    DataPacket newPacket = DataPacket.Create(0, this);
-                    newPacket.Command = 27;
-                    newPacket.Parameter1 = chain.ChannelCid[channel];
-                    newPacket.Destination = chain.ClientEndPoint;
-                    TcpManager.SendClientPacket(newPacket);
-                    InfoService.ChannelCid.Remove(chain.ChannelCid[channel]);
-                    CidGenerator.ReleaseCid(chain.ChannelCid[channel]);
-                }*/
                 try
                 {
                     Record record = InfoService.ChannelEndPoint[channel];
@@ -321,6 +349,11 @@ namespace PBCaGw.Workers
                         InfoService.ChannelCid.Remove(record.GWCID.Value);
                         CidGenerator.ReleaseCid(record.GWCID.Value);
                     }
+                    /*else
+                    {
+                        if (Log.WillDisplay(System.Diagnostics.TraceEventType.Error))
+                            Log.TraceEvent(System.Diagnostics.TraceEventType.Error, ChainId, "Channel GWCID unkown...");
+                    }*/
                     InfoService.ChannelEndPoint.Remove(channel);
                 }
                 catch
