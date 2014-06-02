@@ -10,7 +10,7 @@ namespace PBCaGw.Services
     /// Allows to store data in thread safe ways.
     /// </summary>
     /// <typeparam name="TType"></typeparam>
-    public class StorageService<TType> : IEnumerable
+    public class StorageService<TType> : IEnumerable<KeyValuePair<TType,Record>>
     {
         protected ConcurrentDictionary<TType, Record> Records = new ConcurrentDictionary<TType, Record>();
 
@@ -105,6 +105,12 @@ namespace PBCaGw.Services
             {
                 return default(TType);
             }
+        }
+
+
+        IEnumerator<KeyValuePair<TType, Record>> IEnumerable<KeyValuePair<TType, Record>>.GetEnumerator()
+        {
+            return Records.GetEnumerator();
         }
     }
 }
