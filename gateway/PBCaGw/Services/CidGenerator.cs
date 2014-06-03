@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Diagnostics;
 
 namespace PBCaGw.Services
 {
@@ -12,9 +13,11 @@ namespace PBCaGw.Services
     /// </summary>
     public static class CidGenerator
     {
-        static bool[] freeCids = new bool[128000];
+        const int MAX_CID = 1024000;
+        static bool[] freeCids = new bool[MAX_CID];
+        static string[] askedBy = new string[MAX_CID];
         //static bool[] freeCids = new bool[2000];
-        static UInt32 cidCounter = 1;
+        static UInt32 cidCounter = 0;
         static object lockObject = new object();
         static int freeNbCid;
 
@@ -29,10 +32,8 @@ namespace PBCaGw.Services
         {
             lock (lockObject)
             {
-                if (freeNbCid < 3)
+                if (freeNbCid < 1)
                     throw new Exception("All cids exausted!!!");
-                UInt32 result = cidCounter;
-                freeCids[cidCounter] = false;
                 int nbChecked = 0;
                 do
                 {
@@ -41,10 +42,20 @@ namespace PBCaGw.Services
                         cidCounter++;
                     nbChecked++;
                 } while (freeCids[cidCounter] == false && nbChecked < freeCids.Length);
-                if(nbChecked >= freeCids.Length)
+                if (nbChecked >= freeCids.Length)
+                {
+                    //var q = askedBy.GroupBy(row => row).OrderByDescending(row => row.Count()).Select(row => new { NB = row.Count(), W = row.First() }).ToList();
                     throw new Exception("All cids exausted!!!");
+                }
+
+                // Stores who asked the cid
+                /*StackTrace stackTrace = new StackTrace(true);
+                StackFrame[] stackFrames = stackTrace.GetFrames();
+                askedBy[cidCounter] = stackFrames[1].GetMethod().ReflectedType.Name + "." + stackFrames[1].GetMethod().Name + ":" + stackFrames[1].GetFileLineNumber();*/
+
+                freeCids[cidCounter] = false;
                 freeNbCid--;
-                return result;
+                return cidCounter;
             }
         }
 
@@ -54,6 +65,7 @@ namespace PBCaGw.Services
             {
                 freeNbCid++;
                 freeCids[id] = true;
+                //askedBy[id] = null;
             }
         }
 
