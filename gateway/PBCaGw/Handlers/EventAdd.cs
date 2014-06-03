@@ -69,6 +69,7 @@ namespace PBCaGw.Handlers
                 currentMonitor.SID = record.SID.Value;
                 currentMonitor.Channel = recId;
                 currentMonitor.FirstValue = false;
+                currentMonitor.Destination = record.Destination;
 
                 chain.Subscriptions[packet.Parameter2] = gwcid;
 

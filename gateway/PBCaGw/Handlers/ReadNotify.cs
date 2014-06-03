@@ -20,10 +20,10 @@ namespace PBCaGw.Handlers
         static void IoidCleanupKey(uint key)
         {
             Record record = InfoService.IOID[key];
+            CidGenerator.ReleaseCid(key);
+
             if (record == null || record.Destination == null)
                 return;
-
-            CidGenerator.ReleaseCid(key);
 
             // It's the initial answer as get of "cached" monitor.
             if (!(record.IOID.HasValue && record.IOID.Value == 0))
@@ -84,7 +84,11 @@ namespace PBCaGw.Handlers
             Record record = InfoService.IOID[packet.Parameter2];
 
             if (record == null)
+            {
+                InfoService.IOID.Remove(packet.Parameter2);
+                CidGenerator.ReleaseCid(packet.Parameter2);
                 return;
+            }
 
             lock (EventAdd.lockObject)
             {
@@ -92,7 +96,11 @@ namespace PBCaGw.Handlers
                 if (record.IOID.HasValue && record.IOID.Value == 0)
                 {
                     if (!record.SID.HasValue)
+                    {
+                        InfoService.IOID.Remove(packet.Parameter2);
+                        CidGenerator.ReleaseCid(packet.Parameter2);
                         return;
+                    }
 
                     if (record.CID.HasValue && InfoService.ChannelSubscription.Knows(record.CID.Value))
                     {

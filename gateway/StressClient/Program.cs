@@ -9,6 +9,8 @@ namespace StressClient
 {
     class Program
     {
+        static EpicsChannel<string>[] channels;
+
         static void Main(string[] args)
         {
             using (EpicsClient client = new EpicsClient())
@@ -20,7 +22,7 @@ namespace StressClient
                 if (args.Length > 0 && args[0] == "-m")
                 {
                     //Console.WriteLine("Running monitor mode");
-                    EpicsChannel<string>[] channels = new EpicsChannel<string>[100];
+                    channels = new EpicsChannel<string>[100];
                     for (int j = 0; j < channels.Length; j++)
                     {
                         channels[j] = client.CreateChannel<string>("STRESS:INT:" + j / 2);
@@ -82,7 +84,25 @@ namespace StressClient
         {
             string id = sender.ChannelName.Split(new char[] { ':' }).Last();
             if (id != newValue)
+            {
+                try
+                {
+                    Console.WriteLine(sender.ChannelName + ": " + sender.SID);
+                }
+                catch
+                {
+
+                }
+                try
+                {
+                    Console.WriteLine(channels[int.Parse(newValue) * 2].ChannelName + ": " + channels[int.Parse(newValue) * 2].SID);
+                }
+                catch
+                {
+
+                }
                 Console.WriteLine("!!!! Wrong value for channel " + sender.ChannelName + " (" + newValue + ")");
+            }
             //Console.WriteLine(newValue);
         }
 

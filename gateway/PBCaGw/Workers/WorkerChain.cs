@@ -363,6 +363,14 @@ namespace PBCaGw.Workers
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, ChainId, "NB known channels: " + InfoService.ChannelEndPoint.Count);
             }
 
+
+            var q2=InfoService.ChannelSubscription.Where(row => row.Value.Destination == this.ServerEndPoint).ToList();
+            foreach(var i in q2)
+            {
+                InfoService.ChannelSubscription.Remove(i.Key);
+                CidGenerator.ReleaseCid(i.Key);
+            }
+
             // Remove the chain from the other chains
             WorkerChain outValue;
             foreach (WorkerChain chain in knownChains)
