@@ -501,16 +501,17 @@ namespace PSI.EpicsClient2
                 ioc = tcpReceiver;
                 lock (ioc.ChannelSID)
                 {
+                    //Console.WriteLine(ioc.ChannelSID.Count);
                     // Channel already known
                     if (ioc.ChannelSID.ContainsKey(ChannelName))
                     {
                         SID = ioc.ChannelSID[ChannelName];
+                        //Console.WriteLine("Here");
                         EpicsChannel chan = ioc.ConnectedChannels.FirstOrDefault(row => row.ChannelName == ChannelName && row.ChannelDataCount != 0);
                         if (chan != null)
                         {
-                            if (ChannelDataCount == 0)
-                                throw new Exception("Datacount == 0");
-
+                            this.ChannelDataCount = chan.ChannelDataCount;
+                            this.channelDefinedType = chan.channelDefinedType;
                             this.ChannelDataCount = chan.ChannelDataCount;
                             this.channelDefinedType = chan.ChannelDefinedType;
                             Status = ChannelStatus.CONNECTED;
@@ -565,6 +566,7 @@ namespace PSI.EpicsClient2
 
         internal void SetServerChannel(uint sid, EpicsType epicsType, uint dataCount)
         {
+            //Console.WriteLine("Setting channel SID " + this.ChannelName + " " + sid);
             lock (ConnectionLock)
             {
                 if (ioc == null)
