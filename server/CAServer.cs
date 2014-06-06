@@ -163,7 +163,13 @@ namespace CaSharpServer
                 catch
                 {
                 }
-                return channelList[sid];
+                if (channelList.ContainsKey(sid))
+                    return channelList[sid];
+                else
+                {
+                    DropEpicsConnection(sender.ToString());
+                    return null;
+                }
             }
         }
 
