@@ -19,7 +19,14 @@ namespace PSI.EpicsClient2
 
             Hostname = Environment.MachineName;
             Username = Environment.UserName;
+            MaxSearchSeconds = 0;
         }
+
+        /// <summary>
+        /// Defines a timeout before the search of the channels ends.
+        /// Default 0 => will search all the time
+        /// </summary>
+        public int MaxSearchSeconds { get; set; }
 
         /// <summary>
         /// Stores the time each operation took.

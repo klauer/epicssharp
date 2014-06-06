@@ -90,6 +90,7 @@ namespace PSI.EpicsClient2
 
         internal int SearchInverval = 1;
         internal int SearchInvervalCounter = 1;
+        internal DateTime StartSearchTime = DateTime.Now;
 
         /// <summary>
         /// Access Rights of the Channel
@@ -647,6 +648,7 @@ namespace PSI.EpicsClient2
                 if (Status != ChannelStatus.CONNECTED)
                     return;
                 Status = ChannelStatus.DISCONNECTED;
+                StartSearchTime = DateTime.Now;
                 ioc = null;
                 SID = 0;
 
