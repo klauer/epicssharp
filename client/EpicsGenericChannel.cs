@@ -54,16 +54,17 @@ namespace PSI.EpicsClient2
 
                 if (PrivMonitorChanged == null)
                 {
-                    DataPacket p = DataPacket.Create(16);
-                    p.Command = (ushort)CommandID.CA_PROTO_EVENT_CANCEL;
-                    p.DataType = (ushort)TypeHandling.Lookup[typeof(TType)];
-                    if (ChannelDataCount == 0)
-                        throw new Exception("Datacount == 0");
-                    p.DataCount = ChannelDataCount;
-                    p.Parameter1 = SID;
-                    p.Parameter2 = CID;
-                    if (ioc != null)
-                        ioc.Send(p);
+                    if (ChannelDataCount != 0)
+                    {
+                        DataPacket p = DataPacket.Create(16);
+                        p.Command = (ushort)CommandID.CA_PROTO_EVENT_CANCEL;
+                        p.DataType = (ushort)TypeHandling.Lookup[typeof(TType)];
+                        p.DataCount = ChannelDataCount;
+                        p.Parameter1 = SID;
+                        p.Parameter2 = CID;
+                        if (ioc != null)
+                            ioc.Send(p);
+                    }
                 }
             }
         }
