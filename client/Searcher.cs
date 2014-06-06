@@ -66,7 +66,9 @@ namespace PSI.EpicsClient2
                     foreach (EpicsChannel c in toSearch)
                         c.SearchInvervalCounter--;
 
-                    foreach (EpicsChannel c in toSearch.Where(row => row.SearchInvervalCounter <= 0))
+                    foreach (EpicsChannel c in toSearch.Where(row => row.SearchInvervalCounter <= 0 && 
+                        (this.Client.Configuration.MaxSearchSeconds == 0
+                        || (DateTime.Now-row.StartSearchTime).TotalSeconds < this.Client.Configuration.MaxSearchSeconds)))
                     {
                         c.SearchInverval *= 2;
                         if (c.SearchInverval > 10)
