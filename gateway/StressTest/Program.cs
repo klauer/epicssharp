@@ -130,6 +130,7 @@ namespace StressTest
                 }
 
                 shouldRun = false;
+                gateway.Dispose();
             /*}
             else
             {

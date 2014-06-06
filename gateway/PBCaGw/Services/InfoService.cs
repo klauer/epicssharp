@@ -16,7 +16,6 @@ namespace PBCaGw.Services
         static InfoService()
         {
             SearchChannel = new SearchChannel();
-            SearchChannel.CleanupKey += SearchChannelCleanupKey;
             ChannelEndPoint = new StorageService<string>();
             SearchChannelEndPointA = new AutoCleaningStorageService<string> { Lifetime = 20};
             SearchChannelEndPointB = new AutoCleaningStorageService<string> { Lifetime = 20 };
@@ -25,20 +24,9 @@ namespace PBCaGw.Services
 
             ChannelCid = new StorageService<UInt32>();
             IOID = new AutoCleaningStorageService<UInt32> { Lifetime = 10};
-            IOID.CleanupKey += IoidCleanupKey;
             ChannelSubscription = new StorageService<UInt32>();
             EchoSent = new AutoCleaningStorageService<IPEndPoint>();
             SubscribedChannel = new StorageService<string>();
-        }
-
-        static void SearchChannelCleanupKey(uint key)
-        {
-            CidGenerator.ReleaseCid(key);
-        }
-
-        static void IoidCleanupKey(uint key)
-        {
-            CidGenerator.ReleaseCid(key);
         }
 
         /// <summary>

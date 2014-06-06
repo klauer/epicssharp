@@ -87,7 +87,7 @@ namespace StressClient
             {
                 try
                 {
-                    Console.WriteLine(sender.ChannelName + ": " + sender.SID);
+                    Console.WriteLine(sender.ChannelName + ": " + sender.CID+"/"+sender.SID);
                 }
                 catch
                 {
@@ -95,7 +95,7 @@ namespace StressClient
                 }
                 try
                 {
-                    Console.WriteLine(channels[int.Parse(newValue) * 2].ChannelName + ": " + channels[int.Parse(newValue) * 2].SID);
+                    Console.WriteLine(channels[int.Parse(newValue) * 2].ChannelName + ": " + channels[int.Parse(newValue) * 2].CID+"/"+channels[int.Parse(newValue) * 2].SID);
                 }
                 catch
                 {

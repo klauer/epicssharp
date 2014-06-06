@@ -34,10 +34,12 @@ namespace PBCaGw.Services
             List<TType> toClean = Records.Where(row => row.Value.CreatedOn < limit).Select(row => row.Key).ToList();
             foreach (TType i in toClean)
             {
-                if (CleanupKey != null)
-                    CleanupKey(i);
                 Record value;
-                Records.TryRemove(i, out value);
+                if (Records.TryRemove(i, out value))
+                {
+                    if (CleanupKey != null)
+                        CleanupKey(i);
+                }
             }
         }
     }

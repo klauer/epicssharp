@@ -37,10 +37,10 @@ namespace PBCaGw.Services
             }
         }
 
-        public void Remove(TType key)
+        public bool Remove(TType key)
         {
             Record value;
-            Records.TryRemove(key, out value);
+            return Records.TryRemove(key, out value);
         }
 
         public int Count
