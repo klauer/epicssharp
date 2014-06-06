@@ -283,12 +283,12 @@ namespace PBCaGw.Workers
                 Console.WriteLine("Removing "+i.Key);
                 foreach (var j in r.SubscriptionList)
                 {
-                    InfoService.ChannelSubscription.Remove(j);
-                    CidGenerator.ReleaseCid(j);
+                    if(InfoService.ChannelSubscription.Remove(j))
+                        CidGenerator.ReleaseCid(j);
                 }
                 Debug.Assert(r.GWCID != null, "r.GWCID != null");
-                InfoService.ChannelSubscription.Remove(r.GWCID.Value);
-                CidGenerator.ReleaseCid(r.GWCID.Value);
+                if(InfoService.ChannelSubscription.Remove(r.GWCID.Value))
+                    CidGenerator.ReleaseCid(r.GWCID.Value);
                 InfoService.SubscribedChannel.Remove(i.Key);
             }
 
@@ -300,12 +300,12 @@ namespace PBCaGw.Workers
                     continue;
                 foreach (var j in r.SubscriptionList)
                 {
-                    InfoService.ChannelSubscription.Remove(j);
-                    CidGenerator.ReleaseCid(j);
+                    if(InfoService.ChannelSubscription.Remove(j))
+                        CidGenerator.ReleaseCid(j);
                 }
-                Debug.Assert(r.GWCID != null, "r.GWCID != null");
-                InfoService.ChannelSubscription.Remove(r.GWCID.Value);
-                CidGenerator.ReleaseCid(r.GWCID.Value);
+                if(r.GWCID != null)
+                    if(InfoService.ChannelSubscription.Remove(r.GWCID.Value))
+                        CidGenerator.ReleaseCid(r.GWCID.Value);
                 InfoService.SubscribedChannel.Remove(i.Key);
             }
 
@@ -323,12 +323,12 @@ namespace PBCaGw.Workers
                         continue;
                     foreach (var j in r.SubscriptionList)
                     {
-                        InfoService.ChannelSubscription.Remove(j);
-                        CidGenerator.ReleaseCid(j);
+                        if(InfoService.ChannelSubscription.Remove(j))
+                            CidGenerator.ReleaseCid(j);
                     }
-                    Debug.Assert(r.GWCID != null, "r.GWCID != null");
-                    InfoService.ChannelSubscription.Remove(r.GWCID.Value);
-                    CidGenerator.ReleaseCid(r.GWCID.Value);
+                    if (r.GWCID != null)
+                        if (InfoService.ChannelSubscription.Remove(r.GWCID.Value))
+                            CidGenerator.ReleaseCid(r.GWCID.Value);
                     InfoService.SubscribedChannel.Remove(i.Key);
                 }
 
@@ -346,8 +346,8 @@ namespace PBCaGw.Workers
                     Record record = InfoService.ChannelEndPoint[channel];
                     if (record != null && record.GWCID != null)
                     {
-                        InfoService.ChannelCid.Remove(record.GWCID.Value);
-                        CidGenerator.ReleaseCid(record.GWCID.Value);
+                        if(InfoService.ChannelCid.Remove(record.GWCID.Value))
+                            CidGenerator.ReleaseCid(record.GWCID.Value);
                     }
                     /*else
                     {
@@ -367,8 +367,15 @@ namespace PBCaGw.Workers
             var q2=InfoService.ChannelSubscription.Where(row => row.Value.Destination == this.ServerEndPoint).ToList();
             foreach(var i in q2)
             {
-                InfoService.ChannelSubscription.Remove(i.Key);
-                CidGenerator.ReleaseCid(i.Key);
+                if(InfoService.ChannelSubscription.Remove(i.Key))
+                    CidGenerator.ReleaseCid(i.Key);
+            }
+
+            q2 = InfoService.ChannelCid.Where(row => row.Value.Destination == this.ServerEndPoint).ToList();
+            foreach (var i in q2)
+            {
+                if (InfoService.ChannelCid.Remove(i.Key))
+                    CidGenerator.ReleaseCid(i.Key);
             }
 
             // Remove the chain from the other chains

@@ -217,7 +217,8 @@ namespace PBCaGw.Workers
             try
             {
                 Socket.Shutdown(SocketShutdown.Both);
-                Socket.Disconnect(true);
+                Socket.Disconnect(false);
+                //Socket.Disconnect(true);
                 Socket.Close();
             }
             catch

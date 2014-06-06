@@ -14,12 +14,12 @@ namespace PBCaGw.Services
     public static class CidGenerator
     {
         const int MAX_CID = 1024000;
+        //const int MAX_CID = 120000;
         static bool[] freeCids = new bool[MAX_CID];
         static string[] askedBy = new string[MAX_CID];
-        //static bool[] freeCids = new bool[2000];
         static UInt32 cidCounter = 0;
         static object lockObject = new object();
-        static int freeNbCid;
+        public static int freeNbCid;
 
         static CidGenerator()
         {
@@ -33,7 +33,10 @@ namespace PBCaGw.Services
             lock (lockObject)
             {
                 if (freeNbCid < 1)
+                {
+                    //var q = askedBy.GroupBy(row => row).OrderByDescending(row => row.Count()).Select(row => new { NB = row.Count(), W = row.First() }).ToList();
                     throw new Exception("All cids exausted!!!");
+                }
                 int nbChecked = 0;
                 do
                 {
@@ -63,9 +66,22 @@ namespace PBCaGw.Services
         {
             lock (lockObject)
             {
-                freeNbCid++;
-                freeCids[id] = true;
-                //askedBy[id] = null;
+                if (freeCids[id])
+                {
+
+                }
+                else
+                {
+                    freeNbCid++;
+                    freeCids[id] = true;
+
+                    /*askedBy[id] = null;
+
+                    StackTrace stackTrace = new StackTrace(true);
+                    StackFrame[] stackFrames = stackTrace.GetFrames();
+                    askedBy[id] = stackFrames[1].GetMethod().ReflectedType.Name + "." + stackFrames[1].GetMethod().Name + ":" + stackFrames[1].GetFileLineNumber();*/
+
+                }
             }
         }
 

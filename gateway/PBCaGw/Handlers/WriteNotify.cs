@@ -77,8 +77,8 @@ namespace PBCaGw.Handlers
             if (record == null || record.IOID == null)
                 return;
 
-            InfoService.IOID.Remove(packet.Parameter2);
-            CidGenerator.ReleaseCid(packet.Parameter2);
+            if(InfoService.IOID.Remove(packet.Parameter2))
+                CidGenerator.ReleaseCid(packet.Parameter2);
 
             newPacket.Destination = record.Destination;
             newPacket.Parameter2 = record.IOID.Value;

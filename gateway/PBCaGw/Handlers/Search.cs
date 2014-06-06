@@ -181,51 +181,54 @@ namespace PBCaGw.Handlers
 
             if (Gateway.AutoCreateChannel)
             {
-                if (!InfoService.ChannelEndPoint.Knows(channelName))
+                lock (CreateChannel.lockObject)
                 {
-                    Record channelInfo = InfoService.ChannelEndPoint[channelName];
-                    if (Log.WillDisplay(TraceEventType.Information))
-                        Log.TraceEvent(TraceEventType.Information, chain.ChainId, "Pre-create the channel " + channelName);
-
-                    UInt32 gwcid = CidGenerator.Next();
-
-                    channelInfo = InfoService.ChannelEndPoint.Create(record.Channel);
-                    channelInfo.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
-                    channelInfo.GWCID = gwcid;
-
-                    record = InfoService.ChannelCid.Create(gwcid);
-                    record.Channel = channelName;
-                    record.GWCID = gwcid;
-                    record.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
-
-                    DataPacket channelPacket = DataPacket.Create(16 + channelName.Length + DataPacket.Padding(channelName.Length));
-                    channelPacket.PayloadSize = (ushort)(channelName.Length + DataPacket.Padding(channelName.Length));
-                    channelPacket.DataType = 0;
-                    channelPacket.DataCount = 0;
-                    channelPacket.Command = 18;
-                    channelPacket.Parameter1 = gwcid;
-                    // Version
-                    channelPacket.Parameter2 = Gateway.CA_PROTO_VERSION;
-                    IPEndPoint dest = new IPEndPoint(packet.Sender.Address, packet.DataType);
-                    channelPacket.Destination = dest;
-                    //channelPacket.NeedToFlush = true;
-                    channelPacket.SetDataAsString(channelName);
-
-                    Gateway gw = packet.Chain.Gateway;
-
-                    System.Threading.ThreadPool.QueueUserWorkItem(state =>
+                    if (!InfoService.ChannelEndPoint.Knows(channelName))
                     {
-                        try
-                        {
-                            TcpManager.SendIocPacket(gw, channelPacket);
-                            //TcpManager.FlushBuffer(dest);
-                        }
-                        catch
-                        {
-                        }
-                    });
+                        Record channelInfo = InfoService.ChannelEndPoint[channelName];
+                        if (Log.WillDisplay(TraceEventType.Information))
+                            Log.TraceEvent(TraceEventType.Information, chain.ChainId, "Pre-create the channel " + channelName);
 
-                    record = InfoService.SearchChannel[packet.Parameter2];
+                        UInt32 gwcid = CidGenerator.Next();
+
+                        channelInfo = InfoService.ChannelEndPoint.Create(record.Channel);
+                        channelInfo.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        channelInfo.GWCID = gwcid;
+
+                        record = InfoService.ChannelCid.Create(gwcid);
+                        record.Channel = channelName;
+                        record.GWCID = gwcid;
+                        record.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+
+                        DataPacket channelPacket = DataPacket.Create(16 + channelName.Length + DataPacket.Padding(channelName.Length));
+                        channelPacket.PayloadSize = (ushort)(channelName.Length + DataPacket.Padding(channelName.Length));
+                        channelPacket.DataType = 0;
+                        channelPacket.DataCount = 0;
+                        channelPacket.Command = 18;
+                        channelPacket.Parameter1 = gwcid;
+                        // Version
+                        channelPacket.Parameter2 = Gateway.CA_PROTO_VERSION;
+                        IPEndPoint dest = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        channelPacket.Destination = dest;
+                        //channelPacket.NeedToFlush = true;
+                        channelPacket.SetDataAsString(channelName);
+
+                        Gateway gw = packet.Chain.Gateway;
+
+                        System.Threading.ThreadPool.QueueUserWorkItem(state =>
+                        {
+                            try
+                            {
+                                TcpManager.SendIocPacket(gw, channelPacket);
+                                //TcpManager.FlushBuffer(dest);
+                            }
+                            catch
+                            {
+                            }
+                        });
+
+                        record = InfoService.SearchChannel[packet.Parameter2];
+                    }
                 }
             }
 

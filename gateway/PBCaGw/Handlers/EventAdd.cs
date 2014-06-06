@@ -31,7 +31,8 @@ namespace PBCaGw.Handlers
                 {
                     if (Log.WillDisplay(TraceEventType.Error))
                         Log.TraceEvent(System.Diagnostics.TraceEventType.Error, chain.ChainId, "EventAdd not linked to a correct channel");
-                    packet.Chain.Dispose();
+                    //packet.Chain.Dispose();
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
                     return;
                 }
 
@@ -39,9 +40,11 @@ namespace PBCaGw.Handlers
                 {
                     if (Log.WillDisplay(TraceEventType.Error))
                         Log.TraceEvent(System.Diagnostics.TraceEventType.Error, chain.ChainId, "EventAdd SID null");
-                    packet.Chain.Dispose();
+                    //packet.Chain.Dispose();
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
                     return;
                 }
+                uint recordSID = record.SID.Value;
 
                 if (Log.WillDisplay(TraceEventType.Information))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Information, chain.ChainId, "Add event for " + record.Channel);
@@ -51,14 +54,19 @@ namespace PBCaGw.Handlers
                 {
                     if (Log.WillDisplay(TraceEventType.Error))
                         Log.TraceEvent(System.Diagnostics.TraceEventType.Error, chain.ChainId, "Packet too small");
-                    packet.Chain.Dispose();
+                    //packet.Chain.Dispose();
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
+                    return;
                 }
 
-                string recId = record.Channel + "/" + packet.DataType + "/" + packet.DataCount + "/" + packet.GetUInt16(12 + (int)packet.HeaderSize);
+                string channelName = record.Channel;
+                //string recId = record.Channel + "/" + packet.DataType + "/" + packet.DataCount + "/" + packet.GetUInt16(12 + (int)packet.HeaderSize);
+                string recId = record.Channel + "/" + recordSID + "/" + packet.DataType + "/" + packet.DataCount + "/" + packet.GetUInt16(12 + (int)packet.HeaderSize);
                 //Console.WriteLine(recId);
 
                 //recId = ""+CidGenerator.Next();
 
+                // Client subscription
                 UInt32 gwcid = CidGenerator.Next();
                 Record currentMonitor = InfoService.ChannelSubscription.Create(gwcid);
                 currentMonitor.Destination = record.Destination;
@@ -66,17 +74,23 @@ namespace PBCaGw.Handlers
                 currentMonitor.DataCount = packet.DataCount;
                 currentMonitor.Client = packet.Sender;
                 currentMonitor.SubscriptionId = packet.Parameter2;
-                currentMonitor.SID = record.SID.Value;
+                currentMonitor.SID = recordSID;
                 currentMonitor.Channel = recId;
                 currentMonitor.FirstValue = false;
                 currentMonitor.Destination = record.Destination;
+                Record newMonitor = currentMonitor;
 
                 chain.Subscriptions[packet.Parameter2] = gwcid;
 
                 // A new monitor
                 // Create a new subscription for the main channel
                 // And create a list of subscriptions
-                if (!InfoService.SubscribedChannel.Knows(recId) || InfoService.SubscribedChannel[recId].SID != record.SID)
+                /*if (InfoService.SubscribedChannel.Knows(recId) && (InfoService.SubscribedChannel[recId].SID != record.SID || InfoService.SubscribedChannel[recId].GWCID != record.GWCID))
+                {
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
+                }
+                else*/ if (!InfoService.SubscribedChannel.Knows(recId))
+                //if (!InfoService.SubscribedChannel.Knows(recId) || InfoService.SubscribedChannel[recId].SID != record.SID)
                 //if (true)
                 {
                     if (Log.WillDisplay(TraceEventType.Information))
@@ -89,7 +103,7 @@ namespace PBCaGw.Handlers
                     subscriptions.FirstValue = true;
                     subscriptions.Channel = record.Channel;
                     subscriptions.Server = record.Destination;
-                    subscriptions.SID = record.SID;
+                    subscriptions.SID = recordSID;
                     InfoService.SubscribedChannel[recId] = subscriptions;
 
                     // We don't need to skip till the first packet.
@@ -103,20 +117,24 @@ namespace PBCaGw.Handlers
                     {
                         if (Log.WillDisplay(TraceEventType.Error))
                             Log.TraceEvent(System.Diagnostics.TraceEventType.Error, chain.ChainId, "Lost IOC");
-                        chain.Dispose();
+                        //chain.Dispose();
+                        System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
                         return;
                     }
                     ioc.ChannelSubscriptions[recId] = gwcid;
 
+                    // Main subscription
                     currentMonitor = InfoService.ChannelSubscription.Create(gwcid);
                     currentMonitor.Channel = recId;
                     currentMonitor.Destination = record.Destination;
-                    currentMonitor.SID = record.SID;
+                    currentMonitor.SID = recordSID;
                     currentMonitor.DBRType = packet.DataType;
                     currentMonitor.DataCount = packet.DataCount;
+                    currentMonitor.GWCID = record.GWCID;
+                    newMonitor.GWCID = gwcid;
 
                     DataPacket newPacket = (DataPacket)packet.Clone();
-                    newPacket.Parameter1 = record.SID.Value;
+                    newPacket.Parameter1 = recordSID;
                     newPacket.Parameter2 = gwcid;
                     newPacket.Destination = record.Destination;
                     sendData(newPacket);
@@ -134,10 +152,12 @@ namespace PBCaGw.Handlers
                     {
                         if (Log.WillDisplay(TraceEventType.Error))
                             Log.TraceEvent(System.Diagnostics.TraceEventType.Error, chain.ChainId, "Lost main monitor");
-                        chain.Dispose();
+                        //chain.Dispose();
+                        System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
                         return;
                     }
                     subscriptions.SubscriptionList.Add(gwcid);
+                    newMonitor.GWCID = subscriptions.GWCID;
 
                     // Channel never got the first answer
                     // So let's wait like the others
@@ -160,7 +180,7 @@ namespace PBCaGw.Handlers
                         newPacket.Command = 15;
                         newPacket.DataCount = packet.DataCount;
                         newPacket.DataType = packet.DataType;
-                        newPacket.Parameter1 = record.SID.Value;
+                        newPacket.Parameter1 = recordSID;
                         newPacket.Parameter2 = gwioid;
                         newPacket.Destination = record.Destination;
 
@@ -171,6 +191,7 @@ namespace PBCaGw.Handlers
                         record.DBRType = packet.DataType;
                         record.DataCount = packet.DataCount;
                         record.CID = gwcid;
+                        record.Channel = channelName;
 
                         sendData(newPacket);
                     }
@@ -188,6 +209,7 @@ namespace PBCaGw.Handlers
                     return;
                 }
 
+                //Console.WriteLine("Got event add for " + packet.Parameter2);
                 Record mainSubscription = InfoService.ChannelSubscription[packet.Parameter2];
                 if (mainSubscription == null)
                 {
@@ -203,7 +225,16 @@ namespace PBCaGw.Handlers
                 {
                     if (Log.WillDisplay(TraceEventType.Error))
                         Log.TraceEvent(TraceEventType.Error, chain.ChainId, "Subscription list not found not found.");
-                    chain.Dispose();
+                    //chain.Dispose();
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
+                    return;
+                }
+
+                var channelRecord=InfoService.ChannelEndPoint[mainSubscription.Channel.Split(new char[] { '/' })[0]];
+                // We lost the channel
+                if (channelRecord == null || channelRecord.SID != mainSubscription.SID || channelRecord.GWCID != mainSubscription.GWCID)
+                {
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
                     return;
                 }
 
@@ -237,8 +268,8 @@ namespace PBCaGw.Handlers
                     // To see the difference check the payload as the event cancel always have a payload of 0
                     if (packet.PayloadSize == 0)
                     {
-                        InfoService.ChannelSubscription.Remove(packet.Parameter2);
-                        CidGenerator.ReleaseCid(packet.Parameter2);
+                        if (InfoService.ChannelSubscription.Remove(packet.Parameter2))
+                            CidGenerator.ReleaseCid(packet.Parameter2);
                         WorkerChain clientChain = TcpManager.GetClientChain(newPacket.Destination);
                         if (clientChain != null)
                         {
@@ -248,6 +279,11 @@ namespace PBCaGw.Handlers
                         continue;
                     }
 
+                    /*if (!subscription.Channel.Split(new char[] { '/' })[0].EndsWith(newPacket.GetDataAsString()))
+                    {
+                        Console.WriteLine("Copy send " + subscription.Channel.Split(new char[] { '/' })[0] + " " + subscription.SubscriptionId.Value + " " + newPacket.GetDataAsString());
+
+                    }*/
                     sendData(newPacket);
                 }
             }
@@ -277,11 +313,11 @@ namespace PBCaGw.Handlers
                     newList.Add(i);
                 subscriptions.SubscriptionList = newList;
 
-                InfoService.ChannelSubscription.Remove(gwcid);
-                CidGenerator.ReleaseCid(gwcid);
+                if (InfoService.ChannelSubscription.Remove(gwcid))
+                    CidGenerator.ReleaseCid(gwcid);
 
                 // Last monitor on the subscription, clean all
-                if (subscriptions.SubscriptionList.Count == 0)
+                if (subscriptions.SubscriptionList.Count == 0 && subscriptions.GWCID != null)
                 {
                     if (Log.WillDisplay(TraceEventType.Information))
                         Log.TraceEvent(TraceEventType.Information, -1, "Removing monitor.");
@@ -306,8 +342,8 @@ namespace PBCaGw.Handlers
                     // Sending null as gateway avoid to create a new IOC chain in case the chain is gone
                     TcpManager.SendIocPacket(null, newPacket);
 
-                    InfoService.ChannelSubscription.Remove(mainGWCid);
-                    CidGenerator.ReleaseCid(mainGWCid);
+                    if (InfoService.ChannelSubscription.Remove(mainGWCid))
+                        CidGenerator.ReleaseCid(mainGWCid);
                     InfoService.SubscribedChannel.Remove(recId);
                 }
             }

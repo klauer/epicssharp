@@ -29,10 +29,13 @@ namespace PBCaGw
         readonly CAIntRecord channelNbTcpCreated;
         readonly CAIntRecord channelRestartGateway;
         readonly CAIntRecord channelMaxCid;
+        readonly CAIntRecord channelFreeCid;
         readonly CAStringRecord channelVersion;
         readonly CAStringRecord channelBuild;
         readonly CADoubleRecord channelAverageCpu;
+        readonly CAStringRecord runningTime;
         readonly DateTime startTime = Gateway.Now;
+
         static public int NbSearches = 0;
         static public int NbMessages = 0;
         static public int NbNewData = 0;
@@ -113,17 +116,29 @@ namespace PBCaGw
             channelNbTcpCreated.CanBeRemotlySet = false;
             channelNbTcpCreated.Scan = CaSharpServer.Constants.ScanAlgorithm.SEC5;
             channelNbTcpCreated.PrepareRecord += new EventHandler(channelNbTcpCreated_PrepareRecord);
-            // MAX CID (not reused)
+            // MAX CID
             channelMaxCid = diagServer.CreateRecord<CAIntRecord>(gateway.Configuration.GatewayName + ":MAX-CID");
             channelMaxCid.CanBeRemotlySet = false;
             channelMaxCid.Scan = CaSharpServer.Constants.ScanAlgorithm.SEC5;
             channelMaxCid.PrepareRecord += new EventHandler(channelMaxCID_PrepareRecord);
+            // FREE CID (not reused)
+            channelFreeCid = diagServer.CreateRecord<CAIntRecord>(gateway.Configuration.GatewayName + ":FREE-CID");
+            channelFreeCid.CanBeRemotlySet = false;
+            channelFreeCid.Scan = CaSharpServer.Constants.ScanAlgorithm.SEC5;
+            channelFreeCid.PrepareRecord += new EventHandler(channelFreeCID_PrepareRecord);
             // Average CPU usage
             channelAverageCpu = diagServer.CreateRecord<CADoubleRecord>(gateway.Configuration.GatewayName + ":AVG-CPU");
             channelAverageCpu.CanBeRemotlySet = false;
             channelAverageCpu.EngineeringUnits = "%";
             channelAverageCpu.Scan = CaSharpServer.Constants.ScanAlgorithm.SEC5;
             channelAverageCpu.PrepareRecord += new EventHandler(channelAverageCpu_PrepareRecord);
+
+
+            runningTime = diagServer.CreateRecord<CAStringRecord>(gateway.Configuration.GatewayName + ":RUNNING-TIME");
+            runningTime.CanBeRemotlySet = false;
+            runningTime.Scan = CaSharpServer.Constants.ScanAlgorithm.SEC1;
+            runningTime.PrepareRecord += runningTime_PrepareRecord;
+            
 
             // Restart channel
             channelRestartGateway = diagServer.CreateRecord<CAIntRecord>(gateway.Configuration.GatewayName + ":RESTART");
@@ -143,6 +158,11 @@ namespace PBCaGw
             strca.Value = "TEST";*/
         }
 
+        void runningTime_PrepareRecord(object sender, EventArgs e)
+        {
+            runningTime.Value = (DateTime.Now - startTime).ToString();
+        }
+
         // ReSharper disable InconsistentNaming
         void channelAverageCpu_PrepareRecord(object sender, EventArgs e)
         {
@@ -153,6 +173,11 @@ namespace PBCaGw
         void channelMaxCID_PrepareRecord(object sender, EventArgs e)
         {
             channelMaxCid.Value = (int)CidGenerator.Peek();
+        }
+
+        void channelFreeCID_PrepareRecord(object sender, EventArgs e)
+        {
+            channelFreeCid.Value = (int)CidGenerator.freeNbCid;
         }
 
         void channelNbTcpCreated_PrepareRecord(object sender, EventArgs e)

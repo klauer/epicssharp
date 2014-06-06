@@ -12,6 +12,16 @@ namespace PBCaGw.Services
     /// </summary>
     public class SearchChannel : AutoCleaningStorageService<UInt32>
     {
+        public SearchChannel()
+        {
+            this.CleanupKey += SearchChannel_CleanupKey;
+        }
+
+        void SearchChannel_CleanupKey(uint key)
+        {
+            CidGenerator.ReleaseCid(key);
+        }
+
         public Record Create()
         {
             UInt32 gwcid = CidGenerator.Next();

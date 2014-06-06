@@ -84,11 +84,10 @@ namespace PBCaGw.Handlers
             Record record = InfoService.IOID[packet.Parameter2];
 
             if (record == null)
-            {
-                InfoService.IOID.Remove(packet.Parameter2);
-                CidGenerator.ReleaseCid(packet.Parameter2);
                 return;
-            }
+
+            if(InfoService.IOID.Remove(packet.Parameter2))
+                CidGenerator.ReleaseCid(packet.Parameter2);
 
             lock (EventAdd.lockObject)
             {
@@ -97,8 +96,8 @@ namespace PBCaGw.Handlers
                 {
                     if (!record.SID.HasValue)
                     {
-                        InfoService.IOID.Remove(packet.Parameter2);
-                        CidGenerator.ReleaseCid(packet.Parameter2);
+                        /*InfoService.IOID.Remove(packet.Parameter2);
+                        CidGenerator.ReleaseCid(packet.Parameter2);*/
                         return;
                     }
 
@@ -118,6 +117,8 @@ namespace PBCaGw.Handlers
                                 newPacket.DataCount = record.DataCount.Value;
                                 newPacket.DataType = record.DBRType.Value;
                                 sendData(newPacket);
+                                //Console.WriteLine("Get send " + record.Channel + " " + record.SID.Value+" "+newPacket.GetDataAsString());
+
                                 InfoService.ChannelSubscription[record.CID.Value].FirstValue = false;
                                 InfoService.ChannelSubscription[record.CID.Value].PacketCount = 1;
                             }
@@ -127,8 +128,8 @@ namespace PBCaGw.Handlers
                         }
                     }
                     // Removes it to avoid the cleaup            
-                    InfoService.IOID.Remove(packet.Parameter2);
-                    CidGenerator.ReleaseCid(packet.Parameter2);
+                    /*InfoService.IOID.Remove(packet.Parameter2);
+                    CidGenerator.ReleaseCid(packet.Parameter2);*/
                     return;
                 }
             }
@@ -139,8 +140,8 @@ namespace PBCaGw.Handlers
             sendData(newPacket);
 
             // Removes it to avoid the cleaup            
-            InfoService.IOID.Remove(packet.Parameter2);
-            CidGenerator.ReleaseCid(packet.Parameter2);
+            /*InfoService.IOID.Remove(packet.Parameter2);
+            CidGenerator.ReleaseCid(packet.Parameter2);*/
         }
     }
 }

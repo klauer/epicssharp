@@ -14,8 +14,8 @@ namespace PBCaGw.Handlers
     /// </summary>
     class CreateChannel : CommandHandler
     {
-        //static object lockOper = new object();
-        static ConcurrentDictionary<string, object> locks = new ConcurrentDictionary<string, object>();
+        public static object lockObject = new object();
+        //static ConcurrentDictionary<string, object> locks = new ConcurrentDictionary<string, object>();
 
         public override void DoRequest(DataPacket packet, Workers.WorkerChain chain, DataPacketDelegate sendData)
         {
@@ -49,107 +49,108 @@ namespace PBCaGw.Handlers
                 return;
             }
 
+
             // Get a lock object for this particula channel name
-            object lockOper = locks.GetOrAdd(channelName, new object());
-
-            //if (InfoService.ChannelEndPoint.Knows(channelName))
-            channelInfo = InfoService.ChannelEndPoint[channelName];
-
-            // Never got this channel!
-            if (channelInfo == null)
+            lock (lockObject)
             {
-                StorageService<string> searchService;
-                if (chain.Side == ChainSide.SIDE_A)
-                    searchService = InfoService.SearchChannelEndPointA;
-                else
-                    searchService = InfoService.SearchChannelEndPointB;
+                // object lockOper = locks.GetOrAdd(channelName, new object());
 
-                if (!searchService.Knows(channelName))
+                //if (InfoService.ChannelEndPoint.Knows(channelName))
+                channelInfo = InfoService.ChannelEndPoint[channelName];
+
+                // Never got this channel!
+                if (channelInfo == null)
                 {
-                    if (Log.WillDisplay(TraceEventType.Error))
-                        Log.TraceEvent(TraceEventType.Error, chain.ChainId, "Created channel (" + channelName + ") without knowing where it should point at...");
-                    chain.Dispose();
-                    return;
+                    StorageService<string> searchService;
+                    if (chain.Side == ChainSide.SIDE_A)
+                        searchService = InfoService.SearchChannelEndPointA;
+                    else
+                        searchService = InfoService.SearchChannelEndPointB;
+
+                    if (!searchService.Knows(channelName))
+                    {
+                        if (Log.WillDisplay(TraceEventType.Error))
+                            Log.TraceEvent(TraceEventType.Error, chain.ChainId, "Created channel (" + channelName + ") without knowing where it should point at...");
+                        System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
+                        return;
+                    }
+                    channelInfo = searchService[channelName];
+                    channelInfo.ChainSide = chain.Side;
+                    InfoService.ChannelEndPoint[channelName] = channelInfo;
+
+                    channelInfo.GWCID = null;
                 }
-                channelInfo = searchService[channelName];
-                channelInfo.ChainSide = chain.Side;
-                InfoService.ChannelEndPoint[channelName] = channelInfo;
+                //Console.WriteLine("Create 1: " + sw.Elapsed);
 
-                channelInfo.GWCID = null;
-            }
-            //Console.WriteLine("Create 1: " + sw.Elapsed);
+                if (Log.WillDisplay(TraceEventType.Verbose))
+                    Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Request " + channelName + " with cid " + packet.Parameter1);
 
-            if (Log.WillDisplay(TraceEventType.Verbose))
-                Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Request " + channelName + " with cid " + packet.Parameter1);
-
-
-
-            var knownGWCID = false;
-            var knownSID = false;
-            lock (lockOper)
-            {
+                var knownGWCID = false;
+                var knownSID = false;
+                //lock (lockOper)
+                //{
                 knownGWCID = channelInfo.GWCID.HasValue;
                 knownSID = channelInfo.SID.HasValue;
-            }
+                //}
 
-            // We never got back any answer, let's trash the GWCID to re-create it
-            if (knownGWCID
-                && !knownSID
-                && (Gateway.Now - channelInfo.CreatedOn).TotalSeconds > 10)
-            {
-                channelInfo.GWCID = null;
-                knownGWCID = false;
-            }
-
-            // Checks if we have already a channel open with the IOC or not
-            // If we have it we can answer directly
-            if (knownGWCID)
-            {
-                //Console.WriteLine("Create 2: " + sw.Elapsed);
-                if (Log.WillDisplay(TraceEventType.Verbose))
-                    Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Request of a known channel (" + channelName + ")");
-                // We need to check if this is something currently in creation
-
-                // Seems we know all
-                if (knownSID)
+                // We never got back any answer, let's trash the GWCID to re-create it
+                if (knownGWCID
+                    && !knownSID
+                    && (Gateway.Now - channelInfo.CreatedOn).TotalSeconds > 10)
                 {
-
-                    Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Cached responce create channel cid " + packet.Parameter1);
-
-                    // Give back access rights before the create channel
-                    DataPacket newPacket = DataPacket.Create(0, packet.Chain);
-                    newPacket.Command = 22;
-                    newPacket.DataType = 0;
-                    newPacket.DataCount = 0;
-                    newPacket.Parameter1 = packet.Parameter1;
-                    newPacket.Parameter2 = (uint)access;
-                    newPacket.Sender = packet.Sender;
-                    newPacket.Destination = packet.Sender;
-                    sendData(newPacket);
-
-                    // Gives the create channel answer
-                    newPacket = DataPacket.Create(0, packet.Chain);
-                    newPacket.Command = 18;
-                    newPacket.DataType = channelInfo.DBRType.Value;
-                    newPacket.DataCount = channelInfo.DataCount.Value;
-                    newPacket.Parameter1 = packet.Parameter1;
-                    newPacket.Parameter2 = channelInfo.GWCID.Value;
-                    newPacket.Sender = packet.Sender;
-                    newPacket.Destination = packet.Sender;
-                    sendData(newPacket);
-
-                    chain.ChannelCid[channelName] = packet.Parameter1;
-
-                    // We have all the info we can continue.
-                    chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
-
-                    //Console.WriteLine("Create 2.1: " + sw.Elapsed);
-                    return;
+                    channelInfo.GWCID = null;
+                    knownGWCID = false;
                 }
 
-                // Still in creation then let's wait till the channel actually is created
-                lock (lockOper)
+                // Checks if we have already a channel open with the IOC or not
+                // If we have it we can answer directly
+                if (knownGWCID)
                 {
+                    //Console.WriteLine("Create 2: " + sw.Elapsed);
+                    if (Log.WillDisplay(TraceEventType.Verbose))
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Request of a known channel (" + channelName + ")");
+                    // We need to check if this is something currently in creation
+
+                    // Seems we know all
+                    if (knownSID)
+                    {
+                        if (Log.WillDisplay(TraceEventType.Verbose))
+                            Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Cached responce create channel cid " + packet.Parameter1);
+
+                        // Give back access rights before the create channel
+                        DataPacket newPacket = DataPacket.Create(0, packet.Chain);
+                        newPacket.Command = 22;
+                        newPacket.DataType = 0;
+                        newPacket.DataCount = 0;
+                        newPacket.Parameter1 = packet.Parameter1;
+                        newPacket.Parameter2 = (uint)access;
+                        newPacket.Sender = packet.Sender;
+                        newPacket.Destination = packet.Sender;
+                        sendData(newPacket);
+
+                        // Gives the create channel answer
+                        newPacket = DataPacket.Create(0, packet.Chain);
+                        newPacket.Command = 18;
+                        newPacket.DataType = channelInfo.DBRType.Value;
+                        newPacket.DataCount = channelInfo.DataCount.Value;
+                        newPacket.Parameter1 = packet.Parameter1;
+                        newPacket.Parameter2 = channelInfo.GWCID.Value;
+                        newPacket.Sender = packet.Sender;
+                        newPacket.Destination = packet.Sender;
+                        sendData(newPacket);
+
+                        chain.ChannelCid[channelName] = packet.Parameter1;
+
+                        // We have all the info we can continue.
+                        chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
+
+                        //Console.WriteLine("Channel " + channelName + " " + channelInfo.GWCID.Value);
+                        return;
+                    }
+
+                    // Still in creation then let's wait till the channel actually is created
+                    //lock (lockOper)
+                    //{
                     uint clientCid = packet.Parameter1;
                     IPEndPoint clientIp = packet.Sender;
                     Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Add event for " + clientCid);
@@ -187,119 +188,126 @@ namespace PBCaGw.Handlers
                         resPacket.Sender = clientIp;
                         TcpManager.SendClientPacket(resPacket);
 
+                        //Console.WriteLine("2Channel " + channelName + " " + channelInfo.GWCID.Value);
+
                         chain.ChannelCid[channelName] = clientCid;
                         chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
                     };
+                    //}
                 }
-            }
-            // We don't have, we need therefore to connect to the IOC to create one
-            else
-            {
-                //Console.WriteLine("Create 3: " + sw.Elapsed);
-                /*if (chain.ChannelCid.ContainsKey(channelName))
+                // We don't have, we need therefore to connect to the IOC to create one
+                else
                 {
-                    if (Log.WillDisplay(TraceEventType.Warning))
-                        Log.TraceEvent(System.Diagnostics.TraceEventType.Warning, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Duplicated request (" + channelName + ")");
-                }*/
+                    //Console.WriteLine("Create 3: " + sw.Elapsed);
+                    /*if (chain.ChannelCid.ContainsKey(channelName))
+                    {
+                        if (Log.WillDisplay(TraceEventType.Warning))
+                            Log.TraceEvent(System.Diagnostics.TraceEventType.Warning, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Duplicated request (" + channelName + ")");
+                    }*/
 
-                if (Log.WillDisplay(TraceEventType.Verbose))
-                    Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Request of a new channel (" + channelName + ")");
-                channelInfo.GWCID = packet.Parameter1;
+                    if (Log.WillDisplay(TraceEventType.Verbose))
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Request of a new channel (" + channelName + ")");
+                    channelInfo.GWCID = packet.Parameter1;
 
-                UInt32 gwcid = CidGenerator.Next();
-                Record record = InfoService.ChannelCid.Create(gwcid);
-                record.Channel = channelName;
-                record.GWCID = gwcid;
-                record.Client = packet.Sender;
-                record.AccessRight = access;
-                record.Destination = channelInfo.Server;
-                record.ChainSide = chain.Side;
-                chain.ChannelCid[channelName] = packet.Parameter1;
+                    UInt32 gwcid = CidGenerator.Next();
+                    Record record = InfoService.ChannelCid.Create(gwcid);
+                    record.Channel = channelName;
+                    record.GWCID = gwcid;
+                    record.Client = packet.Sender;
+                    record.AccessRight = access;
+                    record.Destination = channelInfo.Server;
+                    record.ChainSide = chain.Side;
+                    chain.ChannelCid[channelName] = packet.Parameter1;
 
-                // Send create channel
-                DataPacket newPacket = (DataPacket)packet.Clone();
-                newPacket.Parameter1 = gwcid;
-                // Version
-                newPacket.Parameter2 = Gateway.CA_PROTO_VERSION;
-                newPacket.Destination = channelInfo.Server;
-                sendData(newPacket);
+                    // Send create channel
+                    DataPacket newPacket = (DataPacket)packet.Clone();
+                    newPacket.Parameter1 = gwcid;
+                    // Version
+                    newPacket.Parameter2 = Gateway.CA_PROTO_VERSION;
+                    newPacket.Destination = channelInfo.Server;
+                    sendData(newPacket);
 
-                chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
+                    chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
+                }
+                //Console.WriteLine("Create 6: " + sw.Elapsed);
             }
-            //Console.WriteLine("Create 6: " + sw.Elapsed);
         }
 
         public override void DoResponse(DataPacket packet, Workers.WorkerChain chain, DataPacketDelegate sendData)
         {
-            if (!InfoService.ChannelCid.Knows(packet.Parameter1))  // Response too late, we drop it.
+            lock (lockObject)
             {
-                if (Log.WillDisplay(TraceEventType.Verbose))
-                    Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Drop late reponse.");
-                return;
-            }
-
-            Record record = InfoService.ChannelCid[packet.Parameter1];
-            if (record.Channel == null) // Response too late, we drop it.
-            {
-                if (Log.WillDisplay(TraceEventType.Verbose))
-                    Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Drop late reponse.");
-                return;
-            }
-            if (Log.WillDisplay(TraceEventType.Verbose))
-                Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Got response for " + record.Channel + ".");
-
-            record.SID = packet.Parameter2;
-            if(!chain.Channels.Any(row=>row == record.Channel))
-                chain.Channels.Add(record.Channel);
-
-            object lockOper = locks.GetOrAdd(record.Channel, new object());
-
-            // Stores in the channel end point the retreiven info
-            Record channelInfo;
-            lock (lockOper)
-            //if(true)
-            {
-                channelInfo = InfoService.ChannelEndPoint[record.Channel];
-                if (channelInfo == null)
-                {
-                    if (Log.WillDisplay(TraceEventType.Error))
-                        Log.TraceEvent(System.Diagnostics.TraceEventType.Error, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Got create channel response, but lost the request.");
-                    return;
-                }
-                channelInfo.SID = packet.Parameter2;
-                channelInfo.DBRType = packet.DataType;
-                channelInfo.DataCount = packet.DataCount;
-                channelInfo.GWCID = packet.Parameter1;
-            }
-            channelInfo.Notify(chain, packet);
-
-            // Was a prepared creation, let's stop
-            if (record.Client != null && record.Channel != null)
-            {
-                WorkerChain destChain = TcpManager.GetClientChain(record.Client);
-                if (destChain != null && destChain.ChannelCid.ContainsKey(record.Channel))
+                if (!InfoService.ChannelCid.Knows(packet.Parameter1))  // Response too late, we drop it.
                 {
                     if (Log.WillDisplay(TraceEventType.Verbose))
-                        Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Direct responce create channel cid " + destChain.ChannelCid[record.Channel]);
-
-                    // Give back access rights before the create channel
-                    DataPacket accessPacket = DataPacket.Create(0, packet.Chain);
-                    accessPacket.Command = 22;
-                    accessPacket.DataType = 0;
-                    accessPacket.DataCount = 0;
-                    accessPacket.Parameter1 = destChain.ChannelCid[record.Channel];
-                    accessPacket.Parameter2 = (uint)record.AccessRight;
-                    accessPacket.Sender = packet.Sender;
-                    accessPacket.Destination = record.Client;
-                    sendData(accessPacket);
-
-                    DataPacket newPacket = (DataPacket)packet.Clone();
-                    newPacket.Parameter1 = destChain.ChannelCid[record.Channel];
-                    newPacket.Parameter2 = packet.Parameter1;
-                    newPacket.Destination = record.Client;
-                    sendData(newPacket);
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Drop late reponse.");
+                    return;
                 }
 
+                Record record = InfoService.ChannelCid[packet.Parameter1];
+                if (record.Channel == null) // Response too late, we drop it.
+                {
+                    if (Log.WillDisplay(TraceEventType.Verbose))
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Drop late reponse.");
+                    return;
+                }
+                if (Log.WillDisplay(TraceEventType.Verbose))
+                    Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Got response for " + record.Channel + ".");
+
+                record.SID = packet.Parameter2;
+                if (!chain.Channels.Any(row => row == record.Channel))
+                    chain.Channels.Add(record.Channel);
+
+                //object lockOper = locks.GetOrAdd(record.Channel, new object());
+
+                // Stores in the channel end point the retreiven info
+                Record channelInfo;
+                //lock (lockOper)
+                //if(true)
+                {
+                    channelInfo = InfoService.ChannelEndPoint[record.Channel];
+                    if (channelInfo == null)
+                    {
+                        if (Log.WillDisplay(TraceEventType.Error))
+                            Log.TraceEvent(System.Diagnostics.TraceEventType.Error, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Got create channel response, but lost the request.");
+                        return;
+                    }
+                    channelInfo.SID = packet.Parameter2;
+                    channelInfo.DBRType = packet.DataType;
+                    channelInfo.DataCount = packet.DataCount;
+                    channelInfo.GWCID = packet.Parameter1;
+                }
+                channelInfo.Notify(chain, packet);
+
+                //Console.WriteLine("2Channel " + record.Channel + " " + packet.Parameter1+" "+packet.Parameter2);
+
+                // Was a prepared creation, let's stop
+                if (record.Client != null && record.Channel != null)
+                {
+                    WorkerChain destChain = TcpManager.GetClientChain(record.Client);
+                    if (destChain != null && destChain.ChannelCid.ContainsKey(record.Channel))
+                    {
+                        if (Log.WillDisplay(TraceEventType.Verbose))
+                            Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Direct responce create channel cid " + destChain.ChannelCid[record.Channel]);
+
+                        // Give back access rights before the create channel
+                        DataPacket accessPacket = DataPacket.Create(0, packet.Chain);
+                        accessPacket.Command = 22;
+                        accessPacket.DataType = 0;
+                        accessPacket.DataCount = 0;
+                        accessPacket.Parameter1 = destChain.ChannelCid[record.Channel];
+                        accessPacket.Parameter2 = (uint)record.AccessRight;
+                        accessPacket.Sender = packet.Sender;
+                        accessPacket.Destination = record.Client;
+                        sendData(accessPacket);
+
+                        DataPacket newPacket = (DataPacket)packet.Clone();
+                        newPacket.Parameter1 = destChain.ChannelCid[record.Channel];
+                        newPacket.Parameter2 = packet.Parameter1;
+                        newPacket.Destination = record.Client;
+                        sendData(newPacket);
+                    }
+                }
             }
         }
     }
