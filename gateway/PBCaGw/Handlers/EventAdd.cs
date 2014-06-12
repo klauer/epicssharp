@@ -60,8 +60,8 @@ namespace PBCaGw.Handlers
                 }
 
                 string channelName = record.Channel;
-                //string recId = record.Channel + "/" + packet.DataType + "/" + packet.DataCount + "/" + packet.GetUInt16(12 + (int)packet.HeaderSize);
-                string recId = record.Channel + "/" + recordSID + "/" + packet.DataType + "/" + packet.DataCount + "/" + packet.GetUInt16(12 + (int)packet.HeaderSize);
+                //string recId = record.Channel + "°" + packet.DataType + "°" + packet.DataCount + "°" + packet.GetUInt16(12 + (int)packet.HeaderSize);
+                string recId = record.Channel + "°" + recordSID + "°" + packet.DataType + "°" + packet.DataCount + "°" + packet.GetUInt16(12 + (int)packet.HeaderSize);
                 //Console.WriteLine(recId);
 
                 //recId = ""+CidGenerator.Next();
@@ -230,7 +230,7 @@ namespace PBCaGw.Handlers
                     return;
                 }
 
-                var channelRecord=InfoService.ChannelEndPoint[mainSubscription.Channel.Split(new char[] { '/' })[0]];
+                var channelRecord=InfoService.ChannelEndPoint[mainSubscription.Channel.Split(new char[] { '°' })[0]];
                 // We lost the channel
                 if (channelRecord == null || channelRecord.SID != mainSubscription.SID || channelRecord.GWCID != mainSubscription.GWCID)
                 {
@@ -279,9 +279,9 @@ namespace PBCaGw.Handlers
                         continue;
                     }
 
-                    /*if (!subscription.Channel.Split(new char[] { '/' })[0].EndsWith(newPacket.GetDataAsString()))
+                    /*if (!subscription.Channel.Split(new char[] { '°' })[0].EndsWith(newPacket.GetDataAsString()))
                     {
-                        Console.WriteLine("Copy send " + subscription.Channel.Split(new char[] { '/' })[0] + " " + subscription.SubscriptionId.Value + " " + newPacket.GetDataAsString());
+                        Console.WriteLine("Copy send " + subscription.Channel.Split(new char[] { '°' })[0] + " " + subscription.SubscriptionId.Value + " " + newPacket.GetDataAsString());
 
                     }*/
                     sendData(newPacket);
