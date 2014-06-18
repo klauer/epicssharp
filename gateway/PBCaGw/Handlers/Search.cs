@@ -69,7 +69,7 @@ namespace PBCaGw.Handlers
                     return;
             }
 
-
+            packet.Chain.Gateway.GotSearch(channelName);
             Record record;
 
             // Maybe this request is known.

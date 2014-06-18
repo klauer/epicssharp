@@ -9,6 +9,7 @@ using System.IO;
 using System.Xml.Serialization;
 using PBCaGw.Configurations;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace PBCaGw
 {
@@ -87,10 +88,15 @@ namespace PBCaGw
         /// </summary>
         public static event EventHandler OneSecJobs;
 
+        public event EventHandler UpdateSearch;
+
         static DateTime now;
         public static DateTime Now { get { return now; } }
 
         private DiagnosticServer diagnostic;
+
+        internal object searchLock = new object();
+        internal Dictionary<string, SearchStat> searchStats = new Dictionary<string, SearchStat>();
 
         /// <summary>
         /// Starts the scheduler
@@ -109,6 +115,45 @@ namespace PBCaGw
             //AutoCreateChannel = false;
             RestoreCache = true;
             //RestoreCache = false;
+        }
+
+        void UpdateSearchList(object sender, EventArgs e)
+        {
+            lock (searchLock)
+            {
+                // Cleanup all old
+                foreach(var i in searchStats.Where(row=>row.Value.CurrentSearch <= 0).Select(row=>row.Key).ToList())
+                {
+                    searchStats.Remove(i);
+                }
+
+                foreach(var i in searchStats)
+                {
+                    i.Value.PreviousSearch = i.Value.CurrentSearch;
+                    i.Value.CurrentSearch = 0;
+                }
+            }
+
+            if(UpdateSearch != null)
+            {
+                try
+                {
+                    UpdateSearch(this, null);
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        internal void GotSearch(string channelname)
+        {
+            lock (searchLock)
+            {
+                if (!searchStats.ContainsKey(channelname))
+                    searchStats.Add(channelname, new SearchStat());
+                searchStats[channelname].CurrentSearch++;
+            }
         }
 
         /// <summary>
@@ -224,7 +269,8 @@ namespace PBCaGw
                     }
                 }
             }
-            TenSecJobs += new EventHandler(StoreKnownChannels);
+            TenSecJobs += StoreKnownChannels;
+            TenSecJobs += UpdateSearchList;
             //TenSecJobs += new EventHandler(MemoryClean);
         }
 
@@ -252,7 +298,8 @@ namespace PBCaGw
                 beaconB.Dispose();
             }
 
-            TenSecJobs -= new EventHandler(StoreKnownChannels);
+            TenSecJobs -= StoreKnownChannels;
+            TenSecJobs -= UpdateSearchList;
             StoreKnownChannels(this, null);
 
             TcpManager.DisposeAll();
@@ -386,7 +433,7 @@ namespace PBCaGw
             }
             else
             {
-                string o=oldItem;
+                string o = oldItem;
                 KnownIocs[server].TryTake(out o);
 
             }
