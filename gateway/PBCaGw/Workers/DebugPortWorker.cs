@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using GatewayDebugData;
 using System.IO;
+using System.Linq;
 
 namespace PBCaGw.Workers
 {
@@ -80,9 +81,28 @@ namespace PBCaGw.Workers
             Chain.Gateway.DropIoc += new DropIocDelegate(GatewayDropIoc);
             Chain.Gateway.NewClientChannel += new NewClientChannelDelegate(GatewayNewClientChannel);
             Chain.Gateway.DropClient += new DropClientDelegate(GatewayDropClient);
+            Chain.Gateway.UpdateSearch += SendSearch;
 
             PBCaGw.Services.DebugTraceListener.LogEntry += GatewayLogEntry;
             PBCaGw.Services.DebugTraceListener.TraceLevelChanged += new System.EventHandler(DebugTraceListenerTraceLevelChanged);
+        }
+
+        void SendSearch(object sender, System.EventArgs e)
+        {
+            lock (sendStream)
+            {
+                Send((int)DebugDataType.SEARCH_STATS);
+                lock(Chain.Gateway.searchLock)
+                {
+                    Send(Chain.Gateway.searchStats.Count);
+                    foreach(var i in Chain.Gateway.searchStats.OrderByDescending(row => row.Value.PreviousSearch))
+                    {
+                        Send(i.Key);
+                        Send(i.Value.PreviousSearch);
+                    }
+                }
+                Flush();
+            }
         }
 
         void DebugTraceListenerTraceLevelChanged(object sender, System.EventArgs e)
@@ -257,6 +277,7 @@ namespace PBCaGw.Workers
             Chain.Gateway.NewClientChannel -= new NewClientChannelDelegate(GatewayNewClientChannel);
             Chain.Gateway.DropClient -= new DropClientDelegate(GatewayDropClient);
             PBCaGw.Services.DebugTraceListener.LogEntry -= GatewayLogEntry;
+            Chain.Gateway.UpdateSearch -= SendSearch;
         }
     }
 }

@@ -17,6 +17,7 @@ namespace GatewayDebugData
     public delegate void DebugLogDelegate(string source, TraceEventType eventType, int chainId, string message);
     public delegate void NewGatewayNameDelegate(DebugContext ctx, string name);
     public delegate void DebugLevelDelegate(DebugContext ctx, bool fullLogs);
+    public delegate void RefreshSearchStatsDelegate(DebugContext ctx, List<SearchStat> stats);
 
     public class DebugContext : IDebugDataAccess, IDisposable
     {
@@ -46,6 +47,7 @@ namespace GatewayDebugData
 
         public event DebugLogDelegate DebugLog;
         public event DebugLevelDelegate DebugLevel;
+        public event RefreshSearchStatsDelegate SearchStats;
 
         public event ContextConnectionDelegate ConnectionState;
 
@@ -126,7 +128,7 @@ namespace GatewayDebugData
             Flush();
 
             // Skip the version
-            byte[] toSkip=new byte[16];
+            byte[] toSkip = new byte[16];
             stream.Read(toSkip, 0, 16);
         }
 
@@ -166,8 +168,9 @@ namespace GatewayDebugData
                 }
 
                 try
-                {                    
-                    switch ((DebugDataType)GetInt())
+                {
+                    DebugDataType msg = (DebugDataType)GetInt();
+                    switch (msg)
                     {
                         case DebugDataType.FULL_IOC:
                             {
@@ -242,6 +245,18 @@ namespace GatewayDebugData
                             fullLogs = false;
                             if (DebugLevel != null)
                                 DebugLevel(this, fullLogs);
+                            break;
+                        case DebugDataType.SEARCH_STATS:
+                            {
+                                List<SearchStat> list = new List<SearchStat>();
+                                int nb = GetInt();
+                                for (var i = 0; i < nb; i++)
+                                {
+                                    list.Add(new SearchStat { ChannelName = GetString(), NumberOfSearches = GetInt() });
+                                }
+                                if (SearchStats != null)
+                                    SearchStats(this, list);
+                            }
                             break;
                     }
                 }

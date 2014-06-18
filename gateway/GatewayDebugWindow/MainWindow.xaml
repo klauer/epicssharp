@@ -142,6 +142,12 @@
                     <ListBox Grid.Column="1" Grid.Row="1" x:Name="lstClientsChannels" Margin="2" />
                 </Grid>
             </TabItem>
+            <TabItem Header="Searches">
+                <ScrollViewer VerticalScrollBarVisibility="Visible" x:Name="srcSearches">
+                    <StackPanel x:Name="lstSearches" />
+                </ScrollViewer>
+            </TabItem>
+
         </TabControl>
 
         <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="txtStatus" Text="Not connected" Padding="3" Background="LightGray" />

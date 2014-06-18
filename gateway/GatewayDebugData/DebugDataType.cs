@@ -1,6 +1,6 @@
 ﻿namespace GatewayDebugData
 {
-    public enum DebugDataType
+    public enum DebugDataType:int
     {
         FULL_IOC,
         IOC_NEW_CHANNEL,
@@ -11,6 +11,7 @@
         LOG,
         GW_NAME,
         FULL_LOGS,
-        CRITICAL_LOGS
+        CRITICAL_LOGS,
+        SEARCH_STATS
     }
 }

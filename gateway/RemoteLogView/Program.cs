@@ -15,7 +15,7 @@ namespace RemoteLogView
             EpicsChannel<sbyte[]> screen = client.CreateChannel<sbyte[]>("PBGW:LOGVIEW");*/
             client.Configuration.SearchAddress="172.22.200.117:5062";
             EpicsChannel<sbyte[]> screen = client.CreateChannel<sbyte[]>("HIPA-TEST-GW:LOGVIEW");
-            screen.MonitorChanged += new EpicsDelegate<sbyte[]>(screen_MonitorChanged);
+            //screen.MonitorChanged += new EpicsDelegate<sbyte[]>(screen_MonitorChanged);
 
             Console.WindowWidth = 200;
             Console.WindowHeight = 100;

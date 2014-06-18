@@ -72,6 +72,20 @@ namespace GatewayDebugWindow
             context.DebugLog += new DebugLogDelegate(ContextDebugLog);
             context.NewName += new NewGatewayNameDelegate(ContextNewName);
             context.DebugLevel += new DebugLevelDelegate(ContextDebugLevel);
+            context.SearchStats += context_SearchStats;
+        }
+
+        void context_SearchStats(DebugContext ctx, List<SearchStat> stats)
+        {
+            this.Dispatcher.BeginInvoke((Action)delegate
+            {
+                lstSearches.Children.Clear();
+
+                foreach (var i in stats)
+                {
+                    lstSearches.Children.Add(new TextBlock { Text = i.ChannelName + ": " + i.NumberOfSearches });
+                }
+            });
         }
 
         void ContextDebugLevel(DebugContext ctx, bool fullLogs)
@@ -124,7 +138,7 @@ namespace GatewayDebugWindow
             // ReSharper restore ConvertToLambdaExpression
             {
                 lstLog.Children.Add(new LogEntry { Date = DateTime.Now.ToString(CultureInfo.InvariantCulture), Source = source, Message = message, EventType = eventType });
-                while(lstLog.Children.Count > 300)
+                while (lstLog.Children.Count > 300)
                     lstLog.Children.RemoveAt(0);
                 scrLog.ScrollToBottom();
             });
