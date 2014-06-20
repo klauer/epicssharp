@@ -7,8 +7,8 @@ namespace GatewayDebugData
 {
     public class SearchStat
     {
-        public string Name { get; internal set; }
+        public string Name { get;  set; }
 
-        public int NumberOfSearches { get; internal set; }
+        public int NumberOfSearches { get;  set; }
     }
 }
