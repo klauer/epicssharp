@@ -97,6 +97,7 @@ namespace PBCaGw
 
         internal object searchLock = new object();
         internal Dictionary<string, SearchStat> searchStats = new Dictionary<string, SearchStat>();
+        internal Dictionary<string, SearchStat> searchersStats = new Dictionary<string, SearchStat>();
 
         /// <summary>
         /// Starts the scheduler
@@ -132,6 +133,18 @@ namespace PBCaGw
                     i.Value.PreviousSearch = i.Value.CurrentSearch;
                     i.Value.CurrentSearch = 0;
                 }
+
+                // Cleanup all old
+                foreach (var i in searchersStats.Where(row => row.Value.CurrentSearch <= 0).Select(row => row.Key).ToList())
+                {
+                    searchersStats.Remove(i);
+                }
+
+                foreach (var i in searchersStats)
+                {
+                    i.Value.PreviousSearch = i.Value.CurrentSearch;
+                    i.Value.CurrentSearch = 0;
+                }
             }
 
             if(UpdateSearch != null)
@@ -146,13 +159,17 @@ namespace PBCaGw
             }
         }
 
-        internal void GotSearch(string channelname)
+        internal void GotSearch(string channelname,string searcher)
         {
             lock (searchLock)
             {
                 if (!searchStats.ContainsKey(channelname))
                     searchStats.Add(channelname, new SearchStat());
                 searchStats[channelname].CurrentSearch++;
+
+                if(!searchersStats.ContainsKey(searcher))
+                    searchersStats.Add(searcher, new SearchStat());
+                searchersStats[searcher].CurrentSearch++;
             }
         }
 

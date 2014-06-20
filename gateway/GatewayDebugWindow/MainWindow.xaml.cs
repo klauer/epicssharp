@@ -73,6 +73,20 @@ namespace GatewayDebugWindow
             context.NewName += new NewGatewayNameDelegate(ContextNewName);
             context.DebugLevel += new DebugLevelDelegate(ContextDebugLevel);
             context.SearchStats += context_SearchStats;
+            context.SearchersStats += context_SearchersStats;
+        }
+
+        void context_SearchersStats(DebugContext ctx, List<SearchStat> stats)
+        {
+            this.Dispatcher.BeginInvoke((Action)delegate
+            {
+                lstSearchers.Children.Clear();
+
+                foreach (var i in stats)
+                {
+                    lstSearchers.Children.Add(new TextBlock { Text = i.Name + ": " + i.NumberOfSearches });
+                }
+            });
         }
 
         void context_SearchStats(DebugContext ctx, List<SearchStat> stats)
@@ -83,7 +97,7 @@ namespace GatewayDebugWindow
 
                 foreach (var i in stats)
                 {
-                    lstSearches.Children.Add(new TextBlock { Text = i.ChannelName + ": " + i.NumberOfSearches });
+                    lstSearches.Children.Add(new TextBlock { Text = i.Name + ": " + i.NumberOfSearches });
                 }
             });
         }

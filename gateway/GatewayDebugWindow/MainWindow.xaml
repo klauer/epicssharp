@@ -147,7 +147,11 @@
                     <StackPanel x:Name="lstSearches" />
                 </ScrollViewer>
             </TabItem>
-
+            <TabItem Header="Searches From">
+                <ScrollViewer VerticalScrollBarVisibility="Visible" x:Name="srcSearchers">
+                    <StackPanel x:Name="lstSearchers" />
+                </ScrollViewer>
+            </TabItem>
         </TabControl>
 
         <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="txtStatus" Text="Not connected" Padding="3" Background="LightGray" />
