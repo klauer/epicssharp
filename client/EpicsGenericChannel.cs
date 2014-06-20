@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace PSI.EpicsClient2
 {
@@ -99,6 +100,11 @@ namespace PSI.EpicsClient2
             Type t = typeof(TType);
             if (t.IsArray)
                 t = t.GetElementType();
+            else if (t.IsGenericType)
+            {
+                if (t.GetGenericArguments().First() == typeof(object))
+                    t = t.GetGenericTypeDefinition().MakeGenericType(new Type[] { channelDefinedType });
+            }
             p.DataType = (ushort)TypeHandling.Lookup[t];
             p.DataCount = ChannelDataCount;
             p.Parameter1 = SID;
