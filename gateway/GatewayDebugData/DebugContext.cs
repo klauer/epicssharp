@@ -48,6 +48,7 @@ namespace GatewayDebugData
         public event DebugLogDelegate DebugLog;
         public event DebugLevelDelegate DebugLevel;
         public event RefreshSearchStatsDelegate SearchStats;
+        public event RefreshSearchStatsDelegate SearchersStats;
 
         public event ContextConnectionDelegate ConnectionState;
 
@@ -252,10 +253,22 @@ namespace GatewayDebugData
                                 int nb = GetInt();
                                 for (var i = 0; i < nb; i++)
                                 {
-                                    list.Add(new SearchStat { ChannelName = GetString(), NumberOfSearches = GetInt() });
+                                    list.Add(new SearchStat { Name = GetString(), NumberOfSearches = GetInt() });
                                 }
                                 if (SearchStats != null)
                                     SearchStats(this, list);
+                            }
+                            break;
+                        case DebugDataType.SEARCHERS_STATS:
+                            {
+                                List<SearchStat> list = new List<SearchStat>();
+                                int nb = GetInt();
+                                for (var i = 0; i < nb; i++)
+                                {
+                                    list.Add(new SearchStat { Name = GetString(), NumberOfSearches = GetInt() });
+                                }
+                                if (SearchersStats != null)
+                                    SearchersStats(this, list);
                             }
                             break;
                     }

@@ -91,15 +91,24 @@ namespace PBCaGw.Workers
         {
             lock (sendStream)
             {
-                Send((int)DebugDataType.SEARCH_STATS);
                 lock(Chain.Gateway.searchLock)
                 {
+                    Send((int)DebugDataType.SEARCH_STATS);
                     Send(Chain.Gateway.searchStats.Count);
                     foreach(var i in Chain.Gateway.searchStats.OrderByDescending(row => row.Value.PreviousSearch))
                     {
                         Send(i.Key);
                         Send(i.Value.PreviousSearch);
                     }
+
+                    Send((int)DebugDataType.SEARCHERS_STATS);
+                    Send(Chain.Gateway.searchersStats.Count);
+                    foreach (var i in Chain.Gateway.searchersStats.OrderByDescending(row => row.Value.PreviousSearch))
+                    {
+                        Send(i.Key);
+                        Send(i.Value.PreviousSearch);
+                    }
+
                 }
                 Flush();
             }
