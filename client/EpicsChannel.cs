@@ -145,6 +145,8 @@ namespace PSI.EpicsClient2
                 if (t.GetGenericArguments().First() == typeof(object))
                     t = t.GetGenericTypeDefinition().MakeGenericType(new Type[] { channelDefinedType });
             }
+            if (t == typeof(object))
+                t = channelDefinedType;
             packet.DataType = (ushort)TypeHandling.Lookup[t];
             packet.DataCount = nbElements;
             packet.Parameter1 = SID;
@@ -330,6 +332,8 @@ namespace PSI.EpicsClient2
                     return RawData.GetDouble((int)RawData.HeaderSize + startPost);
                 case EpicsType.String:
                     return RawData.GetDataAsString(startPost, maxSize);
+                case EpicsType.SByte:
+                    return RawData.GetSByte((int)RawData.HeaderSize + startPost);
                 default:
                     //throw new Exception("Type not supported");
                     return new object();

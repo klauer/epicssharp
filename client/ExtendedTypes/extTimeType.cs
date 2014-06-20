@@ -25,12 +25,20 @@ namespace PSI.EpicsClient2
             Status = (Status)channel.DecodeData<ushort>(1, 0);
             Severity = (Severity)channel.DecodeData<ushort>(1, 2);
             Time = channel.DecodeData<DateTime>(1, 4);
-            //Value = channel.DecodeData<TType>(nbElements, 8);
-            //Value = channel.DecodeData<TType>(nbElements, 16);
+            int pos = 12;
             Type t = typeof(TType);
             if (t.IsArray)
                 t = t.GetElementType();
-            Value = channel.DecodeData<TType>(nbElements, 8+TypeHandling.EpicsSize(t));
+            if (t == typeof(object))
+                t = channel.ChannelDefinedType;
+            // padding for "RISC alignment"
+            if (t == typeof(sbyte))
+                pos += 3;
+            else if (t == typeof(double))
+                pos += 4;
+            else if (t == typeof(short))
+                pos += 2;
+            Value = channel.DecodeData<TType>(nbElements, pos);
         }
 
         /// <summary>
