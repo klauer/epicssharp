@@ -279,7 +279,7 @@ namespace PSI.EpicsClient2
 
                 System.Collections.IList res = (System.Collections.IList)Activator.CreateInstance(genList);
 
-                int pos = 16 + startPost;
+                int pos = (int)RawData.HeaderSize + startPost;
                 int elementSize = TypeHandling.EpicsSize(baseT);
                 for (int i = 0; i < nbElements; i++)
                 {
