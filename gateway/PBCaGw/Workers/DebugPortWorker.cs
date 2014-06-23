@@ -68,8 +68,10 @@ namespace PBCaGw.Workers
                         Send((int)i.EventType);
                         Send(i.Id);
                         Send(i.Message);
-                        Flush();
                     }
+                    Flush();
+
+                    SendSearch(null, null);
                 }
             }
             catch
@@ -89,28 +91,35 @@ namespace PBCaGw.Workers
 
         void SendSearch(object sender, System.EventArgs e)
         {
-            lock (sendStream)
+            try
             {
-                lock(Chain.Gateway.searchLock)
+                lock (sendStream)
                 {
-                    Send((int)DebugDataType.SEARCH_STATS);
-                    Send(Chain.Gateway.searchStats.Count);
-                    foreach(var i in Chain.Gateway.searchStats.OrderByDescending(row => row.Value.PreviousSearch))
+                    lock (Chain.Gateway.searchLock)
                     {
-                        Send(i.Key);
-                        Send(i.Value.PreviousSearch);
-                    }
+                        Send((int)DebugDataType.SEARCH_STATS);
+                        Send(Chain.Gateway.searchStats.Count);
+                        foreach (var i in Chain.Gateway.searchStats.OrderByDescending(row => row.Value.PreviousSearch))
+                        {
+                            Send(i.Key);
+                            Send(i.Value.PreviousSearch);
+                        }
 
-                    Send((int)DebugDataType.SEARCHERS_STATS);
-                    Send(Chain.Gateway.searchersStats.Count);
-                    foreach (var i in Chain.Gateway.searchersStats.OrderByDescending(row => row.Value.PreviousSearch))
-                    {
-                        Send(i.Key);
-                        Send(i.Value.PreviousSearch);
-                    }
+                        Send((int)DebugDataType.SEARCHERS_STATS);
+                        Send(Chain.Gateway.searchersStats.Count);
+                        foreach (var i in Chain.Gateway.searchersStats.OrderByDescending(row => row.Value.PreviousSearch))
+                        {
+                            Send(i.Key);
+                            Send(i.Value.PreviousSearch);
+                        }
 
+                    }
+                    Flush();
                 }
-                Flush();
+            }
+            catch
+            {
+                Chain.Dispose();
             }
         }
 
