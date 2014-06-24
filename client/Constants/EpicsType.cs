@@ -31,9 +31,9 @@ namespace PSI.EpicsClient2
         Enum = 3,
 
         /// <summary>
-        /// Plain signed byte
+        /// Plain unsigned byte
         /// </summary>
-        SByte = 4,
+        Byte = 4,
 
         /// <summary>
         /// Plain 32bit integer
@@ -66,9 +66,9 @@ namespace PSI.EpicsClient2
         Status_Enum = 10,
 
         /// <summary>
-        /// Extends plain signed byte by status and severity
+        /// Extends plain unsigned byte by status and severity
         /// </summary>
-        Status_SByte = 11,
+        Status_Byte = 11,
 
         /// <summary>
         /// Extends plain 32bit integer by status and severity
@@ -101,9 +101,9 @@ namespace PSI.EpicsClient2
         Time_Enum = 17,
 
         /// <summary>
-        /// Extends Status_SByte by timestamp
+        /// Extends Status_Byte by timestamp
         /// </summary>
-        Time_SByte = 18,
+        Time_Byte = 18,
 
         /// <summary>
         /// Extends Status_Int by timestamp
@@ -137,9 +137,9 @@ namespace PSI.EpicsClient2
         Labeled_Enum = 24,
 
         /// <summary>
-        /// Extends Status_SByte by display bounds
+        /// Extends Status_Byte by display bounds
         /// </summary>
-        Display_SByte = 25,
+        Display_Byte = 25,
 
         /// <summary>
         /// Extends Status_Int by display bounds
@@ -173,9 +173,9 @@ namespace PSI.EpicsClient2
         Control_Enum = 31,
 
         /// <summary>
-        /// Extends Display_SByte by control bounds
+        /// Extends Display_Byte by control bounds
         /// </summary>
-        Control_SByte = 32,
+        Control_Byte = 32,
 
         /// <summary>
         /// Extends Display_Int by control bounds

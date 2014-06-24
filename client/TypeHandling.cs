@@ -12,7 +12,7 @@ namespace PSI.EpicsClient2
             {typeof(uint),EpicsType.Internal_UInt},
             {typeof(ushort),EpicsType.Internal_UShort},
 
-            {typeof(sbyte),EpicsType.SByte},
+            {typeof(byte),EpicsType.Byte},
             {typeof(string),EpicsType.String},
             {typeof(short),EpicsType.Short},
             {typeof(int),EpicsType.Int},
@@ -20,7 +20,7 @@ namespace PSI.EpicsClient2
             {typeof(double),EpicsType.Double},
             {typeof(Enum),EpicsType.Enum},
 
-            {typeof(ExtType<sbyte>) ,EpicsType.Status_SByte},
+            {typeof(ExtType<byte>) ,EpicsType.Status_Byte},
             {typeof(ExtType<string>),EpicsType.Status_String},
             {typeof(ExtType<short>) ,EpicsType.Status_Short},
             {typeof(ExtType<int>)   ,EpicsType.Status_Int},
@@ -28,7 +28,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtType<double>),EpicsType.Status_Double},
             {typeof(ExtType<Enum>)  ,EpicsType.Status_Enum},
 
-            {typeof(ExtTimeType<sbyte>) ,EpicsType.Time_SByte},
+            {typeof(ExtTimeType<byte>) ,EpicsType.Time_Byte},
             {typeof(ExtTimeType<string>),EpicsType.Time_String},
             {typeof(ExtTimeType<short>) ,EpicsType.Time_Short},
             {typeof(ExtTimeType<int>)   ,EpicsType.Time_Int},
@@ -36,7 +36,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtTimeType<double>),EpicsType.Time_Double},
             {typeof(ExtTimeType<Enum>)  ,EpicsType.Time_Enum},
 
-            {typeof(ExtGraphic<sbyte>) ,EpicsType.Display_SByte},
+            {typeof(ExtGraphic<byte>) ,EpicsType.Display_Byte},
             {typeof(ExtGraphic<string>),EpicsType.Display_String},
             {typeof(ExtGraphic<short>) ,EpicsType.Display_Short},
             {typeof(ExtGraphic<int>)   ,EpicsType.Display_Int},
@@ -44,7 +44,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtGraphic<double>),EpicsType.Display_Double},
             //{typeof(ExtGraphic<Enum>)  ,EpicsType.Display_Enum}, // Does not exists???
 
-            {typeof(ExtControl<sbyte>) ,EpicsType.Control_SByte},
+            {typeof(ExtControl<byte>) ,EpicsType.Control_Byte},
             {typeof(ExtControl<string>),EpicsType.Control_String},
             {typeof(ExtControl<short>) ,EpicsType.Control_Short},
             {typeof(ExtControl<int>)   ,EpicsType.Control_Int},
@@ -54,7 +54,7 @@ namespace PSI.EpicsClient2
 
             // Array types
 
-            {typeof(ExtType<sbyte[]>) ,EpicsType.Status_SByte},
+            {typeof(ExtType<byte[]>) ,EpicsType.Status_Byte},
             {typeof(ExtType<string[]>),EpicsType.Status_String},
             {typeof(ExtType<short[]>) ,EpicsType.Status_Short},
             {typeof(ExtType<int[]>)   ,EpicsType.Status_Int},
@@ -62,7 +62,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtType<double[]>),EpicsType.Status_Double},
             {typeof(ExtType<Enum[]>)  ,EpicsType.Status_Enum},
 
-            {typeof(ExtTimeType<sbyte[]>) ,EpicsType.Time_SByte},
+            {typeof(ExtTimeType<byte[]>) ,EpicsType.Time_Byte},
             {typeof(ExtTimeType<string[]>),EpicsType.Time_String},
             {typeof(ExtTimeType<short[]>) ,EpicsType.Time_Short},
             {typeof(ExtTimeType<int[]>)   ,EpicsType.Time_Int},
@@ -70,7 +70,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtTimeType<double[]>),EpicsType.Time_Double},
             {typeof(ExtTimeType<Enum[]>)  ,EpicsType.Time_Enum},
 
-            {typeof(ExtGraphic<sbyte[]>) ,EpicsType.Display_SByte},
+            {typeof(ExtGraphic<byte[]>) ,EpicsType.Display_Byte},
             {typeof(ExtGraphic<string[]>),EpicsType.Display_String},
             {typeof(ExtGraphic<short[]>) ,EpicsType.Display_Short},
             {typeof(ExtGraphic<int[]>)   ,EpicsType.Display_Int},
@@ -78,7 +78,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtGraphic<double[]>),EpicsType.Display_Double},
             //{typeof(ExtGraphic<Enum>)  ,EpicsType.Display_Enum}, // Does not exists???
 
-            {typeof(ExtControl<sbyte[]>) ,EpicsType.Control_SByte},
+            {typeof(ExtControl<byte[]>) ,EpicsType.Control_Byte},
             {typeof(ExtControl<string[]>),EpicsType.Control_String},
             {typeof(ExtControl<short[]>) ,EpicsType.Control_Short},
             {typeof(ExtControl<int[]>)   ,EpicsType.Control_Int},
@@ -117,7 +117,7 @@ namespace PSI.EpicsClient2
                         return 4;
                     case EpicsType.Short:
                         return 2;
-                    case EpicsType.SByte:
+                    case EpicsType.Byte:
                         return 1;
                     case EpicsType.Float:
                         return 4;

@@ -32,7 +32,7 @@ namespace PSI.EpicsClient2
             if (t == typeof(object))
                 t = channel.ChannelDefinedType;
             // padding for "RISC alignment"
-            if (t == typeof(sbyte))
+            if (t == typeof(byte))
                 pos += 3;
             else if (t == typeof(double))
                 pos += 4;

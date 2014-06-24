@@ -95,7 +95,7 @@ namespace PSI.EpicsClient2
             {
                 EGU = "";
             }
-            if (t == typeof(sbyte))
+            if (t == typeof(byte))
                 pos++; // 1 padding for "RISC alignment"
             Value = channel.DecodeData<TType>(nbElements, pos);
         }
