@@ -40,7 +40,7 @@ namespace PSI.EpicsClient2
             // padding for "RISC alignment"
             if (t == typeof(double))
                 pos += 4;
-            else if (t == typeof(sbyte))
+            else if (t == typeof(byte))
                 pos++;
             Value = channel.DecodeData<TType>(nbElements, pos);
         }
