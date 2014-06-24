@@ -73,7 +73,7 @@ namespace CaSharpServer
                 case "Int16":
                     return EpicsType.Short;
                 case "Byte":
-                    return EpicsType.SByte;
+                    return EpicsType.Byte;
                 default:
                     Console.WriteLine("Unkown type " + type.Name);
                     return EpicsType.Invalid;
