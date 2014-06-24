@@ -5,7 +5,6 @@ using System.Text;
 using System.IO;
 using CaSharpServer.Constants;
 using System.Globalization;
-using System.Linq;
 
 namespace CaSharpServer
 {
@@ -91,15 +90,6 @@ namespace CaSharpServer
         {
             byte[] ret = { var };
             return ret;
-        }
-        /// <summary>
-        /// Converts a SByte to network byte order
-        /// </summary>
-        /// <param name="var">The SByte to convert to a byte array</param>
-        /// <returns>The converted Sbyte as byte array</returns>
-        public static byte[] ToByteArray(this sbyte var)
-        {
-            return new byte[] { (byte)var };
         }
         /// <summary>
         /// Converts a Int16 to network byte order
@@ -322,17 +312,6 @@ namespace CaSharpServer
             return bytes[startPos];
         }
         /// <summary>
-        /// Converts a byte array to a signed byte (1 Byte)
-        /// </summary>
-        /// <param name="bytes">An array of bytes.</param>
-        /// <param name="startPos">The starting position within value.</param>
-        /// <returns>The converted sbyte</returns>
-        public static SByte ToSByte(this byte[] bytes, Int32 startPos)
-        {
-            // re-interpret cast (Convert.ToSByte throws exceptions if value is to big)
-            return (SByte)(bytes[startPos]);
-        }
-        /// <summary>
         /// Converts a byte array to a Double (8 Bytes)
         /// </summary>
         /// <param name="bytes">An array of bytes.</param>
@@ -403,9 +382,8 @@ namespace CaSharpServer
                     return ToByteArray<float>(src, epicsType, record, dataCount);
                 case "Double":
                     return ToByteArray<double>(src, epicsType, record, dataCount);
-                case "SByte":
                 case "Byte":
-                    return ToByteArray<sbyte>(src, epicsType, record, dataCount);
+                    return ToByteArray<byte>(src, epicsType, record, dataCount);
                 default:
                     throw new Exception("Wrong DataType defined");
             }
@@ -458,9 +436,9 @@ namespace CaSharpServer
                             for (int i = 0; i < dataCount; i++)
                                 writer.Write(ToByteArray(Convert.ToSingle(source[i])));
                             return mem.ToArray();
-                        case EpicsType.SByte:
+                        case EpicsType.Byte:
                             for (int i = 0; i < dataCount; i++)
-                                writer.Write(ToByteArray(Convert.ToSByte(source[i])));
+                                writer.Write(ToByteArray(Convert.ToByte(source[i])));
                             return mem.ToArray();
                         case EpicsType.Int:
                             for (int i = 0; i < dataCount; i++)
@@ -492,11 +470,11 @@ namespace CaSharpServer
                             for (int i = 0; i < dataCount; i++)
                                 writer.Write(ToByteArray(Convert.ToInt32(source[i])));
                             return mem.ToArray();
-                        case EpicsType.Status_SByte:
+                        case EpicsType.Status_Byte:
                             writer.Write(ToByteArray((ushort)(record["STAT"] ?? 0)));
                             writer.Write(ToByteArray((ushort)(record["SEVR"] ?? 0)));
                             for (int i = 0; i < dataCount; i++)
-                                writer.Write(ToByteArray(Convert.ToSByte(source[i])));
+                                writer.Write(ToByteArray(Convert.ToByte(source[i])));
                             return mem.ToArray();
                         case EpicsType.Status_Short:
                             writer.Write(ToByteArray((ushort)(record["STAT"] ?? 0)));
@@ -550,12 +528,12 @@ namespace CaSharpServer
                             for (int i = 0; i < dataCount; i++)
                                 writer.Write(ToByteArray(source[i].ToString(), true));
                             return mem.ToArray();
-                        case EpicsType.Time_SByte:
+                        case EpicsType.Time_Byte:
                             writer.Write(ToByteArray((ushort)(record["STAT"] ?? 0)));
                             writer.Write(ToByteArray((ushort)(record["SEVR"] ?? 0)));
                             writer.Write(ToByteArray((DateTime)(record["TIME"] ?? 0)));
                             for (int i = 0; i < dataCount; i++)
-                                writer.Write(ToByteArray(Convert.ToSByte(source[i])));
+                                writer.Write(ToByteArray(Convert.ToByte(source[i])));
                             return mem.ToArray();
                         #endregion
 
@@ -626,7 +604,7 @@ namespace CaSharpServer
                             for (int i = 0; i < dataCount; i++)
                                 writer.Write(ToByteArray(Convert.ToInt16(source[i])));
                             return mem.ToArray();
-                        case EpicsType.Control_SByte:
+                        case EpicsType.Control_Byte:
                             throw new Exception("NOT IMPLEMENTED");
                         case EpicsType.Control_String:
                             writer.Write(ToByteArray((ushort)record["STAT"]));
@@ -693,7 +671,7 @@ namespace CaSharpServer
                             for (int i = 0; i < dataCount; i++)
                                 writer.Write(ToByteArray(Convert.ToInt16(source[i])));
                             return mem.ToArray();
-                        case EpicsType.Display_SByte:
+                        case EpicsType.Display_Byte:
                             throw new Exception("NOT IMPLEMENTED");
                         case EpicsType.Display_String:
                             writer.Write(ToByteArray((ushort)(record["STAT"] ?? 0)));
@@ -721,8 +699,8 @@ namespace CaSharpServer
                     return ByteConverter.ToUInt16(payload);
                 case EpicsType.Float:
                     return ByteConverter.ToFloat(payload);
-                case EpicsType.SByte:
-                    return ByteConverter.ToSByte(payload, 0);
+                case EpicsType.Byte:
+                    return ByteConverter.ToByte(payload, 0);
                 case EpicsType.Int:
                     return ByteConverter.ToInt32(payload);
                 case EpicsType.Double:
@@ -766,11 +744,11 @@ namespace CaSharpServer
 
                         return arr;
                     }
-                case EpicsType.SByte:
+                case EpicsType.Byte:
                     {
-                        sbyte[] arr = new sbyte[datacount];
+                        byte[] arr = new byte[datacount];
                         for (int i = 0; i < datacount; i++)
-                            arr[i] = ByteConverter.ToSByte(payload, i);
+                            arr[i] = ByteConverter.ToByte(payload, i);
 
                         return arr;
                     }
