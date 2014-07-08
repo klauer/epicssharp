@@ -185,41 +185,97 @@ namespace PSI.EpicsClient2
 
         internal void SendWriteNotify<TType>(TType newValue)
         {
-            DataPacket packet = DataPacket.Create(16 + TypeHandling.EpicsSize(newValue) + TypeHandling.Padding(TypeHandling.EpicsSize(newValue)));
-            packet.Command = (ushort)CommandID.CA_PROTO_WRITE_NOTIFY;
-            Type t = typeof(TType);
-            if (typeof(TType).IsArray)
-                t = (typeof(TType)).GetElementType();
-            packet.DataType = (ushort)TypeHandling.Lookup[t];
+            int headerSize = 16;
+            uint nbElem = 1;
             if (newValue is IEnumerable<object>)
-                packet.DataCount = (uint)((IEnumerable<object>)newValue).Count();
-            else
-                packet.DataCount = 1;
+                nbElem = (uint)((IEnumerable<object>)newValue).Count();
+            Type t = typeof(TType);
+            if (t.IsArray)
+            {
+                nbElem = (uint)((Array)((object)newValue)).Length;
+                // if too many array elements, use extended header
+                if (nbElem > 0xffff)
+                    headerSize = 24;
+                t = t.GetElementType();
+            }
+            else if (t.IsGenericType)
+            {
+                if (t.GetGenericArguments().First() == typeof(object))
+                    t = t.GetGenericTypeDefinition().MakeGenericType(new Type[] { channelDefinedType });
+            }
+            if (t == typeof(object))
+                t = channelDefinedType;
+            
+            int payloadSize = (int)(nbElem * TypeHandling.EpicsSize(t));
+            if (payloadSize % 8 > 0)
+            {
+                payloadSize += 8 - (payloadSize % 8);
+            }
+            // if payload too large, use extended header
+            if (payloadSize > 0x4000)
+                headerSize = 24;
+            DataPacket packet = DataPacket.Create(headerSize + payloadSize);
+            packet.Command = (ushort)CommandID.CA_PROTO_WRITE_NOTIFY;
+            packet.DataCount = nbElem;
+            packet.DataType = (ushort)TypeHandling.Lookup[t];
             packet.Parameter1 = SID;
             uint ioid = (NextIoId++);
             packet.Parameter2 = ioid;
-            switch (TypeHandling.Lookup[t])
+
+            if (nbElem > 1)
             {
-                case EpicsType.Int:
-                    packet.SetInt32((int)packet.HeaderSize, (int)(object)newValue);
-                    break;
-                case EpicsType.Short:
-                    packet.SetInt16((int)packet.HeaderSize, (short)(object)newValue);
-                    break;
-                case EpicsType.Float:
-                    packet.SetFloat((int)packet.HeaderSize, (float)(object)newValue);
-                    break;
-                case EpicsType.Double:
-                    packet.SetDouble((int)packet.HeaderSize, (double)(object)newValue);
-                    break;
-                case EpicsType.String:
-                    packet.SetDataAsString((string)(object)newValue);
-                    break;
-                case EpicsType.Byte:
-                    packet.SetByte((int)packet.HeaderSize, (byte)(object)newValue);
-                    break;
-                default:
-                    throw new Exception("Type not currently supported.");
+                int pos = headerSize;
+                int elementSize = TypeHandling.EpicsSize(t);
+                foreach (var elem in (System.Collections.IEnumerable)newValue)
+                {
+                    switch (TypeHandling.Lookup[t])
+                    {
+                        case EpicsType.Int:
+                            packet.SetInt32(pos, (int)elem);
+                            break;
+                        case EpicsType.Short:
+                            packet.SetInt16(pos, (short)elem);
+                            break;
+                        case EpicsType.Float:
+                            packet.SetFloat(pos, (float)elem);
+                            break;
+                        case EpicsType.Double:
+                            packet.SetDouble(pos, (double)elem);
+                            break;
+                        case EpicsType.Byte:
+                            packet.SetByte(pos, (byte)elem);
+                            break;
+                        default:
+                            throw new Exception("Type not supported");
+                    }
+                    pos += elementSize;
+                }
+            }
+            else
+            {
+                switch (TypeHandling.Lookup[t])
+                {
+                    case EpicsType.Int:
+                        packet.SetInt32((int)packet.HeaderSize, (int)(object)newValue);
+                        break;
+                    case EpicsType.Short:
+                        packet.SetInt16((int)packet.HeaderSize, (short)(object)newValue);
+                        break;
+                    case EpicsType.Float:
+                        packet.SetFloat((int)packet.HeaderSize, (float)(object)newValue);
+                        break;
+                    case EpicsType.Double:
+                        packet.SetDouble((int)packet.HeaderSize, (double)(object)newValue);
+                        break;
+                    case EpicsType.String:
+                        packet.SetDataAsString((string)(object)newValue);
+                        break;
+                    case EpicsType.Byte:
+                        packet.SetByte((int)packet.HeaderSize, (byte)(object)newValue);
+                        break;
+                    default:
+                        throw new Exception("Type not currently supported.");
+                }
             }
 
             lock (ioc.PendingIo)
