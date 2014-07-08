@@ -111,21 +111,21 @@ namespace PSI.EpicsClient2
             {
                 return 40;
             }
-            else switch (Lookup[t])
-                {
-                    case EpicsType.Int:
-                        return 4;
-                    case EpicsType.Short:
-                        return 2;
-                    case EpicsType.Byte:
-                        return 1;
-                    case EpicsType.Float:
-                        return 4;
-                    case EpicsType.Double:
-                        return 8;
-                    default:
-                        throw new Exception("Type not yet supported.");
-                }
+            switch (Lookup[t])
+            {
+                case EpicsType.Int:
+                    return 4;
+                case EpicsType.Short:
+                    return 2;
+                case EpicsType.Byte:
+                    return 1;
+                case EpicsType.Float:
+                    return 4;
+                case EpicsType.Double:
+                    return 8;
+                default:
+                    throw new Exception("Type not yet supported.");
+            }
         }
 
         static public int Padding(int size)
