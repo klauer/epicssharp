@@ -52,7 +52,9 @@ namespace CaSharpServer
             if (type.IsEnum)
                 return EpicsType.Enum;
             string name;
-            if (type.IsArray)
+            if (type.IsGenericType && type.Name.Split(new char[] { '`' })[0] == "ArrayContainer")
+                name = type.GetGenericArguments()[0].Name;
+            else if (type.IsArray)
                 name = type.GetElementType().Name;
             else
                 name = type.Name;
