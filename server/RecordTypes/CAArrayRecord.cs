@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CaSharpServer.RecordTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,18 +10,28 @@ namespace CaSharpServer
     {
     }
 
-    public abstract class CAArrayRecord<TType> : CAArrayRecord
+    public abstract class CAArrayRecord<TType> : CAArrayRecord where TType : IComparable
     {
         /// <summary>
         /// Stores the actual value of the record
         /// </summary>
-        TType[] currentValue;
+        //TType[] currentValue;
+
+        ArrayContainer<TType> currentValue;
 
         /// <summary>
         /// Access the value linked to the record
         /// </summary>
-        [CAField("VAL")]
+        /*[CAField("VAL")]
         public TType[] Value
+        {
+            get
+            {
+                return currentValue;
+            }
+        }*/
+
+        public ArrayContainer<TType> Value
         {
             get
             {
@@ -55,15 +66,22 @@ namespace CaSharpServer
 
         public CAArrayRecord(int size)
         {
-            currentValue = new TType[size];
+            //currentValue = new TType[size];
+            currentValue = new ArrayContainer<TType>(size);
+            currentValue.ArrayModified += currentValue_ArrayModified;
             this.dataCount = size;
+        }
+
+        void currentValue_ArrayModified(object sender, EventArgs e)
+        {
+            IsDirty = true;
         }
 
         public int Length
         {
             get
             {
-                return Value.Length;
+                return currentValue.arrayValues.Length;
             }
         }
     }

@@ -49,6 +49,7 @@
     <Compile Include="Constants\AlarmSeverity.cs" />
     <Compile Include="Constants\AlarmStatus.cs" />
     <Compile Include="Constants\CAConstants.cs" />
+    <Compile Include="RecordTypes\ArrayContainer.cs" />
     <Compile Include="RecordTypes\CAArrayRecord.cs" />
     <Compile Include="RecordTypes\CAByteArrayRecord.cs" />
     <Compile Include="RecordTypes\CADoubleRecord.cs" />
