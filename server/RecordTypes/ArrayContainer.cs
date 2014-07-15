@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CaSharpServer.RecordTypes
+namespace CaSharpServer
 {
     public class ArrayContainer<TType>: IEnumerable<TType> where TType : IComparable
     {

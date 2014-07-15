@@ -362,28 +362,34 @@ namespace CaSharpServer
         {
             //Type valueType = record["VAL"].GetType();
             Type valueType = src.GetType();
+            object mySrc = src;
 
             if (valueType.IsEnum)
                 return ToByteArray<Enum>(src, epicsType, record, dataCount);
             string name;
-            if (valueType.IsArray)
+            if (valueType.IsGenericType && valueType.Name.Split(new char[] { '`' })[0] == "ArrayContainer")
+            {
+                name = valueType.GetGenericArguments()[0].Name;
+                mySrc = ((dynamic)src).arrayValues;
+            }
+            else if (valueType.IsArray)
                 name = valueType.GetElementType().Name;
             else
                 name = valueType.Name;
             switch (name)
             {
                 case "String":
-                    return ToByteArray<string>(src, epicsType, record, dataCount);
+                    return ToByteArray<string>(mySrc, epicsType, record, dataCount);
                 case "Int32":
-                    return ToByteArray<int>(src, epicsType, record, dataCount);
+                    return ToByteArray<int>(mySrc, epicsType, record, dataCount);
                 case "Int16":
-                    return ToByteArray<short>(src, epicsType, record, dataCount);
+                    return ToByteArray<short>(mySrc, epicsType, record, dataCount);
                 case "Single":
-                    return ToByteArray<float>(src, epicsType, record, dataCount);
+                    return ToByteArray<float>(mySrc, epicsType, record, dataCount);
                 case "Double":
-                    return ToByteArray<double>(src, epicsType, record, dataCount);
+                    return ToByteArray<double>(mySrc, epicsType, record, dataCount);
                 case "Byte":
-                    return ToByteArray<byte>(src, epicsType, record, dataCount);
+                    return ToByteArray<byte>(mySrc, epicsType, record, dataCount);
                 default:
                     throw new Exception("Wrong DataType defined");
             }
