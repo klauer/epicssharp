@@ -60,21 +60,13 @@ namespace CaSharpServer
                 return;
             }
 
-            if (Record[Property].GetType().IsArray)
-            {
-                string full = "";
-                foreach (object i in (System.Collections.IEnumerable)newValue)
-                    full += i.GetHashCode() + ";";
-                newValueCheck = full;
-            }
-
 #warning need to implement deadband
             /*if (newValue is short || newValue is int || newValue is float || newValue is double)
             {
                 Record.m
             }*/
 
-            if ("" + newValueCheck != "" + lastValue || Record.IsDirty)
+            if (Record.IsDirty)
             {
                 Channel.TcpConnection.Send(Channel.Server.Filter.MonitorChangeMessage(SubscriptionId, Channel.ClientId, Type, DataCount, newValue.ToByteArray(Type, Record)));
                 lastValue = newValueCheck;
