@@ -18,7 +18,6 @@ namespace CaSharpServer
         int DataCount = 1;
         MonitorMask MonitorMask;
         int SubscriptionId;
-        object lastValue = null;
 
         internal CAChannelMonitor(CARecord record, string property, CAServerChannel channel,
                                     EpicsType type, int dataCount, MonitorMask monitorMask, int subscriptionId)
@@ -37,8 +36,8 @@ namespace CaSharpServer
                 if (val == null)
                     val = 0;
                 byte[] realData = val.ToByteArray(Type, Record);
-                Channel.TcpConnection.Send(Channel.Server.Filter.MonitorChangeMessage(SubscriptionId, Channel.ClientId, Type, DataCount, val.ToByteArray(Type, Record)));
-                lastValue = Record[Property];
+                using (Record.CreateAtomicChange())
+                    Channel.TcpConnection.Send(Channel.Server.Filter.MonitorChangeMessage(SubscriptionId, Channel.ClientId, Type, DataCount, val.ToByteArray(Type, Record)));
                 Record.RecordProcessed += new EventHandler(Record_RecordProcessed);
             }
             catch (Exception e)
@@ -49,9 +48,6 @@ namespace CaSharpServer
 
         void Record_RecordProcessed(object sender, EventArgs e)
         {
-            object newValue = Record[Property];
-            object newValueCheck = newValue;
-
             //If the client was started before the IOC then it is possible
             //that the client will request a value before the first "scan"
             //In which case ignore the request
@@ -68,8 +64,8 @@ namespace CaSharpServer
 
             if (Record.IsDirty)
             {
-                Channel.TcpConnection.Send(Channel.Server.Filter.MonitorChangeMessage(SubscriptionId, Channel.ClientId, Type, DataCount, newValue.ToByteArray(Type, Record)));
-                lastValue = newValueCheck;
+                using (Record.CreateAtomicChange())
+                    Channel.TcpConnection.Send(Channel.Server.Filter.MonitorChangeMessage(SubscriptionId, Channel.ClientId, Type, DataCount, Record[Property].ToByteArray(Type, Record)));
             }
         }
 

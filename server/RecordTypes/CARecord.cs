@@ -5,6 +5,7 @@ using System.Text;
 using System.Reflection;
 using CaSharpServer.Constants;
 using System.Globalization;
+using System.Threading;
 
 namespace CaSharpServer
 {
@@ -52,7 +53,7 @@ namespace CaSharpServer
         {
             get
             {
-               return disableAlarmSeverity;
+                return disableAlarmSeverity;
             }
             set
             {
@@ -236,7 +237,7 @@ namespace CaSharpServer
                     if (PropertySet != null)
                     {
                         PropertyDelegateEventArgs arg = new PropertyDelegateEventArgs { Property = key.ToUpper(), OldValue = this[key.ToUpper()], NewValue = value, CancelEvent = false };
-                        PropertySet(this,arg );
+                        PropertySet(this, arg);
                         if (arg.CancelEvent == true)
                         {
                             IsDirty = true;
@@ -448,5 +449,61 @@ namespace CaSharpServer
         }
 
         public bool IsDirty { get; set; }
+
+        /// <summary>
+        /// The AtomicChange class is used for grouping multiple changes
+        /// to a CARecord into one atomic change. This allows for bulk
+        /// updates, e.g. setting an entire array at once or changing alarm
+        /// status, severity and value together as one cohesive change.
+        /// </summary>
+        /// <example>
+        /// <![CDATA[
+        /// var record = CAServer.CreateArrayRecord<int>(8);
+        /// using (record.CreateAtomicChange())
+        /// {
+        ///     for (var i = 0; i < record.Value.Length; i++)
+        ///         record.Value[i] = i * 5;
+        /// }
+        /// ]]>
+        /// </example>
+        public class AtomicChange : IDisposable
+        {
+            private CARecord record;
+
+            internal AtomicChange(CARecord record)
+            {
+                this.record = record;
+                record.updateMutex.WaitOne();
+            }
+
+            public void Dispose()
+            {
+                record.updateMutex.ReleaseMutex();
+                if (record.inAtomic)
+                    return;
+                record.inAtomic = true;
+                if (record.IsDirty && record.Scan == ScanAlgorithm.ON_CHANGE)
+                {
+                    record.ProcessRecord();
+                }
+                record.inAtomic = false;
+            }
+        }
+
+        public AtomicChange CreateAtomicChange()
+        {
+            return new AtomicChange(this);
+        }
+
+        /// <summary>
+        /// Mutex used for synchronizing (atomic) changes.
+        /// </summary>
+        private Mutex updateMutex = new Mutex();
+
+        /// <summary>
+        /// Flag for preventing re-creating AtomicChange instances from
+        /// AtomicChange.Dispose if the record's ScanAlgorithm is ON_CHANGE.
+        /// </summary>
+        bool inAtomic = false;
     }
 }
