@@ -40,28 +40,104 @@ namespace CaSharpServer
         public ScanAlgorithm Scan { get; set; }
 
         /// <summary>
+        /// Internal variable for the DisableAlarmServerity property
+        /// </summary>
+        private bool disableAlarmSeverity;
+
+        /// <summary>
         /// Defines if the record will handle or not the alarm
         /// </summary>
         [CAField("DISS")]
-        public bool DisableAlarmServerity { get; set; }
+        public bool DisableAlarmServerity
+        {
+            get
+            {
+               return disableAlarmSeverity;
+            }
+            set
+            {
+                if (disableAlarmSeverity != value)
+                {
+                    disableAlarmSeverity = value;
+                    IsDirty = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internal variable for the AlarmStatus property
+        /// </summary>
+        private AlarmStatus alarmStatus;
 
         /// <summary>
         /// Defines the current record alarm status
         /// </summary>
         [CAField("STAT")]
-        public AlarmStatus AlarmStatus { get; set; }
+        public AlarmStatus AlarmStatus
+        {
+            get
+            {
+                return alarmStatus;
+            }
+            set
+            {
+                if (value != alarmStatus)
+                {
+                    alarmStatus = value;
+                    IsDirty = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internal variable for the AlarmSeverity property
+        /// </summary>
+        private AlarmSeverity currentAlarmSeverity;
 
         /// <summary>
         /// Defines the current alarm severity
         /// </summary>
         [CAField("SEVR")]
-        public AlarmSeverity CurrentAlarmSeverity { get; set; }
+        public AlarmSeverity CurrentAlarmSeverity
+        {
+            get
+            {
+                return currentAlarmSeverity;
+            }
+            set
+            {
+                if (currentAlarmSeverity != value)
+                {
+                    currentAlarmSeverity = value;
+                    IsDirty = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internal variable for the AlarmAcknoledgeSeverity property
+        /// </summary>
+        private AlarmSeverity alarmAcknoledgeSeverity;
 
         /// <summary>
         /// Defines the highest unacknoledged alarm
         /// </summary>
         [CAField("ACKS")]
-        public AlarmSeverity AlarmAcknoledgeSeverity { get; set; }
+        public AlarmSeverity AlarmAcknoledgeSeverity
+        {
+            get
+            {
+                return alarmAcknoledgeSeverity;
+            }
+            set
+            {
+                if (alarmAcknoledgeSeverity != value)
+                {
+                    alarmAcknoledgeSeverity = value;
+                    IsDirty = true;
+                }
+            }
+        }
 
         /// <summary>
         /// Defines the name of the record (max 28 char.)
