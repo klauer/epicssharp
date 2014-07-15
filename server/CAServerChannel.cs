@@ -169,8 +169,12 @@ namespace CaSharpServer
                 else
                 {
                     val = payload.ByteToObject(type, dataCount);
-                    int nb = Math.Min(((Array)Record[Property]).Length, dataCount);
-                    Type t = Record.GetPropertyType(Property).GetElementType();
+                    int nb = Math.Min(((dynamic)Record[Property]).Length, dataCount);
+                    Type t = Record.GetPropertyType(Property);
+                    if (t.Name.Split('`')[0] == "ArrayContainer")
+                        t = t.GetGenericArguments().First();
+                    else
+                        t = t.GetElementType();
                     if (Record.CallPropertySet(new PropertyDelegateEventArgs { OldValue = Record[Property], NewValue = val, Property = Property }))
                     {
                         int i = 0;

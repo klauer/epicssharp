@@ -209,42 +209,41 @@ namespace CaSharpServer
                 PopulateProperties();
                 if (!knownProps.ContainsKey(key.ToUpper()))
                     return;
-                string name = knownProps[key.ToUpper()].PropertyType.GetElementType().Name;
-                switch (name)
+                Type t = knownProps[key.ToUpper()].PropertyType;
+                if (t.Name.Split('`')[0] == "ArrayContainer")
+                    t = t.GetGenericArguments().First();
+                else
+                    t = t.GetElementType();
+                dynamic arr = (dynamic)knownProps[key.ToUpper()].GetValue(this, null);
+                switch (t.Name)
                 {
                     case "Byte":
                         {
-                            byte[] arr = (byte[])knownProps[key.ToUpper()].GetValue(this, null);
                             arr[index] = (byte)value;
                             break;
                         }
                     case "Int32":
                         {
-                            int[] arr = (int[])knownProps[key.ToUpper()].GetValue(this, null);
                             arr[index] = (int)value;
                             break;
                         }
                     case "Double":
                         {
-                            double[] arr = (double[])knownProps[key.ToUpper()].GetValue(this, null);
                             arr[index] = (double)value;
                             break;
                         }
                     case "Single":
                         {
-                            float[] arr = (float[])knownProps[key.ToUpper()].GetValue(this, null);
                             arr[index] = (float)value;
                             break;
                         }
                     case "Short":
                         {
-                            short[] arr = (short[])knownProps[key.ToUpper()].GetValue(this, null);
                             arr[index] = (short)value;
                             break;
                         }
                     case "String":
                         {
-                            string[] arr = (string[])knownProps[key.ToUpper()].GetValue(this, null);
                             arr[index] = (string)value;
                             break;
                         }

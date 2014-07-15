@@ -1,5 +1,4 @@
-﻿using CaSharpServer.RecordTypes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,22 +14,14 @@ namespace CaSharpServer
         /// <summary>
         /// Stores the actual value of the record
         /// </summary>
-        //TType[] currentValue;
-
         ArrayContainer<TType> currentValue;
 
+
+        
         /// <summary>
         /// Access the value linked to the record
         /// </summary>
-        /*[CAField("VAL")]
-        public TType[] Value
-        {
-            get
-            {
-                return currentValue;
-            }
-        }*/
-
+        [CAField("VAL")]
         public ArrayContainer<TType> Value
         {
             get
