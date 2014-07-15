@@ -452,21 +452,9 @@ namespace CaSharpServer
 
         /// <summary>
         /// The AtomicChange class is used for grouping multiple changes
-        /// to a CARecord into one atomic change. This allows for bulk
-        /// updates, e.g. setting an entire array at once or changing alarm
-        /// status, severity and value together as one cohesive change.
+        /// to a CARecord into one atomic change.
         /// </summary>
-        /// <example>
-        /// <![CDATA[
-        /// var record = CAServer.CreateArrayRecord<int>(8);
-        /// using (record.CreateAtomicChange())
-        /// {
-        ///     for (var i = 0; i < record.Value.Length; i++)
-        ///         record.Value[i] = i * 5;
-        /// }
-        /// ]]>
-        /// </example>
-        public class AtomicChange : IDisposable
+        private class AtomicChange : IDisposable
         {
             private CARecord record;
 
@@ -490,7 +478,25 @@ namespace CaSharpServer
             }
         }
 
-        public AtomicChange CreateAtomicChange()
+        /// <summary>
+        /// Use this method with a using statement to group multiple changes into
+        /// one logical unit of change. This allows for bulk updates, e.g. setting
+        /// an entire array at once or changing alarm status, severity and value
+        /// together as one cohesive change.
+        /// </summary>
+        /// <returns>This method returns a guarding object, that you can use
+        /// to group multiple changes into one big atomic change.</returns>
+        /// <example>
+        /// <![CDATA[
+        /// var record = CAServer.CreateArrayRecord<int>(8);
+        /// using (record.CreateAtomicChange())
+        /// {
+        ///     for (var i = 0; i < record.Value.Length; i++)
+        ///         record.Value[i] = i * 5;
+        /// }
+        /// ]]>
+        /// </example>
+        public IDisposable CreateAtomicChange()
         {
             return new AtomicChange(this);
         }
