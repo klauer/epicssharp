@@ -103,7 +103,6 @@ namespace CaSharpServer
         internal void ReadValue(int ioId, EpicsType type, int dataCount)
         {
             byte[] val;
-
             if(Record.Scan == ScanAlgorithm.PASSIVE)
                 Record.CallPrepareRecord();
             object objVal = Record[Property];
@@ -112,10 +111,13 @@ namespace CaSharpServer
 
             try
             {
-                if (objVal.GetType().IsArray)
-                    val = objVal.ToByteArray(type, Record, dataCount);
-                else
-                    val = objVal.ToByteArray(type, Record);
+                using (Record.CreateAtomicChange())
+                {
+                    if (objVal.GetType().IsArray)
+                        val = objVal.ToByteArray(type, Record, dataCount);
+                    else
+                        val = objVal.ToByteArray(type, Record);
+                }
                 TcpConnection.Send(Server.Filter.ChannelReadMessage(ClientId, ioId, type, dataCount, val));
             }
             catch (Exception e)
@@ -164,7 +166,8 @@ namespace CaSharpServer
                 if (dataCount == 1)
                 {
                     val = payload.ByteToObject(type);
-                    Record[Property] = Convert.ChangeType(val, Record.GetPropertyType(Property));
+                    using (Record.CreateAtomicChange())
+                        Record[Property] = Convert.ChangeType(val, Record.GetPropertyType(Property));
                 }
                 else
                 {
@@ -178,10 +181,13 @@ namespace CaSharpServer
                     if (Record.CallPropertySet(new PropertyDelegateEventArgs { OldValue = Record[Property], NewValue = val, Property = Property }))
                     {
                         int i = 0;
-                        foreach (object element in ((IEnumerable)val))
+                        using (Record.CreateAtomicChange())
                         {
-                            Record.SetArrayValue(Property, i, Convert.ChangeType(element, t));
-                            i++;
+                            foreach (object element in ((IEnumerable)val))
+                            {
+                                Record.SetArrayValue(Property, i, Convert.ChangeType(element, t));
+                                i++;
+                            }
                         }
                     }
                 }
