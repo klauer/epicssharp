@@ -111,7 +111,7 @@ namespace CaSharpServer
 
             try
             {
-                using (Record.CreateAtomicChange())
+                using (Record.CreateAtomicChange(false))
                 {
                     if (objVal.GetType().IsArray)
                         val = objVal.ToByteArray(type, Record, dataCount);
@@ -151,7 +151,7 @@ namespace CaSharpServer
             }
         }
 
-        internal void PutValue(int ioId, EpicsType type, int dataCount, byte[] payload)
+        internal void PutValue(int ioId, EpicsType type, int dataCount, byte[] payload, bool notify)
         {
             try
             {
@@ -192,7 +192,8 @@ namespace CaSharpServer
                     }
                 }
 
-                TcpConnection.Send(Server.Filter.ChannelWroteMessage(ClientId, ioId, type, dataCount, EpicsTransitionStatus.ECA_NORMAL));
+                if(notify)
+                    TcpConnection.Send(Server.Filter.ChannelWroteMessage(ClientId, ioId, type, dataCount, EpicsTransitionStatus.ECA_NORMAL));
             }
             catch (Exception exp)
             {

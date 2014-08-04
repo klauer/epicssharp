@@ -154,11 +154,17 @@ namespace CaSharpServer
                     }
                     break;
                 case CommandID.CA_PROTO_WRITE:
+                    lock (Server.channelList)
+                    {
+                        if (Server.channelList.ContainsKey((int)Parameter1))
+                            Server.channelList[(int)Parameter1].PutValue((int)Parameter2, (EpicsType)DataType, (int)DataCount, payload, false);
+                    }
+                    break;
                 case CommandID.CA_PROTO_WRITE_NOTIFY:
                     lock (Server.channelList)
                     {
                         if (Server.channelList.ContainsKey((int)Parameter1))
-                            Server.channelList[(int)Parameter1].PutValue((int)Parameter2, (EpicsType)DataType, (int)DataCount, payload);
+                            Server.channelList[(int)Parameter1].PutValue((int)Parameter2, (EpicsType)DataType, (int)DataCount, payload, true);
                     }
                     break;
                 #endregion
