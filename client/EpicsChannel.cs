@@ -8,6 +8,7 @@ using System.IO;
 using PSI.EpicsClient2.Pipes;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace PSI.EpicsClient2
 {
@@ -160,6 +161,7 @@ namespace PSI.EpicsClient2
 
             ioc.Send(packet);
         }
+
         /// <summary>
         /// Get a value in synchronous mode. Blocks until the value come back or the timeout is reached.
         /// </summary>
@@ -183,7 +185,14 @@ namespace PSI.EpicsClient2
             return DecodeData<TType>(nbElements);
         }
 
-        internal void SendWriteNotify<TType>(TType newValue)
+        public async Task<TType> GetAsync<TType>(uint nbElements = 0)
+        {
+            TType result = default(TType);
+            await Task.Run(() => result = Get<TType>(nbElements));
+            return result;
+        }
+
+        protected DataPacket WritePacket<TType>(TType newValue)
         {
             int headerSize = 16;
             uint nbElem = 1;
@@ -205,7 +214,7 @@ namespace PSI.EpicsClient2
             }
             if (t == typeof(object))
                 t = channelDefinedType;
-            
+
             int payloadSize = (int)(nbElem * TypeHandling.EpicsSize(t));
             if (payloadSize % 8 > 0)
             {
@@ -278,10 +287,25 @@ namespace PSI.EpicsClient2
                 }
             }
 
+            return packet;
+        }
+
+        internal void SendWriteNotify<TType>(TType newValue)
+        {
+            DataPacket packet = WritePacket<TType>(newValue);
+
             lock (ioc.PendingIo)
             {
-                ioc.PendingIo.Add(ioid, this);
+                ioc.PendingIo.Add(packet.Parameter2, this);
             }
+
+            ioc.Send(packet);
+        }
+
+        internal void SendWrite<TType>(TType newValue)
+        {
+            DataPacket packet = WritePacket<TType>(newValue);
+            packet.Command = (ushort)CommandID.CA_PROTO_WRITE;
 
             ioc.Send(packet);
         }
@@ -291,7 +315,7 @@ namespace PSI.EpicsClient2
         /// </summary>
         /// <example>
         /// EpicsClient client = new EpicsClient();<br/>
-        /// EpicsChannel channel=clien.tCreateChannel("SEILER_C:CPU");<br/>
+        /// EpicsChannel channel=client.CreateChannel("SEILER_C:CPU");<br/>
         /// channel.Put&lt;int&gt;()(1);<br/>
         /// </example>
         /// <typeparam name="TType">The type of values to put</typeparam>
@@ -304,6 +328,29 @@ namespace PSI.EpicsClient2
             SendWriteNotify<TType>(newValue);
             if (GetAnswerEvent.WaitOne(Client.Configuration.WaitTimeout) == false)
                 throw new Exception("Write Notify timeout.");
+        }
+
+        public async Task PutAsync<TType>(TType newValue)
+        {
+            await Task.Run(() => Put<TType>(newValue));
+        }
+
+        /// <summary>
+        /// Put a value to the IOC in blocking mode.
+        /// </summary>
+        /// <example>
+        /// EpicsClient client = new EpicsClient();<br/>
+        /// EpicsChannel channel=client.CreateChannel("SEILER_C:CPU");<br/>
+        /// channel.Put&lt;int&gt;()(1);<br/>
+        /// </example>
+        /// <typeparam name="TType">The type of values to put</typeparam>
+        /// <param name="newValue">The new value to set</param>
+        public void PutNoWait<TType>(TType newValue)
+        {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            WaitConnection();
+            SendWrite<TType>(newValue);
         }
 
         internal TType DecodeData<TType>(uint nbElements, int startPos = 0, int maxSize = 40)
