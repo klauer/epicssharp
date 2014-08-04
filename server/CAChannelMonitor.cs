@@ -36,7 +36,7 @@ namespace CaSharpServer
                 if (val == null)
                     val = 0;
                 byte[] realData = val.ToByteArray(Type, Record);
-                using (Record.CreateAtomicChange())
+                using (Record.CreateAtomicChange(false))
                     Channel.TcpConnection.Send(Channel.Server.Filter.MonitorChangeMessage(SubscriptionId, Channel.ClientId, Type, DataCount, val.ToByteArray(Type, Record)));
                 Record.RecordProcessed += new EventHandler(Record_RecordProcessed);
             }
@@ -64,7 +64,7 @@ namespace CaSharpServer
 
             if (Record.IsDirty)
             {
-                using (Record.CreateAtomicChange())
+                using (Record.CreateAtomicChange(false))
                     Channel.TcpConnection.Send(Channel.Server.Filter.MonitorChangeMessage(SubscriptionId, Channel.ClientId, Type, DataCount, Record[Property].ToByteArray(Type, Record)));
             }
         }

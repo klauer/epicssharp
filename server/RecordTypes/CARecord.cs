@@ -254,7 +254,9 @@ namespace CaSharpServer
                             knownProps[key.ToUpper()].SetValue(this, value, new object[] { i });*/
                     }
                     else
+                    {
                         knownProps[key.ToUpper()].SetValue(this, value, null);
+                    }
                 }
             }
         }
@@ -457,6 +459,7 @@ namespace CaSharpServer
         private class AtomicChange : IDisposable
         {
             private CARecord record;
+            bool withProcess = true;
 
             internal AtomicChange(CARecord record)
             {
@@ -464,17 +467,22 @@ namespace CaSharpServer
                 record.updateMutex.WaitOne();
             }
 
+            internal AtomicChange(CARecord record, bool withProcess)
+            {
+                this.record = record;
+                record.updateMutex.WaitOne();
+                this.withProcess = withProcess;
+            }
+
             public void Dispose()
             {
                 record.updateMutex.ReleaseMutex();
-                if (record.inAtomic)
+                if (record.inAtomicDispose)
                     return;
-                record.inAtomic = true;
-                if (record.IsDirty && record.Scan == ScanAlgorithm.ON_CHANGE)
-                {
+                record.inAtomicDispose = true;
+                if (record.IsDirty && record.Scan == ScanAlgorithm.ON_CHANGE && withProcess)
                     record.ProcessRecord();
-                }
-                record.inAtomic = false;
+                record.inAtomicDispose = false;
             }
         }
 
@@ -501,6 +509,11 @@ namespace CaSharpServer
             return new AtomicChange(this);
         }
 
+        internal IDisposable CreateAtomicChange(bool withProcess)
+        {
+            return new AtomicChange(this, withProcess);
+        }
+
         /// <summary>
         /// Mutex used for synchronizing (atomic) changes.
         /// </summary>
@@ -510,6 +523,6 @@ namespace CaSharpServer
         /// Flag for preventing re-creating AtomicChange instances from
         /// AtomicChange.Dispose if the record's ScanAlgorithm is ON_CHANGE.
         /// </summary>
-        bool inAtomic = false;
+        bool inAtomicDispose = false;
     }
 }
