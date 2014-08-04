@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PSI.EpicsClient2
 {
@@ -21,9 +22,24 @@ namespace PSI.EpicsClient2
             return base.Get<TType>();
         }
 
+        public async Task<TType> GetAsync()
+        {
+            return await base.GetAsync<TType>();
+        }
+
         public void Put(TType newValue)
         {
             base.Put<TType>(newValue);
+        }
+
+        public async Task PutAsync(TType newValue)
+        {
+            await base.PutAsync<TType>(newValue);
+        }
+
+        public void PutNoWait(TType newValue)
+        {
+            base.PutNoWait<TType>(newValue);
         }
 
         /// <summary>
