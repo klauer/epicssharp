@@ -20,6 +20,14 @@ namespace PSI.EpicsClient2.Pipes
 
         static readonly DataPacket echoPacket;
 
+        public IPEndPoint Destination
+        {
+            get
+            {
+                return destination;
+            }
+        }
+
         static TcpReceiver()
         {
             echoPacket = DataPacket.Create(16);
