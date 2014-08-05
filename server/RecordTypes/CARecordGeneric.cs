@@ -29,7 +29,7 @@ namespace CaSharpServer
             }
             set
             {
-                if (!currentValue.Equals(value))
+                if ((currentValue == null && value != null) || !currentValue.Equals(value))
                     this.IsDirty = true;
                 currentValue = value;
                 if (Scan == ScanAlgorithm.ON_CHANGE && this.IsDirty)
