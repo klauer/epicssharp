@@ -103,6 +103,16 @@ namespace PSI.EpicsClient2
         /// </summary>
         public Type ChannelDefinedType { get { return channelDefinedType; } }
 
+        public string IOC
+        {
+            get
+            {
+                if (ioc == null)
+                    return null;
+                return ioc.Destination.ToString();
+            }
+        }
+
         internal EpicsChannel(EpicsClient client, string channelName)
         {
             this.ChannelName = channelName;
