@@ -174,10 +174,14 @@ namespace CaSharpServer
                         if (Server.openConnection.ContainsKey(iep.ToString()))
                         {
                             var con = Server.openConnection[iep.ToString()];
-                            /*if (con.EchoSent)
-                                con.EchoSent = false;
-                            else*/
+                            if (con.EchoSent && (DateTime.Now - con.EchoLastSent).TotalSeconds > 5)
+                            {
+                                /*if (con.EchoSent)
+                                    con.EchoSent = false;
+                                else*/
                                 con.Send(EchoMessage);
+                                con.EchoLastSent = DateTime.Now;
+                            }
                         }
                     }
                     break;

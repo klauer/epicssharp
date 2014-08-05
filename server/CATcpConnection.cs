@@ -223,5 +223,7 @@ namespace CaSharpServer
         }
 
         public bool Closed { get; set; }
+
+        public DateTime EchoLastSent { get; set; }
     }
 }

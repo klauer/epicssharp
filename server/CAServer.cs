@@ -53,7 +53,7 @@ namespace CaSharpServer
         {
         }
 
-        public CAServer(IPAddress serverAddress, int tcpPort, int udpPort, int beaconPort)        
+        public CAServer(IPAddress serverAddress, int tcpPort, int udpPort, int beaconPort)
         {
             //Console.WriteLine("Server on "+serverAddress+" "+tcpPort+" "+udpPort+" "+beaconPort);
             if (serverAddress == null)
@@ -85,9 +85,10 @@ namespace CaSharpServer
                 {
                     list = openConnection.Values.ToArray();
                 }
-                foreach (var i in list)
+                foreach (var i in list.Where(row => (DateTime.Now - row.EchoLastSent).TotalSeconds > 10))
                 {
                     i.EchoSent = true;
+                    i.EchoLastSent = DateTime.Now;
                     i.Send(CAServerFilter.EchoMessage);
                 }
             }
