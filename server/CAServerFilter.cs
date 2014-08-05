@@ -174,9 +174,9 @@ namespace CaSharpServer
                         if (Server.openConnection.ContainsKey(iep.ToString()))
                         {
                             var con = Server.openConnection[iep.ToString()];
-                            if (con.EchoSent)
+                            /*if (con.EchoSent)
                                 con.EchoSent = false;
-                            else
+                            else*/
                                 con.Send(EchoMessage);
                         }
                     }
