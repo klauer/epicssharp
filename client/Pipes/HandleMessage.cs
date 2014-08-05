@@ -18,14 +18,14 @@ namespace PSI.EpicsClient2.Pipes
                     case CommandID.CA_PROTO_VERSION:
                         break;
                     case CommandID.CA_PROTO_ECHO:
-                        /*// We sent the echo... we should therefore avoid to answer it
+                        // We sent the echo... we should therefore avoid to answer it
                         if (Pipe.GeneratedEcho)
                             Pipe.GeneratedEcho = false;
                         else
                         {
                             // Send back the echo
                             ((TcpReceiver)Pipe[0]).Send(packet);
-                        }*/
+                        }
                         break;
                     case CommandID.CA_PROTO_SEARCH:
                         {
