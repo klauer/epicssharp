@@ -126,7 +126,7 @@ namespace GatewayDebugWindow
                 txtGatewayName.Text = name;
 
                 epicsClient = new EpicsClient();
-                epicsClient.Configuration.SearchAddress = (string)Properties.Settings.Default["StoredGateway"];
+                //epicsClient.Configuration.SearchAddress = (string)Properties.Settings.Default["StoredGateway"];
 
                 foreach (var i in channelNames)
                 {

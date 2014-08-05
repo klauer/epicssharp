@@ -30,8 +30,11 @@ namespace PBCaGw.Services
         /// </summary>
         void CleanOldRecords(object sender,EventArgs evt)
         {
+
             DateTime limit = Gateway.Now.AddSeconds(-Lifetime);
-            List<TType> toClean = Records.Where(row => row.Value.CreatedOn < limit).Select(row => row.Key).ToList();
+            /*if(Lifetime == 5)
+                Console.WriteLine("Clean me "+Lifetime);*/
+            /*List<TType> toClean = Records.Where(row => row.Value.CreatedOn < limit).Select(row => row.Key).ToList();
             foreach (TType i in toClean)
             {
                 Record value;
@@ -39,6 +42,17 @@ namespace PBCaGw.Services
                 {
                     if (CleanupKey != null)
                         CleanupKey(i);
+                }
+            }*/
+
+            lock (Records)
+            {
+                List<TType> toClean = Records.Where(row => row.Value.CreatedOn < limit).Select(row => row.Key).ToList();
+                foreach (TType i in toClean)
+                {
+                    if (CleanupKey != null)
+                        CleanupKey(i);
+                    Records.Remove(i);
                 }
             }
         }

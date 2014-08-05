@@ -86,10 +86,10 @@ namespace PBCaGw.Services
         public static void DisposeGlobalChannel(string channelName)
         {
             Record r = InfoService.ChannelEndPoint[channelName];
-            if (r != null)
+            /*if (r != null)
             {
                 InfoService.IOID.DeleteForSID(r.GWCID.Value);
-            }
+            }*/
             InfoService.ChannelEndPoint.Remove(channelName);
 
             lock (clientConnections)
@@ -419,13 +419,14 @@ namespace PBCaGw.Services
                 if (!iocConnections.ContainsKey(endPoint))
                     return;
 
-                if (Log.WillDisplay(System.Diagnostics.TraceEventType.Stop))
-                    Log.TraceEvent(System.Diagnostics.TraceEventType.Stop, iocChains[endPoint].ChainId, "Disposing IOC chain " + endPoint);
-
+                if (iocChains.ContainsKey(endPoint))
+                {
+                    if (Log.WillDisplay(System.Diagnostics.TraceEventType.Stop))
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Stop, iocChains[endPoint].ChainId, "Disposing IOC chain " + endPoint);
+                    iocChains.Remove(endPoint);
+                }
                 toDisconnect = iocConnections[endPoint];
-
                 iocConnections.Remove(endPoint);
-                iocChains.Remove(endPoint);
             }
 
             try

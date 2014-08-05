@@ -20,7 +20,7 @@ namespace PBCaGw.Workers
                 // Let's rebuild the chain
                 while (this.Chain.Count > 1)
                     this.Chain.RemoveLast();
-                Worker w = new DebugPortWorker(Chain, this.ClientEndPoint, this.ServerEndPoint);
+                Worker w = new DebugPortWorker(Chain, this.ClientEndPoint, this.ServerEndPoint, packet);
                 this.Chain.Add(w);
                 this.Chain.Side = ChainSide.DEBUG_PORT;
                 w.ProcessData(packet);
@@ -136,7 +136,7 @@ namespace PBCaGw.Workers
                 else
                 {
                     //Console.WriteLine("\n\rMissing some...");
- 
+
                     remainingPacket = packet;
                     if (packet.HasCompleteHeader)
                     {

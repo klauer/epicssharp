@@ -19,8 +19,8 @@ namespace PBCaGw.Handlers
         // It's a workaround not a real solution
         static void IoidCleanupKey(uint key)
         {
-            Record record = InfoService.IOID[key];
             CidGenerator.ReleaseCid(key);
+            Record record = InfoService.IOID[key];
 
             if (record == null || record.Destination == null)
                 return;
@@ -89,11 +89,12 @@ namespace PBCaGw.Handlers
             if(InfoService.IOID.Remove(packet.Parameter2))
                 CidGenerator.ReleaseCid(packet.Parameter2);
 
-            lock (EventAdd.lockObject)
+            // It's the initial answer as get of "cached" monitor.
+            if (record.IOID.HasValue && record.IOID.Value == 0)
             {
-                // It's the initial answer as get of "cached" monitor.
-                if (record.IOID.HasValue && record.IOID.Value == 0)
+                lock (EventAdd.lockObject)
                 {
+
                     if (!record.SID.HasValue)
                     {
                         /*InfoService.IOID.Remove(packet.Parameter2);
@@ -110,6 +111,12 @@ namespace PBCaGw.Handlers
                                 if (Log.WillDisplay(TraceEventType.Verbose))
                                     Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Sending readnotify data on " + record.SID.Value);
 
+                                /*if (!record.Channel.Split(new char[] { '°' })[0].EndsWith(newPacket.GetDataAsString()))
+                                {
+                                    Console.WriteLine("Copy send " + record.Channel.Split(new char[] { '°' })[0] + " " + record.SubscriptionId.Value + " " + newPacket.GetDataAsString());
+
+                                }*/
+                                
                                 newPacket.Command = 1;
                                 newPacket.Parameter1 = 1;
                                 newPacket.Parameter2 = record.SID.Value;
@@ -117,6 +124,7 @@ namespace PBCaGw.Handlers
                                 newPacket.DataCount = record.DataCount.Value;
                                 newPacket.DataType = record.DBRType.Value;
                                 sendData(newPacket);
+
                                 //Console.WriteLine("Get send " + record.Channel + " " + record.SID.Value+" "+newPacket.GetDataAsString());
 
                                 InfoService.ChannelSubscription[record.CID.Value].FirstValue = false;

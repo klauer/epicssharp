@@ -280,7 +280,7 @@ namespace PBCaGw.Workers
                 Record r = i.Value;
                 if (r == null)
                     continue;
-                Console.WriteLine("Removing "+i.Key);
+                //Console.WriteLine("Removing "+i.Key);
                 foreach (var j in r.SubscriptionList)
                 {
                     if(InfoService.ChannelSubscription.Remove(j))

@@ -11,7 +11,7 @@ namespace PBCaGw.Services
     /// <summary>
     /// A colored, and more informative TraceListener than the default ConsoleTraceListener
     /// </summary>
-    internal class DebugTraceListener
+    public class DebugTraceListener
     {
         public static event DebugLogDelegate LogEntry;
         static bool traceAll = false;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Diagnostics;
+using System.Collections;
 
 namespace PBCaGw.Services
 {
@@ -14,7 +15,7 @@ namespace PBCaGw.Services
     public static class CidGenerator
     {
         const int MAX_CID = 1024000;
-        //const int MAX_CID = 120000;
+        //const int MAX_CID = 8000;
         static bool[] freeCids = new bool[MAX_CID];
         static string[] askedBy = new string[MAX_CID];
         static UInt32 cidCounter = 0;
@@ -28,13 +29,33 @@ namespace PBCaGw.Services
             freeNbCid = freeCids.Length - 1;
         }
 
+        static IEnumerable UsedCidStats()
+        {
+            return askedBy.Where(row => row != null)
+                .Select(row => new
+                {
+                    Where = row.Split(new char[] { '|' })[0],
+                    When = DateTime.FromBinary(long.Parse(row.Split(new char[] { '|' })[1]))
+                })
+                .ToList()
+                .GroupBy(row => row.Where)
+                .OrderByDescending(row => row.Count())
+                .ToList()
+                .Select(row => new
+                {
+                    NB = row.Count(),
+                    Where = row.First().Where,
+                    Oldest = (DateTime.Now - row.OrderBy(r2 => r2.When).First().When).ToString()
+                }).ToList();
+        }
+
         static public UInt32 Next()
         {
             lock (lockObject)
             {
                 if (freeNbCid < 1)
                 {
-                    //var q = askedBy.GroupBy(row => row).OrderByDescending(row => row.Count()).Select(row => new { NB = row.Count(), W = row.First() }).ToList();
+                    //var q = UsedCidStats();
                     throw new Exception("All cids exausted!!!");
                 }
                 int nbChecked = 0;
@@ -47,15 +68,14 @@ namespace PBCaGw.Services
                 } while (freeCids[cidCounter] == false && nbChecked < freeCids.Length);
                 if (nbChecked >= freeCids.Length)
                 {
-                    //var q = askedBy.GroupBy(row => row).OrderByDescending(row => row.Count()).Select(row => new { NB = row.Count(), W = row.First() }).ToList();
+                    //var q = UsedCidStats();
                     throw new Exception("All cids exausted!!!");
                 }
 
                 // Stores who asked the cid
                 /*StackTrace stackTrace = new StackTrace(true);
                 StackFrame[] stackFrames = stackTrace.GetFrames();
-                askedBy[cidCounter] = stackFrames[1].GetMethod().ReflectedType.Name + "." + stackFrames[1].GetMethod().Name + ":" + stackFrames[1].GetFileLineNumber();*/
-
+                askedBy[cidCounter] = stackFrames[1].GetMethod().ReflectedType.Name + "." + stackFrames[1].GetMethod().Name + ":" + stackFrames[1].GetFileLineNumber() + "|" + DateTime.Now.ToBinary();*/
                 freeCids[cidCounter] = false;
                 freeNbCid--;
                 return cidCounter;
@@ -75,9 +95,9 @@ namespace PBCaGw.Services
                     freeNbCid++;
                     freeCids[id] = true;
 
-                    /*askedBy[id] = null;
+                    askedBy[id] = null;
 
-                    StackTrace stackTrace = new StackTrace(true);
+                    /*StackTrace stackTrace = new StackTrace(true);
                     StackFrame[] stackFrames = stackTrace.GetFrames();
                     askedBy[id] = stackFrames[1].GetMethod().ReflectedType.Name + "." + stackFrames[1].GetMethod().Name + ":" + stackFrames[1].GetFileLineNumber();*/
 
@@ -89,42 +109,5 @@ namespace PBCaGw.Services
         {
             return (uint)cidCounter;
         }
-
-        /*static int cidCounter = 1;
-        const int minFree=10000;
-        static ConcurrentQueue<int> freeIds = new ConcurrentQueue<int>();
-
-        static CidGenerator()
-        {
-            for(int i=0;i < minFree;i++)
-            {
-                int result = Interlocked.Increment(ref cidCounter);
-                freeIds.Enqueue(result);
-            }
-        }
-
-        static public UInt32 Next()
-        {
-            int result;
-
-            if (freeIds.Count > minFree)
-            {
-                if (freeIds.TryDequeue(out result))
-                    return (uint)result;
-            }
-
-            result = Interlocked.Increment(ref cidCounter);
-            return (uint)result;
-        }
-
-        static public void ReleaseCid(UInt32 id)
-        {
-            freeIds.Enqueue((int)id);
-        }
-
-        public static UInt32 Peek()
-        {
-            return (uint)cidCounter;
-        }*/
     }
 }
