@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using GatewayDebugData;
 using System.IO;
 using System.Linq;
+using System;
 
 namespace PBCaGw.Workers
 {
@@ -13,16 +14,49 @@ namespace PBCaGw.Workers
         readonly Socket socket;
         readonly BufferedStream sendStream;
         bool firstMessage = true;
+        Socket forwarder = null;
+        bool firstForward = true;
 
-        public DebugPortWorker(WorkerChain chain, IPEndPoint client, IPEndPoint server)
+        readonly byte[] buffer = new byte[Gateway.BUFFER_SIZE];
+        private bool disposed = false;
+
+        public DebugPortWorker(WorkerChain chain, IPEndPoint client, IPEndPoint server, DataPacket packet)
         {
             Chain = chain;
             socket = ((TcpReceiver)Chain[0]).Socket;
             base.ClientEndPoint = client;
             base.ServerEndPoint = server;
 
-            sendStream = new BufferedStream(new NetworkStream(socket));
+            string destGateway = GetString(packet, 1);
 
+            // We need to act as a forwarder
+            if (destGateway != chain.Gateway.Configuration.GatewayName)
+            {
+                PBCaGw.Services.Record record;
+                record = PBCaGw.Services.InfoService.ChannelEndPoint[destGateway + ":VERSION"];
+                if (record == null)
+                {
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
+                    return;
+                }
+
+                forwarder = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                forwarder.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+                forwarder.Connect(record.Destination);
+
+                forwarder.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveTcpData, null);
+
+                /*sendStream = new BufferedStream(new NetworkStream(forwarder));
+                sendStream.WriteByte(126);
+                Send(destGateway);
+                Flush();*/
+
+                forwarder.Send(packet.Data, 0, packet.BufferSize, SocketFlags.None);
+
+                return;
+            }
+
+            sendStream = new BufferedStream(new NetworkStream(socket));
             try
             {
                 lock (sendStream)
@@ -88,6 +122,73 @@ namespace PBCaGw.Workers
             PBCaGw.Services.DebugTraceListener.LogEntry += GatewayLogEntry;
             PBCaGw.Services.DebugTraceListener.TraceLevelChanged += new System.EventHandler(DebugTraceListenerTraceLevelChanged);
         }
+
+        void ReceiveTcpData(System.IAsyncResult ar)
+        {
+            if (disposed)
+                return;
+
+            int n = 0;
+
+            //Log.TraceEvent(TraceEventType.Information, Chain.ChainId, "Got TCP");
+
+            try
+            {
+                SocketError err;
+                n = forwarder.EndReceive(ar, out err);
+                switch (err)
+                {
+                    case SocketError.Success:
+                        break;
+                    case SocketError.ConnectionReset:
+                        Dispose();
+                        return;
+                    default:
+                        Dispose();
+                        return;
+                }
+            }
+            catch (System.ObjectDisposedException)
+            {
+                Dispose();
+                return;
+            }
+            catch (System.Exception ex)
+            {
+                Dispose();
+                return;
+            }
+
+            // Time to quit!
+            if (n == 0)
+            {
+                Dispose();
+                return;
+            }
+
+            try
+            {
+                this.Chain.LastMessage = Gateway.Now;
+                if (firstForward)
+                    firstForward = false;
+                else if (n > 0)
+                    socket.Send(buffer, n, SocketFlags.None);
+                forwarder.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveTcpData, null);
+            }
+            catch (SocketException)
+            {
+                Dispose();
+            }
+            catch (System.ObjectDisposedException)
+            {
+                Dispose();
+            }
+            catch (Exception ex)
+            {
+                Dispose();
+            }
+        }
+
 
         void SendSearch(object sender, System.EventArgs e)
         {
@@ -259,6 +360,19 @@ namespace PBCaGw.Workers
             sendStream.Write(data, 0, data.Length);
         }
 
+        public int GetInt(DataPacket packet, int pos)
+        {
+            return (int)packet.GetUInt32(pos);
+        }
+
+        public string GetString(DataPacket packet, int pos)
+        {
+            int lenght = GetInt(packet, pos);
+            byte[] data = new byte[lenght];
+            System.Array.Copy(packet.Data, pos + 4, data, 0, lenght);
+            return System.Text.Encoding.UTF8.GetString(data);
+        }
+
         public override void ProcessData(DataPacket packet)
         {
             int pos = 0;
@@ -266,6 +380,8 @@ namespace PBCaGw.Workers
             {
                 firstMessage = false;
             }
+            else if (forwarder != null)
+                forwarder.Send(packet.Data, 0, packet.BufferSize, SocketFlags.None);
             else switch ((DebugDataType)packet.GetUInt32(pos))
                 {
                     case DebugDataType.FULL_LOGS:
@@ -283,12 +399,24 @@ namespace PBCaGw.Workers
 
         public override void Dispose()
         {
+            disposed = true;
             try
             {
                 sendStream.Dispose();
             }
             catch
             {
+            }
+
+            if (forwarder != null)
+            {
+                try
+                {
+                    forwarder.Dispose();
+                }
+                catch
+                {
+                }
             }
             Chain.Gateway.NewIocChannel -= new NewIocChannelDelegate(GatewayNewIocChannel);
             Chain.Gateway.DropIoc -= new DropIocDelegate(GatewayDropIoc);

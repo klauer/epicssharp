@@ -59,10 +59,20 @@ namespace PBCaGw.Handlers
                     return;
                 }
 
+
+
                 string channelName = record.Channel;
                 //string recId = record.Channel + "°" + packet.DataType + "°" + packet.DataCount + "°" + packet.GetUInt16(12 + (int)packet.HeaderSize);
                 string recId = record.Channel + "°" + recordSID + "°" + packet.DataType + "°" + packet.DataCount + "°" + packet.GetUInt16(12 + (int)packet.HeaderSize);
                 //Console.WriteLine(recId);
+
+
+                //if (InfoService.SubscribedChannel.Knows(recId) && (InfoService.SubscribedChannel[recId].SID != record.SID || InfoService.SubscribedChannel[recId].GWCID != record.GWCID))
+                if (InfoService.SubscribedChannel.Knows(recId) && (InfoService.SubscribedChannel[recId].SID != record.SID))
+                {
+                    System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
+                    return;
+                }
 
                 //recId = ""+CidGenerator.Next();
 
@@ -85,9 +95,13 @@ namespace PBCaGw.Handlers
                 // A new monitor
                 // Create a new subscription for the main channel
                 // And create a list of subscriptions
+
                 /*if (InfoService.SubscribedChannel.Knows(recId) && (InfoService.SubscribedChannel[recId].SID != record.SID || InfoService.SubscribedChannel[recId].GWCID != record.GWCID))
                 {
+                    CidGenerator.ReleaseCid(gwcid);
+                    InfoService.ChannelSubscription.Remove(gwcid);
                     System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
+                    return;
                 }
                 else*/ if (!InfoService.SubscribedChannel.Knows(recId))
                 //if (!InfoService.SubscribedChannel.Knows(recId) || InfoService.SubscribedChannel[recId].SID != record.SID)
@@ -173,17 +187,9 @@ namespace PBCaGw.Handlers
                     {
                         currentMonitor.FirstValue = true;
                         currentMonitor.PacketCount = 0;
+                        var dest = record.Destination;
 
                         UInt32 gwioid = CidGenerator.Next();
-                        // Send an intial read-notify
-                        DataPacket newPacket = DataPacket.Create(0, packet.Chain);
-                        newPacket.Command = 15;
-                        newPacket.DataCount = packet.DataCount;
-                        newPacket.DataType = packet.DataType;
-                        newPacket.Parameter1 = recordSID;
-                        newPacket.Parameter2 = gwioid;
-                        newPacket.Destination = record.Destination;
-
                         record = InfoService.IOID.Create(gwioid);
                         record.Destination = packet.Sender;
                         record.IOID = 0;
@@ -192,6 +198,15 @@ namespace PBCaGw.Handlers
                         record.DataCount = packet.DataCount;
                         record.CID = gwcid;
                         record.Channel = channelName;
+
+                        // Send an intial read-notify
+                        DataPacket newPacket = DataPacket.Create(0, packet.Chain);
+                        newPacket.Command = 15;
+                        newPacket.DataCount = packet.DataCount;
+                        newPacket.DataType = packet.DataType;
+                        newPacket.Parameter1 = recordSID;
+                        newPacket.Parameter2 = gwioid;
+                        newPacket.Destination = dest;
 
                         sendData(newPacket);
                     }
@@ -231,6 +246,7 @@ namespace PBCaGw.Handlers
                 }
 
                 var channelRecord=InfoService.ChannelEndPoint[mainSubscription.Channel.Split(new char[] { '°' })[0]];
+                int origSid = int.Parse(mainSubscription.Channel.Split(new char[] { '°' })[1]);
                 // We lost the channel
                 if (channelRecord == null || channelRecord.SID != mainSubscription.SID || channelRecord.GWCID != mainSubscription.GWCID)
                 {

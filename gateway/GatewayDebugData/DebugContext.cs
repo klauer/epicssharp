@@ -21,7 +21,7 @@ namespace GatewayDebugData
 
     public class DebugContext : IDebugDataAccess, IDisposable
     {
-        IPEndPoint server;
+        IPEndPoint server = null;
         Socket socket;
         NetworkStream stream;
         bool isRunning = true;
@@ -59,32 +59,52 @@ namespace GatewayDebugData
             iocs = new ConnectionDataCollection(this);
             clients = new ConnectionDataCollection(this);
 
-            string[] p = host.Split(':');
-
-            IPAddress address;
-            try
+            using (PSI.EpicsClient2.EpicsClient client = new PSI.EpicsClient2.EpicsClient())
             {
-                address = IPAddress.Parse(p[0]);
-            }
-            catch
-            {
+                client.Configuration.WaitTimeout = 3000;
+                if (System.Configuration.ConfigurationManager.AppSettings["gatewayDebugSearch"] != null)
+                    client.Configuration.SearchAddress = System.Configuration.ConfigurationManager.AppSettings["gatewayDebugSearch"];
+                var channel = client.CreateChannel(host + ":VERSION");
                 try
                 {
-                    address = Dns.GetHostEntry(p[0]).AddressList.First();
+                    channel.Connect();
+                    var s = channel.IOC.Split(new char[] { ':' });
+                    hostName = host;
+                    server = new IPEndPoint(IPAddress.Parse(s[0]), int.Parse(s[1]));
                 }
                 catch
                 {
-                    return;
                 }
             }
 
-            int port = 5064;
-            if (p.Length > 1)
-                port = int.Parse(p[1]);
-            hostName = p[0];
+            if (server == null)
+            {
+                string[] p = host.Split(':');
 
-            server = new IPEndPoint(address, port);
+                IPAddress address;
+                try
+                {
+                    address = IPAddress.Parse(p[0]);
+                }
+                catch
+                {
+                    try
+                    {
+                        address = Dns.GetHostEntry(p[0]).AddressList.First();
+                    }
+                    catch
+                    {
+                        return;
+                    }
+                }
 
+                int port = 5064;
+                if (p.Length > 1)
+                    port = int.Parse(p[1]);
+                hostName = p[0];
+
+                server = new IPEndPoint(address, port);
+            }
 
             connectThread = new Thread(Reconnect);
             connectThread.IsBackground = true;

@@ -108,10 +108,8 @@ namespace PBCaGw.Configurations
                 if (udpReceiverSocketA == null)
                 {
                     udpReceiverSocketA = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                    //udpReceiverSocketA.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
                     udpReceiverSocketA.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     udpReceiverSocketA.IOControl(SioUdpConnReset, new byte[] { 0, 0, 0, 0 }, null);
-                    //udpReceiverSocketA.Bind(new IPEndPoint(LocalSideA.Address, UdpSenderPortA));
                     udpReceiverSocketA.Bind(LocalSideA);
                 }
                 return udpReceiverSocketA;
@@ -132,9 +130,6 @@ namespace PBCaGw.Configurations
                 if (udpReceiverSocketB == null)
                 {
                     udpReceiverSocketB = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                    /*udpReceiverSocketB.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
-                    udpReceiverSocketB.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);*/
-                    //udpReceiverSocketB.Bind(new IPEndPoint(LocalSideB.Address, UdpSenderPortB));
                     udpReceiverSocketB.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     udpReceiverSocketB.IOControl(SioUdpConnReset, new byte[] { 0, 0, 0, 0 }, null);
                     udpReceiverSocketB.Bind(LocalSideB);

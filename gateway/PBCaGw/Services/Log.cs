@@ -7,7 +7,7 @@ namespace PBCaGw.Services
     public static class Log
     {
         static readonly TraceSwitch traceSwitch;
-        static readonly TraceSource traceSource;
+        public static readonly TraceSource traceSource;
         static readonly Dictionary<TraceEventType, bool> cachedWillDisplay = new Dictionary<TraceEventType, bool>();
 
 // ReSharper disable MemberCanBePrivate.Global

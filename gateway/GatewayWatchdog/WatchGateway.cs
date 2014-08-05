@@ -16,6 +16,7 @@ namespace GatewayWatchdog
     {
         Thread checkGateway;
         bool shouldStop = false;
+        const int nbCPUAvg = 120;
 
         public WatchGateway()
         {
@@ -43,10 +44,11 @@ namespace GatewayWatchdog
         void CheckGateway()
         {
             Thread.Sleep(40000);
+            List<double> lastCPUVals = new List<double>();
 
             while (!shouldStop)
             {
-                bool isOk=false;
+                bool isOk = false;
                 for (int i = 0; i < 5; i++)
                 {
                     using (EpicsClient client = new EpicsClient())
@@ -57,7 +59,12 @@ namespace GatewayWatchdog
                         try
                         {
                             double v = cpuInfo.Get();
-                            if (v < 80.0)
+                            lastCPUVals.Add(v);
+                            while (lastCPUVals.Count > nbCPUAvg)
+                                lastCPUVals.RemoveAt(0);
+
+
+                            if (lastCPUVals.Count < nbCPUAvg * 0.8 || lastCPUVals.Average() < 80.0)
                             {
                                 isOk = true;
                                 break;
@@ -99,7 +106,7 @@ namespace GatewayWatchdog
             {
                 var processes = Process.GetProcesses()
                     .Where(row => row.ProcessName.ToLower() == "gwservice" || row.ProcessName.ToLower() == "epics gateway");
-                foreach(var i in processes)
+                foreach (var i in processes)
                     i.Kill();
             }
             catch

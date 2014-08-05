@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace PBCaGw.Services
 {
-    class LogEntry
+    public class LogEntry
     {
         public TraceEventType EventType;
         public int Id;

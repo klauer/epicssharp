@@ -44,10 +44,8 @@ namespace PBCaGw.Handlers
             if (Log.WillDisplay(TraceEventType.Verbose))
                 Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, chain.ChainId, "Search from: " + packet.Sender + " " + packet.GetDataAsString());
 
-            //if(chain.Gateway.Configuration.LocalSideA.Port == chain.Gateway.Configuration.LocalSideB.Port)
 
             // It's a response
-            //if (packet.PayloadSize <= 8 && packet.Chain.Gateway.Configuration.ConfigurationType == ConfigurationType.BIDIRECTIONAL)
             if (packet.PayloadSize == 8)
             {
                 DoResponse(packet, chain, sendData);

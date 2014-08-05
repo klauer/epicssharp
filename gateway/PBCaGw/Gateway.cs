@@ -123,12 +123,12 @@ namespace PBCaGw
             lock (searchLock)
             {
                 // Cleanup all old
-                foreach(var i in searchStats.Where(row=>row.Value.CurrentSearch <= 0).Select(row=>row.Key).ToList())
+                foreach (var i in searchStats.Where(row => row.Value.CurrentSearch <= 0).Select(row => row.Key).ToList())
                 {
                     searchStats.Remove(i);
                 }
 
-                foreach(var i in searchStats)
+                foreach (var i in searchStats)
                 {
                     i.Value.PreviousSearch = i.Value.CurrentSearch;
                     i.Value.CurrentSearch = 0;
@@ -147,7 +147,7 @@ namespace PBCaGw
                 }
             }
 
-            if(UpdateSearch != null)
+            if (UpdateSearch != null)
             {
                 try
                 {
@@ -159,7 +159,7 @@ namespace PBCaGw
             }
         }
 
-        internal void GotSearch(string channelname,string searcher)
+        internal void GotSearch(string channelname, string searcher)
         {
             lock (searchLock)
             {
@@ -167,7 +167,7 @@ namespace PBCaGw
                     searchStats.Add(channelname, new SearchStat());
                 searchStats[channelname].CurrentSearch++;
 
-                if(!searchersStats.ContainsKey(searcher))
+                if (!searchersStats.ContainsKey(searcher))
                     searchersStats.Add(searcher, new SearchStat());
                 searchersStats[searcher].CurrentSearch++;
             }
@@ -183,30 +183,82 @@ namespace PBCaGw
             {
                 now = DateTime.Now;
                 Thread.Sleep(1000);
-                try
+                if (jobCounter == 10)
                 {
-                    if (jobCounter == 10)
-                    {
-                        if (TenSecJobs != null)
-                            TenSecJobs(null, null);
-                        jobCounter = 0;
-                    }
-                    if (jobCounter % 5 == 0 && FiveSecJobs != null)
-                        FiveSecJobs(null, null);
+                    ThreadPool.QueueUserWorkItem(RunTenSecJob);
+                    jobCounter = 0;
+                }
+                if (jobCounter % 5 == 0 && FiveSecJobs != null)
+                    ThreadPool.QueueUserWorkItem(RunFiveSecJob);
 
-                    if (OneSecJobs != null)
-                        OneSecJobs(null, null);
-                    jobCounter++;
-                }
-                catch (Exception ex)
-                {
-                    if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
-                        Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
-                }
+                ThreadPool.QueueUserWorkItem(RunOneSecJob);
+                jobCounter++;
             }
             // ReSharper disable FunctionNeverReturns
         }
         // ReSharper restore FunctionNeverReturns
+
+        static void RunTenSecJob(object state)
+        {
+            if (TenSecJobs != null)
+            {
+                foreach (var i in TenSecJobs.GetInvocationList())
+                {
+                    try
+                    {
+
+                        i.Method.Invoke(i.Target, new object[] { null, null });
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
+                            Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
+                    }
+                }
+                //TenSecJobs(null, null);
+            }
+        }
+
+        static void RunFiveSecJob(object state)
+        {
+            if (FiveSecJobs != null)
+            {
+                foreach (var i in FiveSecJobs.GetInvocationList())
+                {
+                    try
+                    {
+
+                        i.Method.Invoke(i.Target, new object[] { null, null });
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
+                            Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
+                    }
+                }
+            }
+        }
+
+        static void RunOneSecJob(object state)
+        {
+            if (OneSecJobs != null)
+            {
+                foreach (var i in OneSecJobs.GetInvocationList())
+                {
+                    try
+                    {
+
+                        i.Method.Invoke(i.Target, new object[] { null, null });
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
+                            Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
+                    }
+                }
+                //OneSecJobs(null, null);
+            }
+        }
 
         /// <summary>
         /// Starts the gateway
@@ -437,10 +489,10 @@ namespace PBCaGw
                 KnownIocs.TryAdd(server, new ConcurrentBag<string>());
             if (newItem != null)
             {
-                KnownIocs[server].Add(newItem);
-
                 try
                 {
+                    KnownIocs[server].Add(newItem);
+
                     if (NewIocChannel != null)
                         NewIocChannel(server, newItem);
                 }
@@ -460,11 +512,11 @@ namespace PBCaGw
 
         internal void DoDropIoc(string server)
         {
-            ConcurrentBag<string> value;
-            KnownIocs.TryRemove(server, out value);
-
             try
             {
+                ConcurrentBag<string> value;
+                KnownIocs.TryRemove(server, out value);
+
                 if (DropIoc != null)
                     DropIoc(server);
             }
@@ -477,12 +529,12 @@ namespace PBCaGw
 
         internal void DoClientConnectedChannels(string client, string newItem)
         {
-            if (!KnownClients.ContainsKey(client))
-                KnownClients.TryAdd(client, new ConcurrentBag<string>());
-            KnownClients[client].Add(newItem);
-
             try
             {
+                if (!KnownClients.ContainsKey(client))
+                    KnownClients.TryAdd(client, new ConcurrentBag<string>());
+                KnownClients[client].Add(newItem);
+
                 if (NewClientChannel != null)
                     NewClientChannel(client, newItem);
             }
@@ -493,11 +545,11 @@ namespace PBCaGw
 
         internal void DoDropClient(string client)
         {
-            ConcurrentBag<string> value;
-            KnownClients.TryRemove(client, out value);
-
             try
             {
+                ConcurrentBag<string> value;
+                KnownClients.TryRemove(client, out value);
+
                 if (DropClient != null)
                     DropClient(client);
             }
