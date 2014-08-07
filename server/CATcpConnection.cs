@@ -20,7 +20,6 @@ namespace CaSharpServer
         Pipe pipe = null;
         Thread processData;
         public event EventHandler Closing;
-        public bool EchoSent = false;
 
         internal CATcpConnection(Socket socket, CAServer server)
         {
@@ -224,6 +223,6 @@ namespace CaSharpServer
 
         public bool Closed { get; set; }
 
-        public DateTime EchoLastSent { get; set; }
+        public DateTime EchoLastSent = DateTime.Now;
     }
 }

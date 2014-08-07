@@ -83,11 +83,10 @@ namespace CaSharpServer
                 CATcpConnection[] list;
                 lock (openConnection)
                 {
-                    list = openConnection.Values.ToArray();
+                    list = openConnection.Values.Where(row => (DateTime.Now - row.EchoLastSent).TotalSeconds > 120).ToArray();
                 }
-                foreach (var i in list.Where(row => (DateTime.Now - row.EchoLastSent).TotalSeconds > 10))
+                foreach (var i in list)
                 {
-                    i.EchoSent = true;
                     i.EchoLastSent = DateTime.Now;
                     i.Send(CAServerFilter.EchoMessage);
                 }
