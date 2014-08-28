@@ -92,24 +92,26 @@ namespace PBCaGw.Services
             }*/
             InfoService.ChannelEndPoint.Remove(channelName);
 
+            List<KeyValuePair<IPEndPoint, WorkerChain>> l;
             lock (clientConnections)
             {
-                foreach (var i in clientChains.Where(row => row.Value.ChannelCid.Any(r2 => r2.Key == channelName)))
-                {
-                    DataPacket packet = DataPacket.Create(16);
-                    packet.Destination = i.Key;
-                    packet.Command = 27;
-                    packet.PayloadSize = 0;
-                    packet.DataCount = 0;
-                    packet.DataType = 0;
-                    packet.Parameter1 = i.Value.ChannelCid[channelName];
-                    packet.Parameter2 = 0;
-                    ((TcpReceiver)i.Value[0]).Send(packet);
+                l = clientChains.Where(row => row.Value.ChannelCid.Any(r2 => r2.Key == channelName)).ToList();
+            }
+            foreach (var i in l)
+            {
+                DataPacket packet = DataPacket.Create(16);
+                packet.Destination = i.Key;
+                packet.Command = 27;
+                packet.PayloadSize = 0;
+                packet.DataCount = 0;
+                packet.DataType = 0;
+                packet.Parameter1 = i.Value.ChannelCid[channelName];
+                packet.Parameter2 = 0;
+                ((TcpReceiver)i.Value[0]).Send(packet);
 
-                    uint u;
-                    i.Value.ChannelCid.TryRemove(channelName, out u);
-                    i.Value.Channels.TryTake(channelName);
-                }
+                uint u;
+                i.Value.ChannelCid.TryRemove(channelName, out u);
+                i.Value.Channels.TryTake(channelName);
             }
         }
 
@@ -356,39 +358,42 @@ namespace PBCaGw.Services
                     return;
 
                 chain = clientChains[iPEndPoint];
+            }
 
-                try
+            try
+            {
+                foreach (var i in chain.ChannelCid)
                 {
-                    foreach (var i in chain.ChannelCid)
-                    {
-                        DataPacket packet = DataPacket.Create(16);
-                        packet.Destination = iPEndPoint;
-                        packet.Command = 27;
-                        packet.PayloadSize = 0;
-                        packet.DataCount = 0;
-                        packet.DataType = 0;
-                        packet.Parameter1 = i.Value;
-                        packet.Parameter2 = 0;
+                    DataPacket packet = DataPacket.Create(16);
+                    packet.Destination = iPEndPoint;
+                    packet.Command = 27;
+                    packet.PayloadSize = 0;
+                    packet.DataCount = 0;
+                    packet.DataType = 0;
+                    packet.Parameter1 = i.Value;
+                    packet.Parameter2 = 0;
 
-                        ((TcpReceiver)chain[0]).Send(packet);
-                    }
-                    //((TcpReceiver)chain[0]).Flush();
+                    ((TcpReceiver)chain[0]).Send(packet);
                 }
-                catch
-                {
-                }
+                //((TcpReceiver)chain[0]).Flush();
+            }
+            catch
+            {
+            }
 
-                try
+            try
+            {
+                if (Log.WillDisplay(System.Diagnostics.TraceEventType.Stop))
+                    Log.TraceEvent(System.Diagnostics.TraceEventType.Stop, chain.ChainId, "Disposing client chain " + iPEndPoint);
+                lock (clientConnections)
                 {
-                    if (Log.WillDisplay(System.Diagnostics.TraceEventType.Stop))
-                        Log.TraceEvent(System.Diagnostics.TraceEventType.Stop, chain.ChainId, "Disposing client chain " + iPEndPoint);
                     clientConnections.Remove(iPEndPoint);
-                    chain.Gateway.DoDropClient(iPEndPoint.ToString());
                     clientChains.Remove(iPEndPoint);
                 }
-                catch
-                {
-                }
+                chain.Gateway.DoDropClient(iPEndPoint.ToString());
+            }
+            catch
+            {
             }
             if (chain != null)
                 chain.Dispose();
