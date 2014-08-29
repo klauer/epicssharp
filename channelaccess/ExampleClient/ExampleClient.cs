@@ -33,6 +33,8 @@ namespace EpicsSharp.ChannelAccess.Examples
     /// </summary>
     class ExampleClient
     {
+        public static string Gateway { get; set; }
+
         static void Main(string[] args)
         {
             Console.WriteLine("EpicsSharp Channel Access Example Client");
@@ -65,6 +67,10 @@ namespace EpicsSharp.ChannelAccess.Examples
                         case "help":
                             ExampleClient.CommandHelp();
                             break;
+                        case "gw":
+                        case "gateway":
+                            ExampleClient.Gateway = parts[1];
+                            break;
                         case "g":
                         case "get":
                         case "caget":
@@ -96,6 +102,14 @@ namespace EpicsSharp.ChannelAccess.Examples
         private static void CommandMonitor(string p)
         {
             CAClient client = new CAClient();
+            // This is the programmatic way to set up a Gateway for
+            // PV searches. An alternative way would be to modify
+            // App.config and set it there, e.g.
+            //
+            // <appSettings>
+            //   <add key="e#ServerList" value="192.168.1.50"/>
+            // </appSettings>
+            client.Configuration.SearchAddress = Gateway;
             Channel<string> channel = client.CreateChannel<string>(p);
             channel.MonitorChanged += channel_MonitorChanged;
             Console.WriteLine("Registered monitor on {0}", p);
@@ -109,6 +123,9 @@ namespace EpicsSharp.ChannelAccess.Examples
         private static void CommandGet(string p)
         {
             CAClient client = new CAClient();
+            // Setting the CA gateway.
+            // For a more detailed comment, check the CommandMonitor method.
+            client.Configuration.SearchAddress = Gateway;
             Channel<string> channel = client.CreateChannel<string>(p);
             string val = channel.Get();
             Console.WriteLine(val);
@@ -122,6 +139,9 @@ namespace EpicsSharp.ChannelAccess.Examples
             Console.WriteLine("  h, help                Print these instructions");
             Console.WriteLine("  q, quit                Terminate this program");
             Console.WriteLine("  g <PV>, get <PV>       Read <PV> from an IOC");
+            Console.WriteLine("  gw <ADDR>, gateway <ADDR>");
+            Console.WriteLine("                         Use <ADDR> as a CA gateway");
+            Console.WriteLine("                         (Should be the first command.)");
             Console.WriteLine("  m <PV>, monitor <PV>   Register a monitor on <PV>");
         }
     }
