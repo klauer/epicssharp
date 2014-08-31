@@ -98,6 +98,7 @@
     <Compile Include="Server\RecordTypes\CAShortRecord.cs" />
     <Compile Include="Server\RecordTypes\CAStringRecord.cs" />
     <Compile Include="Server\RecordTypes\CAValueRecord.cs" />
+    <Compile Include="Server\RecordTypes\CAEnumRecord.cs" />
     <Compile Include="Server\UdpListener.cs" />
   </ItemGroup>
   <ItemGroup>
