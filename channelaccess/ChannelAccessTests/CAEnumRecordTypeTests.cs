@@ -18,6 +18,7 @@
  */
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using EpicsSharp.ChannelAccess.Client;
 using EpicsSharp.ChannelAccess.Server;
 using System.Net;
 
@@ -78,11 +79,15 @@ namespace EpicsSharp.ChannelAccess.Tests
         }
 
         CAServer server;
+        CAClient client;
 
         [TestInitialize]
         public void SetUp()
         {
             server = new CAServer(IPAddress.Parse("127.0.0.1"));
+            client = new CAClient();
+            client.Configuration.SearchAddress = "127.0.0.1";
+            client.Configuration.WaitTimeout = 30000;  // 30 seconds
         }
 
         [TestCleanup]
@@ -132,6 +137,17 @@ namespace EpicsSharp.ChannelAccess.Tests
             // ArgumentException will be changed by the dynamic
             // constructor invocation in CreateRecord
             var record = new CAEnumRecord<BadEnumUnsupportedValue>();
+        }
+
+        [TestMethod]
+        public void TestReceivingEnumAsInt()
+        {
+            var record = server.CreateRecord<CAEnumRecord<GoodEnumU8>>("TEST");
+            record.Value = GoodEnumU8.two;
+
+            var channel = client.CreateChannel<int>("TEST");
+            var result = channel.Get();
+            Assert.AreEqual(result, (byte)record.Value);
         }
     }
 }
