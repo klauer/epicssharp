@@ -29,7 +29,7 @@ namespace EpicsSharp.ChannelAccess.Server
     /// Channel Access enforces some restrictions on enumerations.
     /// For details see the CheckEnumType method.
     /// </summary>
-    /// <typeparam v="TType">The enum type</typeparam>
+    /// <typeparam name="TType">The enum type</typeparam>
     public class CAEnumRecord<TType> : CARecord<TType>
     {
 
