@@ -63,6 +63,10 @@ namespace PSI.EpicsClient2
                 {
                     AfterConnect(SendMonitor);
                 }
+                else if (RawData != null)
+                {
+                    value(this, DecodeData<TType>(MonitoredElements));
+                }
                 PrivMonitorChanged += value;
             }
             remove
