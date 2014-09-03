@@ -147,6 +147,8 @@ namespace PSI.EpicsClient2
             {
                 PrivMonitorChanged(this, DecodeData<TType>(MonitoredElements));
             }
+            else
+                base.UpdateMonitor(packet);
         }
     }
 }
