@@ -166,6 +166,8 @@ namespace EpicsSharp.ChannelAccess.Client
             {
                 PrivMonitorChanged(this, DecodeData<TType>(MonitoredElements));
             }
+            else
+                base.UpdateMonitor(packet);
         }
     }
 }
