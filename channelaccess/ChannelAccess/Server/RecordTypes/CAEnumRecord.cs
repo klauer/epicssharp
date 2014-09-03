@@ -32,28 +32,6 @@ namespace EpicsSharp.ChannelAccess.Server
     /// <typeparam name="TType">The enum type</typeparam>
     public class CAEnumRecord<TType> : CARecord<TType>
     {
-
-        /// <summary>
-        /// The internal value of the record.
-        /// </summary>
-        protected TType enumValue;
-
-        /// <summary>
-        /// The value of the record.
-        /// </summary>
-        public TType Value
-        {
-            get
-            {
-                return enumValue;
-            }
-
-            set
-            {
-                enumValue = value;
-            }
-        }
-
         /// <summary>
         /// The constructor will check the enum TType to validate for the
         /// Channel Access constraints.
