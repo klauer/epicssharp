@@ -149,5 +149,16 @@ namespace EpicsSharp.ChannelAccess.Tests
             var result = channel.Get();
             Assert.AreEqual(result, (byte)record.Value);
         }
+
+        [TestMethod]
+        public void TestReceivingEnumAsString()
+        {
+            var record = server.CreateRecord<CAEnumRecord<GoodEnumU8>>("TEST");
+            record.Value = GoodEnumU8.two;
+
+            var channel = client.CreateChannel<string>("TEST");
+            var result = channel.Get();
+            Assert.AreEqual(result, "two");
+        }
     }
 }
