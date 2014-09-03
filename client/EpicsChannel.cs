@@ -489,6 +489,10 @@ namespace PSI.EpicsClient2
                                          ioc.Send(p);
                                      });
                 }
+                else if(RawData != null)
+                {
+                    value(this, DecodeData(MonitoredType, MonitoredElements));
+                }
                 PrivMonitorChanged += value;
             }
             remove
