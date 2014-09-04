@@ -31,16 +31,64 @@ namespace EpicsSharp.ChannelAccess.Examples
     /// This class demonstrates the client side usage of EpicsSharp,
     /// i.e. the EpicsSharp.ChannelAccess.Client.CAClient class.
     /// </summary>
-    class ExampleClient
+    class ExampleClient : IDisposable
     {
-        public static string Gateway { get; set; }
+        private CAClient client = new CAClient();
+
+        private Dictionary<string, Channel<string>> monitoredChannels = new Dictionary<string, Channel<string>>();
+
+        private bool startedCommunication = false;
+
+        private string gateway = null;
+
+        public string Gateway
+        {
+            get
+            {
+                return gateway;
+            }
+
+            set
+            {
+                if (startedCommunication)
+                {
+                    throw new NotSupportedException("You cannot change the gateway after communications started. Set the Gateway first!");
+                }
+                if (value == null) return;
+                // This is the programmatic way to set up a Gateway for
+                // PV searches. An alternative way would be to modify
+                // App.config and set it there, e.g.
+                //
+                // <appSettings>
+                //   <add key="e#ServerList" value="192.168.1.50"/>
+                // </appSettings>
+                client.Configuration.SearchAddress = value;
+            }
+        }
 
         static void Main(string[] args)
+        {
+            using (ExampleClient ec = new ExampleClient())
+            {
+                ec.Run();
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var i in monitoredChannels)
+            {
+                i.Value.MonitorChanged -= channel_MonitorChanged;
+            }
+            client.Dispose();
+        }
+
+        private void Run()
         {
             Console.WriteLine("EpicsSharp Channel Access Example Client");
             Console.WriteLine("----------------------------------------");
             Console.WriteLine("Type 'help' for instructions");
-            ExampleClient.REPL();
+            REPL();
         }
 
         /// <summary>
@@ -48,7 +96,7 @@ namespace EpicsSharp.ChannelAccess.Examples
         /// 
         /// A REPL is the main part of any shell like user interface.
         /// </summary>
-        static void REPL()
+        void REPL()
         {
             while (true)
             {
@@ -65,21 +113,28 @@ namespace EpicsSharp.ChannelAccess.Examples
                             break;
                         case "h":
                         case "help":
-                            ExampleClient.CommandHelp();
+                            CommandHelp();
                             break;
                         case "gw":
                         case "gateway":
-                            ExampleClient.Gateway = parts[1];
+                            try
+                            {
+                                Gateway = parts[1];
+                            }
+                            catch (NotSupportedException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
                             break;
                         case "g":
                         case "get":
                         case "caget":
-                            ExampleClient.CommandGet(parts[1]);
+                            CommandGet(parts[1]);
                             break;
                         case "m":
                         case "monitor":
                         case "camonitor":
-                            ExampleClient.CommandMonitor(parts[1]);
+                            CommandMonitor(parts[1]);
                             break;
                         case "q":
                         case "quit":
@@ -99,39 +154,34 @@ namespace EpicsSharp.ChannelAccess.Examples
 
         }
 
-        private static void CommandMonitor(string p)
+        private void CommandMonitor(string p)
         {
-            CAClient client = new CAClient();
-            // This is the programmatic way to set up a Gateway for
-            // PV searches. An alternative way would be to modify
-            // App.config and set it there, e.g.
-            //
-            // <appSettings>
-            //   <add key="e#ServerList" value="192.168.1.50"/>
-            // </appSettings>
-            client.Configuration.SearchAddress = Gateway;
+            if (monitoredChannels.ContainsKey(p))
+            {
+                Console.WriteLine("Channel {0} is already being monitored!", p);
+                return;
+            }
+            startedCommunication = true;
             Channel<string> channel = client.CreateChannel<string>(p);
             channel.MonitorChanged += channel_MonitorChanged;
+            monitoredChannels[p] = channel;
             Console.WriteLine("Registered monitor on {0}", p);
         }
 
-        static void channel_MonitorChanged(Channel<string> sender, string newValue)
+        void channel_MonitorChanged(Channel<string> sender, string newValue)
         {
             Console.WriteLine("{0}: {1}", sender.ChannelName, newValue);
         }
 
-        private static void CommandGet(string p)
+        private void CommandGet(string p)
         {
-            CAClient client = new CAClient();
-            // Setting the CA gateway.
-            // For a more detailed comment, check the CommandMonitor method.
-            client.Configuration.SearchAddress = Gateway;
+            startedCommunication = true;
             Channel<string> channel = client.CreateChannel<string>(p);
             string val = channel.Get();
             Console.WriteLine(val);
         }
 
-        private static void CommandHelp()
+        private void CommandHelp()
         {
             Console.WriteLine("INSTRUCTIONS");
             Console.WriteLine("------------");
