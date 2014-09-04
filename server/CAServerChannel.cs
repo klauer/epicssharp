@@ -122,8 +122,8 @@ namespace CaSharpServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message + "\n\r" + e.StackTrace);
-                TcpConnection.Send(Server.Filter.ErrorMessage(ClientId, EpicsTransitionStatus.ECA_BADTYPE, "WRONG TYPE", new byte[16]));
+                /*Console.WriteLine(e.Message + "\n\r" + e.StackTrace);
+                TcpConnection.Send(Server.Filter.ErrorMessage(ClientId, EpicsTransitionStatus.ECA_BADTYPE, "WRONG TYPE", new byte[16]));*/
             }
         }
 
