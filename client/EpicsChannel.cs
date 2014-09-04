@@ -489,7 +489,7 @@ namespace PSI.EpicsClient2
                                          ioc.Send(p);
                                      });
                 }
-                else if(RawData != null)
+                else if (RawData != null)
                 {
                     value(this, DecodeData(MonitoredType, MonitoredElements));
                 }
@@ -579,7 +579,7 @@ namespace PSI.EpicsClient2
 
         public async Task<bool> ConnectAsync()
         {
-            bool result=true;
+            bool result = true;
             await Task.Run(() => result = WaitConnectionResult());
             return result;
         }
@@ -655,6 +655,7 @@ namespace PSI.EpicsClient2
             }
             if (SID != 0)
             {
+                Console.WriteLine("SID " + SID + " STATUS CHANGED");
                 if (StatusChanged != null)
                     StatusChanged(this, Status);
                 return;
@@ -816,10 +817,10 @@ namespace PSI.EpicsClient2
             if (Disposed)
                 return;
             Disposed = true;
-            if (ioc != null)
-                ioc.RemoveChannel(this);
             lock (Client.Channels)
                 Client.Channels.Remove(this.CID);
+            if (ioc != null)
+                ioc.RemoveChannel(this);
             Status = ChannelStatus.DISPOSED;
         }
     }
