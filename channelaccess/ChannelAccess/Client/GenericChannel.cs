@@ -82,6 +82,10 @@ namespace EpicsSharp.ChannelAccess.Client
                 {
                     AfterConnect(SendMonitor);
                 }
+                else if (RawData != null)
+                {
+                    value(this, DecodeData<TType>(MonitoredElements));
+                }
                 PrivMonitorChanged += value;
             }
             remove

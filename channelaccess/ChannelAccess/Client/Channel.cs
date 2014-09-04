@@ -508,6 +508,10 @@ namespace EpicsSharp.ChannelAccess.Client
                                          ioc.Send(p);
                                      });
                 }
+                else if (RawData != null)
+                {
+                    value(this, DecodeData(MonitoredType, MonitoredElements));
+                }
                 PrivMonitorChanged += value;
             }
             remove
@@ -592,12 +596,19 @@ namespace EpicsSharp.ChannelAccess.Client
             WaitConnection();
         }
 
-        protected void WaitConnection()
+        public async Task<bool> ConnectAsync()
+        {
+            bool result = true;
+            await Task.Run(() => result = WaitConnectionResult());
+            return result;
+        }
+
+        protected bool WaitConnectionResult()
         {
             lock (ConnectionLock)
             {
                 if (Status == ChannelStatus.CONNECTED)
-                    return;
+                    return true;
                 if (ioc == null)
                 {
                     //Console.WriteLine("Need to connect");
@@ -614,7 +625,12 @@ namespace EpicsSharp.ChannelAccess.Client
                 }
             }
 
-            if (ConnectionEvent.WaitOne(Client.Configuration.WaitTimeout) == false)
+            return ConnectionEvent.WaitOne(Client.Configuration.WaitTimeout);
+        }
+
+        protected void WaitConnection()
+        {
+            if (!WaitConnectionResult())
                 throw new Exception("Connection timeout.");
         }
 
