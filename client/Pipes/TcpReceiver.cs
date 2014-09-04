@@ -120,7 +120,7 @@ namespace PSI.EpicsClient2.Pipes
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                //Console.WriteLine(ex.ToString());
                 Dispose();
             }
         }
@@ -139,6 +139,9 @@ namespace PSI.EpicsClient2.Pipes
             lock (ConnectedChannels)
             {
                 ConnectedChannels.Remove(channel);
+
+                if (!Client.Channels.Any(row => row.Value.ChannelName == channel.ChannelName))
+                    ChannelSID.Remove(channel.ChannelName);
             }
         }
 
