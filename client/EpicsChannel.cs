@@ -655,7 +655,7 @@ namespace PSI.EpicsClient2
             }
             if (SID != 0)
             {
-                Console.WriteLine("SID " + SID + " STATUS CHANGED");
+                //Console.WriteLine("SID " + SID + " STATUS CHANGED");
                 if (StatusChanged != null)
                     StatusChanged(this, Status);
                 return;
