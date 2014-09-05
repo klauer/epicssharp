@@ -674,6 +674,7 @@ namespace EpicsSharp.ChannelAccess.Client
             }
             if (SID != 0)
             {
+                //Console.WriteLine("SID " + SID + " STATUS CHANGED");
                 if (StatusChanged != null)
                     StatusChanged(this, Status);
                 return;
@@ -835,10 +836,10 @@ namespace EpicsSharp.ChannelAccess.Client
             if (Disposed)
                 return;
             Disposed = true;
-            if (ioc != null)
-                ioc.RemoveChannel(this);
             lock (Client.Channels)
                 Client.Channels.Remove(this.CID);
+            if (ioc != null)
+                ioc.RemoveChannel(this);
             Status = ChannelStatus.DISPOSED;
         }
     }

@@ -121,7 +121,7 @@ namespace EpicsSharp.ChannelAccess.Server
         internal void ReadValue(int ioId, EpicsType type, int dataCount)
         {
             byte[] val;
-            if(Record.Scan == ScanAlgorithm.PASSIVE)
+            if (Record.Scan == ScanAlgorithm.PASSIVE)
                 Record.CallPrepareRecord();
             object objVal = Record[Property];
             if (objVal == null)
@@ -140,8 +140,8 @@ namespace EpicsSharp.ChannelAccess.Server
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message + "\n\r" + e.StackTrace);
-                TcpConnection.Send(Server.Filter.ErrorMessage(ClientId, EpicsTransitionStatus.ECA_BADTYPE, "WRONG TYPE", new byte[16]));
+                /*Console.WriteLine(e.Message + "\n\r" + e.StackTrace);
+                TcpConnection.Send(Server.Filter.ErrorMessage(ClientId, EpicsTransitionStatus.ECA_BADTYPE, "WRONG TYPE", new byte[16]));*/
             }
         }
 
@@ -210,7 +210,7 @@ namespace EpicsSharp.ChannelAccess.Server
                     }
                 }
 
-                if(notify)
+                if (notify)
                     TcpConnection.Send(Server.Filter.ChannelWroteMessage(ClientId, ioId, type, dataCount, EpicsTransitionStatus.ECA_NORMAL));
             }
             catch (Exception exp)
