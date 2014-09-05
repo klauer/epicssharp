@@ -35,7 +35,8 @@ namespace PBCaGw.Workers
                 lock (storage)
                 {
                     // Retrieve all the "old" buffers
-                    var list = storage.Where(row => row.Value.CreationTime.ElapsedMilliseconds > 5).ToList();
+                    //var list = storage.Where(row => row.Value.CreationTime.ElapsedMilliseconds > 5).ToList();
+                    var list = storage.ToList();
                     foreach (var i in list)
                     {
                         DataPacket packet = i.Value.Packet;
