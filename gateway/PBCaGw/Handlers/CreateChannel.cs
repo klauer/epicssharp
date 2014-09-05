@@ -139,6 +139,21 @@ namespace PBCaGw.Handlers
                         newPacket.Destination = packet.Sender;
                         sendData(newPacket);
 
+                        try
+                        {
+                            ((TcpReceiver)TcpManager.GetClientChain(packet.Sender)[0]).Flush();
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                packet.Chain.Dispose();
+                            }
+                            catch
+                            {
+                            }
+                        }
+
                         chain.ChannelCid[channelName] = packet.Parameter1;
 
                         // We have all the info we can continue.
@@ -306,6 +321,21 @@ namespace PBCaGw.Handlers
                         newPacket.Parameter2 = packet.Parameter1;
                         newPacket.Destination = record.Client;
                         sendData(newPacket);
+
+                        try
+                        {
+                            ((TcpReceiver)TcpManager.GetClientChain(record.Client)[0]).Flush();
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                packet.Chain.Dispose();
+                            }
+                            catch
+                            {
+                            }
+                        }
                     }
                 }
             }

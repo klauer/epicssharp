@@ -29,9 +29,9 @@ namespace PBCaGw.Services
         /// </summary>
         static TcpManager()
         {
-            bufferFlusher = new Thread(BufferFlusher);
+            /*bufferFlusher = new Thread(BufferFlusher);
             bufferFlusher.IsBackground = true;
-            bufferFlusher.Start();
+            bufferFlusher.Start();*/
         }
 
 
@@ -58,9 +58,21 @@ namespace PBCaGw.Services
                     receivers = clientChains.Select(row => ((TcpReceiver)row.Value[0])).Where(row => row.IsDirty).ToList();
                 }
 
+                Parallel.ForEach(receivers, delegate(TcpReceiver row)
+                {
+                    try
+                    {
+                        row.Flush();
+                    }
+                    catch
+                    {
+                        DisposeSocket(row.Socket);
+                    }
+                });
+
                 lock (iocConnections)
                 {
-                    receivers.AddRange(iocChains.Select(row => (TcpReceiver)row.Value[0]).Where(row => row.IsDirty));
+                    receivers = iocChains.Select(row => (TcpReceiver)row.Value[0]).Where(row => row.IsDirty).ToList();
                 }
 
                 Parallel.ForEach(receivers, delegate(TcpReceiver row)

@@ -204,16 +204,26 @@ namespace PBCaGw
             {
                 foreach (var i in TenSecJobs.GetInvocationList())
                 {
-                    try
+                    bool faulty = false;
+                    for (var n = 0; n < 5; n++)
                     {
-
-                        i.Method.Invoke(i.Target, new object[] { null, null });
+                        try
+                        {
+                            i.Method.Invoke(i.Target, new object[] { null, null });
+                            faulty = false;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
+                                Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
+                            faulty = true;
+                            Thread.Sleep(500);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
-                            Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
-                    }
+                    if (faulty)
+                        Environment.Exit(1);
+                    break;
                 }
                 //TenSecJobs(null, null);
             }
@@ -225,16 +235,27 @@ namespace PBCaGw
             {
                 foreach (var i in FiveSecJobs.GetInvocationList())
                 {
-                    try
+                    bool faulty = false;
+                    for (var n = 0; n < 5; n++)
                     {
+                        try
+                        {
 
-                        i.Method.Invoke(i.Target, new object[] { null, null });
+                            i.Method.Invoke(i.Target, new object[] { null, null });
+                            faulty = false;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
+                                Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
+                            faulty = true;
+                            Thread.Sleep(500);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
-                            Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
-                    }
+                    if (faulty)
+                        Environment.Exit(1);
+                    break;
                 }
             }
         }
@@ -245,16 +266,26 @@ namespace PBCaGw
             {
                 foreach (var i in OneSecJobs.GetInvocationList())
                 {
-                    try
+                    bool faulty = false;
+                    for (var n = 0; n < 5; n++)
                     {
-
-                        i.Method.Invoke(i.Target, new object[] { null, null });
+                        try
+                        {
+                            i.Method.Invoke(i.Target, new object[] { null, null });
+                            faulty = false;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
+                                Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
+                            faulty = true;
+                            Thread.Sleep(500);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
-                            Log.TraceEvent(TraceEventType.Critical, -1, ex.Message + "\r\n" + ex.StackTrace);
-                    }
+                    if (faulty)
+                        Environment.Exit(1);
+                    break;
                 }
                 //OneSecJobs(null, null);
             }
