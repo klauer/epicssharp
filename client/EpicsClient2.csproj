@@ -58,6 +58,7 @@
     <Compile Include="ExtendedTypes\extControl.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ExtendedTypes\extControlEnum.cs" />
     <Compile Include="ExtendedTypes\extEnumType.cs">
       <SubType>Code</SubType>
     </Compile>
