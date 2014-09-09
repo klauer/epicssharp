@@ -31,7 +31,7 @@ namespace PBCaGw
         /// <summary>
         /// Min. time (in sec) to keep the IOC connection before killing it when there is no more client connections to it.
         /// </summary>
-        public const int IOC_KEEP_ALIVE_CONNECTION = 120;
+        public const int IOC_KEEP_ALIVE_CONNECTION = 600;
         //public const int IOC_KEEP_ALIVE_CONNECTION = 120;
 
         /// <summary>
