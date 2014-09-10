@@ -371,7 +371,7 @@ namespace PSI.EpicsClient2
         static DateTime timestampBase = new DateTime(1990, 1, 1, 0, 0, 0);
         internal object DecodeData(Type t, uint nbElements = 1, int startPost = 0, int maxSize = 40)
         {
-            if (t.IsGenericType && !t.IsArray)
+            if (t.IsSubclassOf(typeof(Decodable)) && !t.IsArray)
             {
                 Decodable res = (Decodable)t.GetConstructor(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance, null, new Type[] { }, null).Invoke(new object[] { });
                 res.Decode(this, nbElements);
