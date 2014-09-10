@@ -507,7 +507,8 @@ namespace PSI.EpicsClient2
                     p.DataCount = ChannelDataCount;
                     p.Parameter1 = SID;
                     p.Parameter2 = CID;
-                    ioc.Send(p);
+                    if(ioc != null)
+                        ioc.Send(p);
                 }
             }
         }
