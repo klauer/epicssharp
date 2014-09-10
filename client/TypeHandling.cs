@@ -50,7 +50,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtControl<int>)   ,EpicsType.Control_Int},
             {typeof(ExtControl<float>) ,EpicsType.Control_Float},
             {typeof(ExtControl<double>),EpicsType.Control_Double},
-            {typeof(ExtControl<Enum>)  ,EpicsType.Control_Enum},
+            {typeof(ExtControlEnum)  ,EpicsType.Control_Enum},
 
             // Array types
 
@@ -84,7 +84,7 @@ namespace PSI.EpicsClient2
             {typeof(ExtControl<int[]>)   ,EpicsType.Control_Int},
             {typeof(ExtControl<float[]>) ,EpicsType.Control_Float},
             {typeof(ExtControl<double[]>),EpicsType.Control_Double},
-            {typeof(ExtControl<Enum[]>)  ,EpicsType.Control_Enum},
+            {typeof(ExtControlEnum[])  ,EpicsType.Control_Enum},
         };
 
         public static Dictionary<EpicsType, Type> ReverseLookup;
