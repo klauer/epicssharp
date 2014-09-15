@@ -29,9 +29,9 @@ namespace PBCaGw.Services
         /// </summary>
         static TcpManager()
         {
-            /*bufferFlusher = new Thread(BufferFlusher);
+            bufferFlusher = new Thread(BufferFlusher);
             bufferFlusher.IsBackground = true;
-            bufferFlusher.Start();*/
+            bufferFlusher.Start();
         }
 
 
@@ -301,19 +301,29 @@ namespace PBCaGw.Services
         public static void SendClientPacket(DataPacket packet)
         {
             //Console.WriteLine("Sending to " + packet.Destination + " " + packet.Command);
+            //Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, packet.Chain.ChainId, "Pre Sending " + packet.Command);
 
             Socket socket = null;
             // Not sending to null
             if (packet.Destination == null)
+            {
+                //Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, packet.Chain.ChainId, "Dest null");
                 return;
+            }
             WorkerChain clientChain = null;
+
             lock (clientConnections)
             {
                 if (!clientConnections.ContainsKey(packet.Destination))
+                {
+                    //Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, packet.Chain.ChainId, "client conn null? " + packet.Destination);
                     return;
+                }
                 if (clientChains.ContainsKey(packet.Destination))
                     clientChain = clientChains[packet.Destination];
             }
+
+            //Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, packet.Chain.ChainId, "Sending " + packet.Command);
 
             if (clientChain != null)
             {
@@ -347,6 +357,8 @@ namespace PBCaGw.Services
         {
             lock (clientConnections)
             {
+                if (Log.WillDisplay(TraceEventType.Verbose))
+                    Log.TraceEvent(TraceEventType.Verbose, -1, "Register " + iPEndPoint);
                 clientConnections.Add(iPEndPoint, ((TcpReceiver)chain[0]).Socket);
                 clientChains.Add(iPEndPoint, chain);
             }

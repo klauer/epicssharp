@@ -102,6 +102,13 @@ namespace PBCaGw
                 {
                     clientEndPoint = (IPEndPoint)client.RemoteEndPoint;
 
+                    chain = WorkerChain.TcpChain(this.gateway, this.side, clientEndPoint, ipSource);
+                    if (Log.WillDisplay(System.Diagnostics.TraceEventType.Start))
+                        Log.TraceEvent(System.Diagnostics.TraceEventType.Start, chain.ChainId, "New client connection: " + clientEndPoint);
+                    TcpManager.RegisterClient(clientEndPoint, chain);
+                    TcpReceiver receiver = (TcpReceiver)chain[0];
+                    receiver.Socket = client;
+
                     // Send version
                     DataPacket packet = DataPacket.Create(16);
                     packet.Sender = ipSource;
@@ -113,13 +120,6 @@ namespace PBCaGw
                     packet.Parameter2 = 0;
                     packet.PayloadSize = 0;
                     client.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
-
-                    chain = WorkerChain.TcpChain(this.gateway, this.side, clientEndPoint, ipSource);
-                    if (Log.WillDisplay(System.Diagnostics.TraceEventType.Start))
-                        Log.TraceEvent(System.Diagnostics.TraceEventType.Start, chain.ChainId, "New client connection: " + clientEndPoint);
-                    TcpReceiver receiver = (TcpReceiver)chain[0];
-                    receiver.Socket = client;
-                    TcpManager.RegisterClient(clientEndPoint, chain);
                 }
                 catch (Exception ex)
                 {
