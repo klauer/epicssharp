@@ -110,8 +110,10 @@ namespace PBCaGw
             bgJobs = new Thread(RunBgJobs);
             bgJobs.IsBackground = true;
             bgJobs.Start();
-            //BufferedSockets = true;
-            BufferedSockets = false;
+
+
+            BufferedSockets = true;
+            //BufferedSockets = false;
             AutoCreateChannel = true;
             //AutoCreateChannel = false;
             RestoreCache = true;
@@ -200,6 +202,8 @@ namespace PBCaGw
 
         static void RunTenSecJob(object state)
         {
+            /*if(Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "10 sec job running");*/
             if (TenSecJobs != null)
             {
                 foreach (var i in TenSecJobs.GetInvocationList())
@@ -227,10 +231,14 @@ namespace PBCaGw
                 }
                 //TenSecJobs(null, null);
             }
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "10 sec job done");*/
         }
 
         static void RunFiveSecJob(object state)
         {
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "5 sec job running");*/
             if (FiveSecJobs != null)
             {
                 foreach (var i in FiveSecJobs.GetInvocationList())
@@ -258,10 +266,14 @@ namespace PBCaGw
                     break;
                 }
             }
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "5 sec job done");*/
         }
 
         static void RunOneSecJob(object state)
         {
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "1 sec job running");*/
             if (OneSecJobs != null)
             {
                 foreach (var i in OneSecJobs.GetInvocationList())
@@ -289,6 +301,8 @@ namespace PBCaGw
                 }
                 //OneSecJobs(null, null);
             }
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "1 sec job done");*/
         }
 
         /// <summary>
