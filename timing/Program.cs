@@ -26,9 +26,11 @@ namespace CaTiming
                 }
             }
 
-            for (int r = 0; r < nbRepeat; r++)
+            for (int r = 0; r < nbRepeat || nbRepeat == 0; )
             {
-                if (r != 0)
+                if (nbRepeat > 0)
+                    r++;
+                if (r != 0 || nbRepeat == 0)
                 {
                     Console.WriteLine("-------------------------------------------");
                     Console.WriteLine("-------------------------------------------");
@@ -36,7 +38,7 @@ namespace CaTiming
                 }
                 using (EpicsClient client = new EpicsClient())
                 {
-                    client.Configuration.WaitTimeout = 1000;
+                    client.Configuration.WaitTimeout = 10000;
 
                     string channelName = "";
                     bool usingMonitor = false;
