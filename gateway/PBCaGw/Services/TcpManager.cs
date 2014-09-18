@@ -192,35 +192,31 @@ namespace PBCaGw.Services
             {
                 if (iocConnections.ContainsKey(endPoint))
                     result = iocChains[endPoint];
-            }
 
-            if (result == null)
-            {
-                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-                try
+                if (result == null)
                 {
-                    if (!SocketConnect(socket, endPoint, 200))
+                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+                    try
                     {
-                        try
+                        if (!SocketConnect(socket, endPoint, 200))
                         {
-                            socket.Dispose();
-                        }
-                        catch
-                        {
+                            try
+                            {
+                                socket.Dispose();
+                            }
+                            catch
+                            {
 
+                            }
+                            return null;
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        socket.Dispose();
                         return null;
                     }
-                }
-                catch (Exception ex)
-                {
-                    socket.Dispose();
-                    return null;
-                }
-
-                lock (iocConnections)
-                {
 
                     iocConnections.Add(endPoint, socket);
                     // Add a monitor on the known channels
