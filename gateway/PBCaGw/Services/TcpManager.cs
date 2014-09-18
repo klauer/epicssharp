@@ -29,9 +29,12 @@ namespace PBCaGw.Services
         /// </summary>
         static TcpManager()
         {
-            bufferFlusher = new Thread(BufferFlusher);
-            bufferFlusher.IsBackground = true;
-            bufferFlusher.Start();
+            if (Gateway.BufferedSockets)
+            {
+                bufferFlusher = new Thread(BufferFlusher);
+                bufferFlusher.IsBackground = true;
+                bufferFlusher.Start();
+            }
         }
 
 
@@ -189,34 +192,35 @@ namespace PBCaGw.Services
             {
                 if (iocConnections.ContainsKey(endPoint))
                     result = iocChains[endPoint];
-                else
-                {
-                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-                    try
-                    {
-                        //SocketAsyncEventArgs async = new SocketAsyncEventArgs();
-                        if (!SocketConnect(socket, endPoint, 200))
-                        {
-                            try
-                            {
-                                socket.Dispose();
-                            }
-                            catch
-                            {
+            }
 
-                            }
-                            return null;
-                        }
-                        //socket.Connect(endPoint);
-                        //socket.ConnectAsync(new SocketAsyncEventArgs { RemoteEndPoint = endPoint });
-                        //socket.BeginConnect(endPoint, SocketConnected, null);
-                    }
-                    catch (Exception ex)
+            if (result == null)
+            {
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+                try
+                {
+                    if (!SocketConnect(socket, endPoint, 200))
                     {
-                        socket.Dispose();
+                        try
+                        {
+                            socket.Dispose();
+                        }
+                        catch
+                        {
+
+                        }
                         return null;
                     }
+                }
+                catch (Exception ex)
+                {
+                    socket.Dispose();
+                    return null;
+                }
+
+                lock (iocConnections)
+                {
 
                     iocConnections.Add(endPoint, socket);
                     // Add a monitor on the known channels
