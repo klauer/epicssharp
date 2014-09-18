@@ -112,8 +112,8 @@ namespace PBCaGw
             bgJobs.Start();
 
 
-            BufferedSockets = true;
-            //BufferedSockets = false;
+            //BufferedSockets = true;
+            BufferedSockets = false;
             AutoCreateChannel = true;
             //AutoCreateChannel = false;
             RestoreCache = true;
