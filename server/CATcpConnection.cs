@@ -130,7 +130,12 @@ namespace CaSharpServer
                 lock (Socket)
                 {
                     if (data.Length <= 1000)
-                        Socket.Send(data);
+                    {
+                        if (Socket.Connected)
+                            Socket.Send(data);
+                        else
+                            Dispose();
+                    }
                     else
                     {
                         int nbRemaining = data.Length;
