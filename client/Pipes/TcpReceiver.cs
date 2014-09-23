@@ -79,7 +79,13 @@ namespace PSI.EpicsClient2.Pipes
             int n = 0;
             try
             {
-                n = socket.EndReceive(ar);
+                if (socket.Connected)
+                    n = socket.EndReceive(ar);
+                else
+                {
+                    Dispose();
+                    return;
+                }
             }
             catch (ObjectDisposedException)
             {
