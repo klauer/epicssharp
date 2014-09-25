@@ -45,6 +45,7 @@
     <Compile Include="Client\DataPacket.cs" />
     <Compile Include="Client\Channel.cs" />
     <Compile Include="Client\CAClient.cs" />
+    <Compile Include="Client\ExtendedTypes\extControlEnum.cs" />
     <Compile Include="Client\GenericChannel.cs" />
     <Compile Include="Client\ExtendedTypes\Decodable.cs" />
     <Compile Include="Client\ExtendedTypes\ExtAcknowledge.cs" />
