@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Net;
 using PBCaGw.Services;
 using System.IO;
+using System.Threading;
 
 namespace PBCaGw.Workers
 {
@@ -21,6 +22,7 @@ namespace PBCaGw.Workers
         NetworkStream netStream;
         BufferedStream stream;
         bool isDirty = false;
+        AutoResetEvent dataSent = new AutoResetEvent(true);
 
         public IPEndPoint RemoteEndPoint
         {
@@ -42,11 +44,17 @@ namespace PBCaGw.Workers
             set
             {
                 socket = value;
+                socket.SendTimeout = 500;
+                socket.Blocking = false;
+
                 RemoteEndPoint = (IPEndPoint)socket.RemoteEndPoint;
 
-                netStream = new NetworkStream(socket);
-                netStream.WriteTimeout = 500;
-                stream = new BufferedStream(netStream);
+                if (Gateway.BufferedSockets)
+                {
+                    netStream = new NetworkStream(socket);
+                    netStream.WriteTimeout = 500;
+                    stream = new BufferedStream(netStream);
+                }
                 try
                 {
                     socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveTcpData, null);
@@ -75,12 +83,31 @@ namespace PBCaGw.Workers
             {
                 try
                 {
-                    socket.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
+                    if (!dataSent.WaitOne(100))
+                    {
+                        Dispose();
+                        return;
+                    }
+                    socket.BeginSend(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None, Sent, this);
+                    //socket.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
                 }
                 catch
                 {
                     this.Dispose();
                 }
+            }
+        }
+
+        void Sent(IAsyncResult obj)
+        {
+            try
+            {
+                socket.EndSend(obj);
+                dataSent.Set();
+            }
+            catch
+            {
+                Dispose();
             }
         }
 
@@ -198,20 +225,23 @@ namespace PBCaGw.Workers
             {
             }
 
-            try
+            if (Gateway.BufferedSockets)
             {
-                stream.Dispose();
-            }
-            catch
-            {
-            }
+                try
+                {
+                    stream.Dispose();
+                }
+                catch
+                {
+                }
 
-            try
-            {
-                netStream.Dispose();
-            }
-            catch
-            {
+                try
+                {
+                    netStream.Dispose();
+                }
+                catch
+                {
+                }
             }
 
             try
