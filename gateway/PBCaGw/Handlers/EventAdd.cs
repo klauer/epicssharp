@@ -6,6 +6,7 @@ using PBCaGw.Workers;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace PBCaGw.Handlers
 {
@@ -223,7 +224,7 @@ namespace PBCaGw.Handlers
 
         public override void DoResponse(DataPacket packet, Workers.WorkerChain chain, DataPacketDelegate sendData)
         {
-            ConcurrentBag<uint> subscriptionList = null;
+            List<DataPacket> newPackets = new List<DataPacket>();
 
             lock (lockObject)
             {
@@ -269,12 +270,7 @@ namespace PBCaGw.Handlers
 
                 subscriptions.FirstValue = false;
 
-                subscriptionList = subscriptions.SubscriptionList;
-            }
-
-            if(subscriptionList != null)
-            {
-                foreach (UInt32 i in subscriptionList)
+                foreach (UInt32 i in subscriptions.SubscriptionList)
                 {
                     DataPacket newPacket = (DataPacket)packet.Clone();
                     Record subscription = InfoService.ChannelSubscription[i];
@@ -314,14 +310,18 @@ namespace PBCaGw.Handlers
                         Console.WriteLine("Copy send " + subscription.Channel.Split(new char[] { '°' })[0] + " " + subscription.SubscriptionId.Value + " " + newPacket.GetDataAsString());
 
                     }*/
-                    sendData(newPacket);
+                    newPackets.Add(newPacket);
                 }
             }
+
+            foreach (var i in newPackets)
+                sendData(i);
         }
 
         internal static void Unsubscribe(uint gwcid)
         {
-            //lock (lockObject)
+            DataPacket newPacket=null;
+            lock (lockObject)
             {
                 Record subscription = InfoService.ChannelSubscription[gwcid];
                 if (subscription == null)
@@ -362,21 +362,23 @@ namespace PBCaGw.Handlers
                         ioc.ChannelSubscriptions.TryRemove(recId, out val);
                     }
 
-                    DataPacket newPacket = DataPacket.Create(0, null);
+                    newPacket = DataPacket.Create(0, null);
                     newPacket.Destination = record.Destination;
                     newPacket.Command = 2;
                     newPacket.DataType = record.DBRType.Value;
                     newPacket.DataCount = record.DataCount.Value;
                     newPacket.Parameter1 = record.SID.Value;
                     newPacket.Parameter2 = mainGWCid;
-                    // Sending null as gateway avoid to create a new IOC chain in case the chain is gone
-                    TcpManager.SendIocPacket(null, newPacket);
 
                     if (InfoService.ChannelSubscription.Remove(mainGWCid))
                         CidGenerator.ReleaseCid(mainGWCid);
                     InfoService.SubscribedChannel.Remove(recId);
                 }
             }
+
+            // Sending null as gateway avoid to create a new IOC chain in case the chain is gone
+            if(newPacket != null)
+                TcpManager.SendIocPacket(null, newPacket);
         }
     }
 }
