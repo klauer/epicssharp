@@ -22,7 +22,7 @@ namespace PBCaGw.Workers
         NetworkStream netStream;
         BufferedStream stream;
         bool isDirty = false;
-        AutoResetEvent dataSent = new AutoResetEvent(true);
+        //AutoResetEvent dataSent = new AutoResetEvent(true);
 
         public IPEndPoint RemoteEndPoint
         {
@@ -83,13 +83,13 @@ namespace PBCaGw.Workers
             {
                 try
                 {
-                    if (!dataSent.WaitOne(100))
+                    /*if (!dataSent.WaitOne(1000))
                     {
                         Dispose();
                         return;
                     }
-                    socket.BeginSend(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None, Sent, this);
-                    //socket.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
+                    socket.BeginSend(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None, Sent, this);*/
+                    socket.Send(packet.Data, packet.Offset, packet.BufferSize, SocketFlags.None);
                 }
                 catch
                 {
@@ -98,7 +98,7 @@ namespace PBCaGw.Workers
             }
         }
 
-        void Sent(IAsyncResult obj)
+        /*void Sent(IAsyncResult obj)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace PBCaGw.Workers
             {
                 Dispose();
             }
-        }
+        }*/
 
         public void Flush()
         {

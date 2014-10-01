@@ -5,6 +5,7 @@ using PBCaGw.Services;
 using PBCaGw.Workers;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace PBCaGw.Handlers
 {
@@ -17,6 +18,8 @@ namespace PBCaGw.Handlers
 
         public override void DoRequest(DataPacket packet, Workers.WorkerChain chain, DataPacketDelegate sendData)
         {
+            DataPacket newPacket = null;
+
             if (packet.DataCount == 0)
             {
                 if (Log.WillDisplay(TraceEventType.Error))
@@ -147,11 +150,12 @@ namespace PBCaGw.Handlers
                     currentMonitor.GWCID = record.GWCID;
                     newMonitor.GWCID = gwcid;
 
-                    DataPacket newPacket = (DataPacket)packet.Clone();
+                    newPacket = (DataPacket)packet.Clone();
                     newPacket.Parameter1 = recordSID;
                     newPacket.Parameter2 = gwcid;
                     newPacket.Destination = record.Destination;
-                    sendData(newPacket);
+
+                    //sendData(newPacket);
                 }
                 else
                 {
@@ -200,7 +204,7 @@ namespace PBCaGw.Handlers
                         record.Channel = channelName;
 
                         // Send an intial read-notify
-                        DataPacket newPacket = DataPacket.Create(0, packet.Chain);
+                        newPacket = DataPacket.Create(0, packet.Chain);
                         newPacket.Command = 15;
                         newPacket.DataCount = packet.DataCount;
                         newPacket.DataType = packet.DataType;
@@ -208,14 +212,19 @@ namespace PBCaGw.Handlers
                         newPacket.Parameter2 = gwioid;
                         newPacket.Destination = dest;
 
-                        sendData(newPacket);
+                        //sendData(newPacket);
                     }
                 }
             }
+            if(newPacket != null)
+                sendData(newPacket);
+
         }
 
         public override void DoResponse(DataPacket packet, Workers.WorkerChain chain, DataPacketDelegate sendData)
         {
+            ConcurrentBag<uint> subscriptionList = null;
+
             lock (lockObject)
             {
                 if (packet.PayloadSize == 0)
@@ -260,7 +269,12 @@ namespace PBCaGw.Handlers
 
                 subscriptions.FirstValue = false;
 
-                foreach (UInt32 i in subscriptions.SubscriptionList)
+                subscriptionList = subscriptions.SubscriptionList;
+            }
+
+            if(subscriptionList != null)
+            {
+                foreach (UInt32 i in subscriptionList)
                 {
                     DataPacket newPacket = (DataPacket)packet.Clone();
                     Record subscription = InfoService.ChannelSubscription[i];
@@ -307,7 +321,7 @@ namespace PBCaGw.Handlers
 
         internal static void Unsubscribe(uint gwcid)
         {
-            lock (lockObject)
+            //lock (lockObject)
             {
                 Record subscription = InfoService.ChannelSubscription[gwcid];
                 if (subscription == null)
