@@ -14,9 +14,9 @@ namespace PBCaGw.Handlers
 
         public override void DoResponse(DataPacket packet, Workers.WorkerChain chain, DataPacketDelegate sendData)
         {
-            Record record = InfoService.ChannelCid[packet.Parameter1];
             if (Log.WillDisplay(TraceEventType.Critical))
             {
+                Record record = InfoService.ChannelCid[packet.Parameter1];
                 if (record != null)
                     Log.TraceEvent(TraceEventType.Critical, chain.ChainId, "Proto Error (" + packet.Parameter2 + ") on CID: " + packet.Parameter1 + " (" + record.Channel + "), SID = " + record.SID);
                 else

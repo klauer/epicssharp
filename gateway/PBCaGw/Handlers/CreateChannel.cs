@@ -117,6 +117,11 @@ namespace PBCaGw.Handlers
                         if (Log.WillDisplay(TraceEventType.Verbose))
                             Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Cached responce create channel cid " + packet.Parameter1);
 
+                        chain.ChannelCid[channelName] = packet.Parameter1;
+
+                        // We have all the info we can continue.
+                        chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
+
                         // Give back access rights before the create channel
                         DataPacket newPacket = DataPacket.Create(0, packet.Chain);
                         newPacket.Command = 22;
@@ -154,11 +159,6 @@ namespace PBCaGw.Handlers
                             }
                         }
 
-                        chain.ChannelCid[channelName] = packet.Parameter1;
-
-                        // We have all the info we can continue.
-                        chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
-
                         //Console.WriteLine("Channel " + channelName + " " + channelInfo.GWCID.Value);
                         return;
                     }
@@ -181,7 +181,11 @@ namespace PBCaGw.Handlers
                         if (resChannelInfo == null)
                             return;
 
-                        Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Event responce create channel cid " + clientCid);
+                        if (Log.WillDisplay(TraceEventType.Verbose))
+                            Log.TraceEvent(TraceEventType.Verbose, chain.ChainId, "Event responce create channel cid " + clientCid);
+
+                        chain.ChannelCid[channelName] = clientCid;
+                        chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
 
                         // Give back access rights before the create channel
                         DataPacket resPacket = DataPacket.Create(0, packet.Chain);
@@ -204,9 +208,6 @@ namespace PBCaGw.Handlers
                         TcpManager.SendClientPacket(resPacket);
 
                         //Console.WriteLine("2Channel " + channelName + " " + channelInfo.GWCID.Value);
-
-                        chain.ChannelCid[channelName] = clientCid;
-                        chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
                     };
                     //}
                 }
@@ -223,6 +224,8 @@ namespace PBCaGw.Handlers
                     if (Log.WillDisplay(TraceEventType.Verbose))
                         Log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, (packet.Chain == null ? 0 : packet.Chain.ChainId), "Request of a new channel (" + channelName + ")");
                     channelInfo.GWCID = packet.Parameter1;
+
+                    chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
 
                     UInt32 gwcid = CidGenerator.Next();
                     Record record = InfoService.ChannelCid.Create(gwcid);
@@ -241,8 +244,6 @@ namespace PBCaGw.Handlers
                     newPacket.Parameter2 = Gateway.CA_PROTO_VERSION;
                     newPacket.Destination = channelInfo.Server;
                     sendData(newPacket);
-
-                    chain.Gateway.DoClientConnectedChannels(chain.ClientEndPoint.ToString(), channelName);
                 }
                 //Console.WriteLine("Create 6: " + sw.Elapsed);
             }
