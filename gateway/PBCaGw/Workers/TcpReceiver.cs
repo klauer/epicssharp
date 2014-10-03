@@ -44,8 +44,9 @@ namespace PBCaGw.Workers
             set
             {
                 socket = value;
-                socket.SendTimeout = 500;
-                socket.Blocking = false;
+                socket.SendTimeout = 30000;
+                /*socket.SendTimeout = 500;
+                socket.Blocking = false;*/
 
                 RemoteEndPoint = (IPEndPoint)socket.RemoteEndPoint;
 
