@@ -75,6 +75,7 @@ namespace PBCaGw.Workers
                             Send(j);
                         }
                     }
+                    Flush();
 
                     Send((int)DebugDataType.FULL_CLIENT);
                     Send(Chain.Gateway.KnownClients.Count);
@@ -87,6 +88,7 @@ namespace PBCaGw.Workers
                             Send(j);
                         }
                     }
+                    Flush();
 
                     if (PBCaGw.Services.DebugTraceListener.TraceAll)
                         Send((int)DebugDataType.FULL_LOGS);
@@ -104,9 +106,8 @@ namespace PBCaGw.Workers
                         Send(i.Message);
                     }
                     Flush();
-
-                    SendSearch(null, null);
                 }
+                SendSearch(null, null);
             }
             catch
             {

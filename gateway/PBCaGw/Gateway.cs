@@ -122,6 +122,17 @@ namespace PBCaGw
 
         void UpdateSearchList(object sender, EventArgs e)
         {
+            if (UpdateSearch != null)
+            {
+                try
+                {
+                    UpdateSearch(this, null);
+                }
+                catch
+                {
+                }
+            }
+
             lock (searchLock)
             {
                 // Cleanup all old
@@ -146,17 +157,6 @@ namespace PBCaGw
                 {
                     i.Value.PreviousSearch = i.Value.CurrentSearch;
                     i.Value.CurrentSearch = 0;
-                }
-            }
-
-            if (UpdateSearch != null)
-            {
-                try
-                {
-                    UpdateSearch(this, null);
-                }
-                catch
-                {
                 }
             }
         }
@@ -227,7 +227,6 @@ namespace PBCaGw
                     }
                     if (faulty)
                         Environment.Exit(1);
-                    break;
                 }
                 //TenSecJobs(null, null);
             }
@@ -263,7 +262,6 @@ namespace PBCaGw
                     }
                     if (faulty)
                         Environment.Exit(1);
-                    break;
                 }
             }
             /*if (Log.WillDisplay(TraceEventType.Verbose))
@@ -297,7 +295,6 @@ namespace PBCaGw
                     }
                     if (faulty)
                         Environment.Exit(1);
-                    break;
                 }
                 //OneSecJobs(null, null);
             }

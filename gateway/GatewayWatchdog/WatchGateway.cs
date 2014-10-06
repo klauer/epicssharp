@@ -72,7 +72,7 @@ namespace GatewayWatchdog
                                 lastCPUVals.RemoveAt(0);
 
 
-                            if (lastCPUVals.Count < nbCPUAvg * 0.8 || lastCPUVals.Average() < 80.0)
+                            if (lastCPUVals.Count < nbCPUAvg * 0.8 || lastCPUVals.Average() < 90.0)
                             {
                                 isOk = true;
                             }
@@ -117,7 +117,9 @@ namespace GatewayWatchdog
                     if (Environment.UserInteractive)
                         Console.WriteLine("Not ok!!!");
                     StopGateway();
+                    lastCPUVals.Clear();
                     StartGateway();
+                    Thread.Sleep(40000);
                 }
                 else
                 {
@@ -139,6 +141,8 @@ namespace GatewayWatchdog
             catch
             {
             }
+
+            Thread.Sleep(2000);
 
             // Kill the remaining processes
             try
@@ -166,7 +170,6 @@ namespace GatewayWatchdog
             catch
             {
             }
-            Thread.Sleep(20000);
         }
     }
 }
