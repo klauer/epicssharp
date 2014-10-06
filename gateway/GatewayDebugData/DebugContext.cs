@@ -117,6 +117,7 @@ namespace GatewayDebugData
 
         void Reconnect()
         {
+            Thread.Sleep(200);
             while (isRunning)
             {
                 if (!isConnected)
@@ -293,7 +294,7 @@ namespace GatewayDebugData
                             break;
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     Disconnect();
                 }
@@ -303,15 +304,36 @@ namespace GatewayDebugData
         public int GetInt()
         {
             byte[] data = new byte[4];
-            stream.Read(data, 0, 4);
+            int pos = 0;
+            while (pos < 4 && socket.Connected)
+            {
+                int n = stream.Read(data, pos, 4 - pos);
+                pos += n;
+                if (pos < 4)
+                    Thread.Sleep(10);
+            }
+            if (!socket.Connected)
+                new Exception("Socket closed");
             return (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
         }
 
         public string GetString()
         {
             int lenght = GetInt();
+            if (lenght > 1024)
+                throw new Exception("String too long!");
             byte[] data = new byte[lenght];
-            stream.Read(data, 0, lenght);
+            int pos = 0;
+            while (pos < lenght && socket.Connected)
+            {
+                int n = stream.Read(data, pos, lenght - pos);
+                pos += n;
+                if (pos < lenght)
+                    Thread.Sleep(10);
+            }
+            if (!socket.Connected)
+                new Exception("Socket closed");
+
             return Encoding.UTF8.GetString(data);
         }
 
