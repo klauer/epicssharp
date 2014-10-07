@@ -92,6 +92,7 @@ namespace PBCaGw.Handlers
             // It's the initial answer as get of "cached" monitor.
             if (record.IOID.HasValue && record.IOID.Value == 0)
             {
+                newPacket = null;
                 lock (EventAdd.lockObject)
                 {
 
@@ -123,7 +124,6 @@ namespace PBCaGw.Handlers
                                 newPacket.Destination = record.Destination;
                                 newPacket.DataCount = record.DataCount.Value;
                                 newPacket.DataType = record.DBRType.Value;
-                                sendData(newPacket);
 
                                 //Console.WriteLine("Get send " + record.Channel + " " + record.SID.Value+" "+newPacket.GetDataAsString());
 
@@ -138,8 +138,10 @@ namespace PBCaGw.Handlers
                     // Removes it to avoid the cleaup            
                     /*InfoService.IOID.Remove(packet.Parameter2);
                     CidGenerator.ReleaseCid(packet.Parameter2);*/
-                    return;
                 }
+                if(newPacket != null)
+                    sendData(newPacket);
+                return;
             }
 
             newPacket.Destination = record.Destination;
