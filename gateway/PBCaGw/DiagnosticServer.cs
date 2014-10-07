@@ -30,6 +30,7 @@ namespace PBCaGw
         readonly CAIntRecord channelRestartGateway;
         readonly CAIntRecord channelMaxCid;
         readonly CAIntRecord channelFreeCid;
+        readonly CAIntRecord channelHeartBeat;
         readonly CAStringRecord channelVersion;
         readonly CAStringRecord channelBuild;
         readonly CADoubleRecord channelAverageCpu;
@@ -138,7 +139,7 @@ namespace PBCaGw
             runningTime.CanBeRemotlySet = false;
             runningTime.Scan = CaSharpServer.Constants.ScanAlgorithm.SEC1;
             runningTime.PrepareRecord += runningTime_PrepareRecord;
-            
+
 
             // Restart channel
             channelRestartGateway = diagServer.CreateRecord<CAIntRecord>(gateway.Configuration.GatewayName + ":RESTART");
@@ -153,9 +154,19 @@ namespace PBCaGw
             channelBuild.CanBeRemotlySet = false;
             channelBuild.Value = BuildTime.ToString(CultureInfo.InvariantCulture);
 
+            channelHeartBeat = diagServer.CreateRecord<CAIntRecord>(gateway.Configuration.GatewayName + ":BEAT");
+            channelHeartBeat.Value = 0;
+            channelHeartBeat.PrepareRecord += channelHeartBeat_PrepareRecord;
+            channelHeartBeat.Scan = CaSharpServer.Constants.ScanAlgorithm.SEC1;
+
             /*var strca= diagServer.CreateRecord<CAStringRecord>(gateway.Configuration.GatewayName + ":TESTPUT");
             strca.CanBeRemotlySet = true;
             strca.Value = "TEST";*/
+        }
+
+        void channelHeartBeat_PrepareRecord(object sender, EventArgs e)
+        {
+            channelHeartBeat.Value = 1 - channelHeartBeat.Value;
         }
 
         void runningTime_PrepareRecord(object sender, EventArgs e)
