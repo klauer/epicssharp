@@ -57,6 +57,7 @@ namespace PBCaGw.Handlers
 
             newPacket.Parameter1 = channelInfo.SID.Value;
             newPacket.Parameter2 = gwioid;
+            CidGenerator.ReleaseCid(gwioid);
 
             sendData(newPacket);
         }

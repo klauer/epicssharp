@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PBCaGw.Configurations.AllFilter" Collapsed="true">
+    <Position X="6.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>Configurations\AllFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Configurations.Configuration" Collapsed="true">
+    <Position X="3.5" Y="4.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAoAAAAIAAJCAQACSBABAgAABAAAAAAEgEAAAIAAA=</HashCode>
+      <FileName>Configurations\Configuration.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Security" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="PBCaGw.Configurations.GroupFilter" Collapsed="true">
+    <Position X="7.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIQAAAAAAAAAAAAGAAAAAAA=</HashCode>
+      <FileName>Configurations\GroupFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Configurations.Group" Collapsed="true">
+    <Position X="4.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configurations\Groups.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Configurations.HostFilter" Collapsed="true">
+    <Position X="3.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIQAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>Configurations\HostFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Configurations.IPFilter" Collapsed="true">
+    <Position X="5.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAIAAAAAIAAAACAAAAAgA=</HashCode>
+      <FileName>Configurations\IPFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Configurations.Security" Collapsed="true">
+    <Position X="6.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAEgwAAAAAAAAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>Configurations\Security.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Configurations.SecurityFilter" Collapsed="true">
+    <Position X="6.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAGAAAAAAA=</HashCode>
+      <FileName>Configurations\SecurityFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PBCaGw.Configurations.SecurityRule" Collapsed="true">
+    <Position X="4.5" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAgAAAEAAAAAAAIAAABAAAAIAAAAGAAAABgA=</HashCode>
+      <FileName>Configurations\SecurityRule.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Filter" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="PBCaGw.Configurations.UserFilter" Collapsed="true">
+    <Position X="9.75" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIQAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>Configurations\UserFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
