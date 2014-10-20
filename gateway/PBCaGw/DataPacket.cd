@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PBCaGw.DataPacket">
+    <Position X="3" Y="1" Width="3.25" />
+    <Members>
+      <Field Name="bufferSize" Hidden="true" />
+      <Field Name="command" Hidden="true" />
+      <Field Name="Data" Hidden="true" />
+      <Method Name="DataPacket" Hidden="true" />
+      <Field Name="Destination" Hidden="true" />
+      <Field Name="extendedMessage" Hidden="true" />
+      <Field Name="Kind" Hidden="true" />
+      <Field Name="payloadSize" Hidden="true" />
+      <Field Name="ReverseAnswer" Hidden="true" />
+      <Field Name="Sender" Hidden="true" />
+      <Field Name="storedPackets" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>FAEAAAoAIAJIAICICAAABABwSAQAAFgEAAICQCAJgBI=</HashCode>
+      <FileName>DataPacket.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
