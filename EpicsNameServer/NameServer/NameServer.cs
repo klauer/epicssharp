@@ -27,12 +27,34 @@ namespace NameServer
             this.IdCache = new IdCache(this);
         }
 
+        IPEndPoint ParseAddress(string addr)
+        {
+            string[] parts = addr.Split(new char[] { ':' });
+            try
+            {
+                return new IPEndPoint(IPAddress.Parse(parts[0].Trim()), int.Parse(parts[1].Trim()));
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    return new IPEndPoint(Dns.GetHostEntry(parts[0]).AddressList.First(), int.Parse(parts[1].Trim()));
+                }
+                catch (Exception ex2)
+                {
+                    Console.WriteLine("Wrong IP: " + addr);
+                    throw ex2;
+                }
+            }
+        }
+
+
         public void Start()
         {
             udpReceiver = new UdpReceiver(this, BindingAddress, Port);
             dests = SearchAddress.Replace(" ", ";").Replace(",", ";")
                 .Split(new char[] { ';' })
-                .Select(row => new IPEndPoint(IPAddress.Parse(row.Split(new char[] { ':' })[0]), int.Parse(row.Split(new char[] { ':' })[1])))
+                .Select(row => ParseAddress(row))
                 .ToList();
             udpReceiver.Start();
         }

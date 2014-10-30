@@ -11,7 +11,7 @@ namespace NSConsole
     {
         static void Main(string[] args)
         {
-            NameServer.NameServer ns = new NameServer.NameServer { BindingAddress = IPAddress.Parse("129.129.130.44"), Port = 5432, SearchAddress = "129.129.130.255:5064" };
+            NameServer.NameServer ns = new NameServer.NameServer { BindingAddress = IPAddress.Parse("129.129.130.44"), Port = 5432, SearchAddress = "172.20.3.50:5062" };
             ns.Start();
             Console.WriteLine("Press any key to stop...");
             Console.ReadKey();
