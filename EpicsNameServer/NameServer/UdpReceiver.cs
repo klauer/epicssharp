@@ -124,20 +124,24 @@ namespace NameServer
 
         void HandleMessage(DataPacket packet)
         {
+            // Handles only Searches
             switch ((CommandID)packet.Command)
             {
                 case CommandID.CA_PROTO_SEARCH:
-                    // Answer packer
+                    // Answer packet
                     if (packet.PayloadSize == 8)
                     {
                         NameEntry record = nameServer.IdCache[packet.Parameter2];
-                        if(record != null)
+                        if (record != null)
                             record.GotAnswer(packet);
                     }
+                    // Search request
                     else
                     {
-                        NameEntry record = nameServer.Cache[packet.GetDataAsString()];
-                        record.AnswerTo(packet.Sender,packet.Parameter1);
+                        // Properties are not used only the main record name
+                        string name = packet.GetDataAsString().Split(new char[] { '.' })[0];
+                        NameEntry record = nameServer.Cache[name];
+                        record.AnswerTo(packet.Sender, packet.Parameter1);
                     }
                     break;
                 default:
