@@ -13,7 +13,7 @@ namespace CaTiming
 
         static void Main(string[] args)
         {
-            int nbRepeat=1;
+            int nbRepeat = 1;
             if (args.Any(row => row == "-r"))
             {
                 for (int i = 0; i < args.Length; i++)
@@ -84,7 +84,7 @@ namespace CaTiming
                         {
                             Console.WriteLine(channel.Get());
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             hasError = true;
                             Console.WriteLine(ex);
@@ -101,7 +101,11 @@ namespace CaTiming
                             Console.WriteLine(i.Key + ": " + (i.Value - prevTime).ToString());
                         prevTime = i.Value;
                     }
+
                     Console.WriteLine("Total: " + prevTime.ToString());
+                    Console.WriteLine("Search answered by " + channel.SearchAnswerFrom);
+                    Console.WriteLine("IOC: " + channel.IOC);
+                    Console.WriteLine("EPICS Type: " + channel.ChannelDefinedType);
                     if (channel.Status != ChannelStatus.CONNECTED || hasError)
                     {
                         Console.Beep();
