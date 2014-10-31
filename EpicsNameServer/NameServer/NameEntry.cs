@@ -16,6 +16,7 @@ namespace NameServer
 
         public List<WaitingClient> waitingList = null;
         DateTime lastSearch = DateTime.Now;
+        DateTime creationDate = DateTime.Now;
         private NameServer nameServer;
         internal uint SearchId;
 

@@ -140,6 +140,7 @@ namespace NameServer
                     {
                         // Properties are not used only the main record name
                         string name = packet.GetDataAsString().Split(new char[] { '.' })[0];
+                        //name.GetHashCode() % nbNodes;
                         NameEntry record = nameServer.Cache[name];
                         record.AnswerTo(packet.Sender, packet.Parameter1);
                     }

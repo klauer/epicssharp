@@ -21,10 +21,44 @@ namespace NameServer
         public string SearchAddress = "255.255.255.255:5064";
         List<IPEndPoint> dests = new List<IPEndPoint>();
 
+        public string ClusterPrefix { get; set; }
+
+        public int NodeId { get; set; }
+
+        public int NodesInCluster { get; set; }
+
         public NameServer()
         {
             this.Cache = new NameCache(this);
             this.IdCache = new IdCache(this);
+
+
+            if (!string.IsNullOrWhiteSpace(System.Configuration.ConfigurationManager.AppSettings["BindingAddress"]))
+            {
+                var s = System.Configuration.ConfigurationManager.AppSettings["BindingAddress"];
+                this.BindingAddress = IPAddress.Parse(s.Split(new char[] { ':' })[0]);
+                this.Port = int.Parse(s.Split(new char[] { ':' })[1]);
+            }
+
+            if (!string.IsNullOrWhiteSpace(System.Configuration.ConfigurationManager.AppSettings["SearchAddress"]))
+            {
+                SearchAddress = System.Configuration.ConfigurationManager.AppSettings["SearchAddress"];
+            }
+
+            if (!string.IsNullOrWhiteSpace(System.Configuration.ConfigurationManager.AppSettings["ClusterPrefix"]))
+            {
+                ClusterPrefix = System.Configuration.ConfigurationManager.AppSettings["ClusterPrefix"];
+            }
+
+            if (!string.IsNullOrWhiteSpace(System.Configuration.ConfigurationManager.AppSettings["NodeId"]))
+            {
+                NodeId = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NodeId"]);
+            }
+
+            if (!string.IsNullOrWhiteSpace(System.Configuration.ConfigurationManager.AppSettings["NodesInCluster"]))
+            {
+                NodesInCluster = int.Parse(System.Configuration.ConfigurationManager.AppSettings["NodesInCluster"]);
+            }
         }
 
         IPEndPoint ParseAddress(string addr)
