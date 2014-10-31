@@ -103,6 +103,11 @@ namespace PSI.EpicsClient2
         /// </summary>
         public Type ChannelDefinedType { get { return channelDefinedType; } }
 
+        /// <summary>
+        /// Who answered to the search (useful to see a name server)
+        /// </summary>
+        public IPAddress SearchAnswerFrom { get; set; }
+
         public string IOC
         {
             get
