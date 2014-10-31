@@ -32,6 +32,10 @@ namespace PSI.EpicsClient2.Pipes
                             int port = packet.DataType;
                             //Console.WriteLine("Answer from: " + packet.Sender.Address + ":" + port);
                             EpicsChannel channel = Client.GetChannelByCid(packet.Parameter2);
+                            IPAddress addr = packet.Sender.Address;
+                            if (packet.Parameter1 != 0xFFFFFFFF)
+                                addr = IPAddress.Parse("" + packet.Data[8] + "." + packet.Data[8 + 1] + "." + packet.Data[8 + 2] + "." + packet.Data[8 + 3]);
+                            channel.SearchAnswerFrom = packet.Sender.Address;
                             if (Client.Configuration.DebugTiming)
                             {
                                 lock (channel.ElapsedTimings)
@@ -44,7 +48,7 @@ namespace PSI.EpicsClient2.Pipes
                             {
                                 try
                                 {
-                                    channel.SetIoc(Client.GetIocConnection(new IPEndPoint(packet.Sender.Address, port)));
+                                    channel.SetIoc(Client.GetIocConnection(new IPEndPoint(addr, port)));
                                 }
                                 catch
                                 {
