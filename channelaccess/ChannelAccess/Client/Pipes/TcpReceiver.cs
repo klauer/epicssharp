@@ -164,7 +164,10 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
             lock (ConnectedChannels)
             {
                 ConnectedChannels.Remove(channel);
+            }
 
+            lock (Client.Channels)
+            {
                 if (!Client.Channels.Any(row => row.Value.ChannelName == channel.ChannelName))
                     ChannelSID.Remove(channel.ChannelName);
             }
