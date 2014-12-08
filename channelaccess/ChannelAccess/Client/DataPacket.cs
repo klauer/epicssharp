@@ -222,7 +222,7 @@ namespace EpicsSharp.ChannelAccess.Client
             if ((ExtendedMessage ? 24 : 16) + (int)PayloadSize > Data.Length)
                 return "";
             offset += (int)this.HeaderSize;
-            string ret = Encoding.ASCII.GetString(Data, offset, Math.Min(Data.Length - offset, maxSize));
+            string ret = Encoding.Default.GetString(Data, offset, Math.Min(Data.Length - offset, maxSize));
             int indexOf = ret.IndexOf('\0');
             if (indexOf != -1)
                 ret = ret.Substring(0, indexOf);
@@ -238,7 +238,7 @@ namespace EpicsSharp.ChannelAccess.Client
 
         public void SetDataAsString(string str)
         {
-            byte[] b = Encoding.ASCII.GetBytes(str);
+            byte[] b = Encoding.Default.GetBytes(str);
             Array.Clear(Data, 16, Data.Length - 16);
             Buffer.BlockCopy(b, 0, Data, 16, b.Length);
         }
