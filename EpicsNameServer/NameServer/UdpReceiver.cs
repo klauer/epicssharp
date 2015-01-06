@@ -131,6 +131,7 @@ namespace NameServer
                     // Answer packet
                     if (packet.PayloadSize == 8)
                     {
+                        Log.Write(System.Diagnostics.TraceEventType.Verbose, "Search packet answer");
                         NameEntry record = nameServer.IdCache[packet.Parameter2];
                         if (record != null)
                             record.GotAnswer(packet);
@@ -138,10 +139,13 @@ namespace NameServer
                     // Search request
                     else
                     {
-                        // Properties are not used only the main record name
-                        string name = packet.GetDataAsString().Split(new char[] { '.' })[0];
+                        string channel = packet.GetDataAsString();
+                        Log.Write(System.Diagnostics.TraceEventType.Verbose, "Search packet request for " + channel);
+                        // We can't use the record name (without property) as gateways will have issues for non-existent properties
+                        //string name = channel.Split(new char[] { '.' })[0];
                         //name.GetHashCode() % nbNodes;
-                        NameEntry record = nameServer.Cache[name];
+                        //NameEntry record = nameServer.Cache[name];
+                        NameEntry record = nameServer.Cache[channel];
                         record.AnswerTo(packet.Sender, packet.Parameter1);
                     }
                     break;

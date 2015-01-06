@@ -9,13 +9,20 @@ namespace NSConsole
 {
     class Program
     {
+        static bool stop = false;
         static void Main(string[] args)
         {
-            //NameServer.NameServer ns = new NameServer.NameServer { BindingAddress = IPAddress.Parse("129.129.130.44"), Port = 5432, SearchAddress = "172.20.3.50:5062" };
+            Console.WriteLine("Ctrl + C to stop");
+            Console.CancelKeyPress += Console_CancelKeyPress;           
             NameServer.NameServer ns = new NameServer.NameServer();
             ns.Start();
-            Console.WriteLine("Press any key to stop...");
-            Console.ReadKey();
+            while (!stop)
+                Console.ReadKey();
+        }
+
+        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            stop = true;
         }
     }
 }
