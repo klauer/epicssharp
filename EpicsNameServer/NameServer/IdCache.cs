@@ -26,7 +26,10 @@ namespace NameServer
                 locker.Wait();
                 try
                 {
-                    return cache[key];
+                    if (cache.ContainsKey(key))
+                        return cache[key];
+                    else
+                        return null;
                 }
                 finally
                 {
@@ -55,6 +58,19 @@ namespace NameServer
             {
                 nameEntry.SearchId = nextId++;
                 cache.Add(nameEntry.SearchId, nameEntry);
+            }
+            finally
+            {
+                locker.Release();
+            }
+        }
+
+        internal void Clear()
+        {
+            locker.Wait();
+            try
+            {
+                cache.Clear();
             }
             finally
             {

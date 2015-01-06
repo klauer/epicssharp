@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace NameServer
 {
-    class NameEntry
+    class NameEntry : IDisposable
     {
         SemaphoreSlim locker = new SemaphoreSlim(1, 1);
 
@@ -144,7 +144,25 @@ namespace NameServer
 
         void NameEntry_LostConnection(object sender, EventArgs e)
         {
+            this.Dispose();
+        }
+
+        public void Dispose()
+        {
             nameServer.Cache.Remove(this.Name);
+            locker.Wait();
+            try
+            {
+                waitingList = null;
+            }
+            catch (Exception ex)
+            {
+                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
+            }
+            finally
+            {
+                locker.Release();
+            }
         }
     }
 }

@@ -15,10 +15,26 @@ namespace NameServer
         readonly byte[] buffer = new byte[NameServer.BUFFER_SIZE];
         bool disposed = false;
         public IPEndPoint EndPoint { get; private set; }
+        NameServer nameServer;
+        bool echoSent = false;
+        DateTime lastEcho = DateTime.Now;
+        static DataPacket echoPacket;
 
-        public TcpLink(IPEndPoint endPoint)
+        static TcpLink()
+        {
+            echoPacket = DataPacket.Create(16);
+            echoPacket.Command = (ushort)CommandID.CA_PROTO_ECHO;
+            echoPacket.DataType = 0;
+            echoPacket.DataCount = 0;
+            echoPacket.Parameter1 = 0;
+            echoPacket.Parameter2 = 0;
+        }
+
+        public TcpLink(IPEndPoint endPoint, NameServer nameServer)
         {
             this.EndPoint = endPoint;
+            this.nameServer = nameServer;
+
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             try
@@ -42,6 +58,8 @@ namespace NameServer
             }
             Log.Write(System.Diagnostics.TraceEventType.Start, "Open TCP connection to " + endPoint);
 
+            nameServer.TenSecJobs += nameServer_TenSecJobs;
+
 
             try
             {
@@ -49,6 +67,21 @@ namespace NameServer
             }
             catch
             {
+                Dispose();
+            }
+        }
+
+        void nameServer_TenSecJobs(object sender, EventArgs e)
+        {
+            if ((DateTime.Now - lastEcho).TotalSeconds > 30)
+            {
+                Log.Write(System.Diagnostics.TraceEventType.Verbose, "Echo sent to " + this.EndPoint);
+                echoSent = true;
+                Send(echoPacket);
+            }
+            if ((DateTime.Now - lastEcho).TotalSeconds > 40)
+            {
+                Log.Write(System.Diagnostics.TraceEventType.Error, "" + this.EndPoint + " doesn't answer to echo");
                 Dispose();
             }
         }
@@ -190,8 +223,18 @@ namespace NameServer
             switch ((CommandID)packet.Command)
             {
                 case CommandID.CA_PROTO_ECHO:
-                    Log.Write(System.Diagnostics.TraceEventType.Verbose, "Echo message from " + this.EndPoint);
-                    Send(packet);
+                    if (echoSent)
+                    {
+                        Log.Write(System.Diagnostics.TraceEventType.Verbose, "Echo message received back from " + this.EndPoint);
+                        lastEcho = DateTime.Now;
+                        echoSent = false;
+                    }
+                    else
+                    {
+                        lastEcho = DateTime.Now;
+                        Log.Write(System.Diagnostics.TraceEventType.Verbose, "Echo message from " + this.EndPoint);
+                        Send(packet);
+                    }
                     break;
                 default:
                     break;
@@ -200,9 +243,16 @@ namespace NameServer
 
         public void Dispose()
         {
+            Dispose(true);
+        }
+
+        public void Dispose(bool callEvent)
+        {
             if (disposed)
                 return;
             disposed = true;
+
+            this.nameServer.TenSecJobs -= nameServer_TenSecJobs;
 
             Log.Write(System.Diagnostics.TraceEventType.Stop, "Closed connection to " + this.EndPoint);
 
@@ -216,7 +266,7 @@ namespace NameServer
             {
 
             }
-            if (LostConnection != null)
+            if (callEvent && LostConnection != null)
                 LostConnection(this, null);
         }
     }

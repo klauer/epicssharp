@@ -158,5 +158,11 @@ namespace NameServer
         {
             udpSocket.SendTo(newPacket.Data, newPacket.Destination);
         }
+
+        internal void Stop()
+        {
+            udpSocket.Close();
+            udpSocket.Dispose();
+        }
     }
 }

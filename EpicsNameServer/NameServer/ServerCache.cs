@@ -10,7 +10,7 @@ namespace NameServer
 {
     class ServerCache
     {
-        SemaphoreSlim locker= new SemaphoreSlim(1, 1);
+        SemaphoreSlim locker = new SemaphoreSlim(1, 1);
         Dictionary<IPEndPoint, TcpLink> cache = new Dictionary<IPEndPoint, TcpLink>();
         readonly private NameServer nameServer;
 
@@ -18,7 +18,7 @@ namespace NameServer
         {
             this.nameServer = nameServer;
         }
-        
+
         public TcpLink this[IPEndPoint key]
         {
             get
@@ -27,9 +27,9 @@ namespace NameServer
                 try
                 {
                     if (!cache.ContainsKey(key))
-                    { 
-                        cache.Add(key, new TcpLink(key));
-                        cache[key].LostConnection += ServerCache_LostConnection;     
+                    {
+                        cache.Add(key, new TcpLink(key,this.nameServer));
+                        cache[key].LostConnection += ServerCache_LostConnection;
                     }
                     return cache[key];
                 }
@@ -51,6 +51,26 @@ namespace NameServer
             try
             {
                 cache.Remove(((TcpLink)sender).EndPoint);
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                locker.Release();
+            }
+
+        }
+
+        public void StopAll()
+        {
+            locker.Wait();
+            try
+            {
+                foreach (var i in cache)
+                    i.Value.Dispose(false);
+                cache.Clear();
             }
             catch
             {
