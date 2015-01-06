@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NameServer
@@ -19,6 +20,9 @@ namespace NameServer
         bool echoSent = false;
         DateTime lastEcho = DateTime.Now;
         static DataPacket echoPacket;
+        List<EpicsChannel> registeredChannels = new List<EpicsChannel>();
+        SemaphoreSlim locker = new SemaphoreSlim(1, 1);
+        uint cid = 1;
 
         static TcpLink()
         {
@@ -236,6 +240,23 @@ namespace NameServer
                         Send(packet);
                     }
                     break;
+                case CommandID.CA_PROTO_SERVER_DISCONN:
+                    locker.Wait();
+                    try
+                    {
+                        foreach (var i in registeredChannels.Where(row => row.CID == packet.Parameter1))
+                            i.CallBack();
+                        registeredChannels.RemoveAll(row => row.CID == packet.Parameter1);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
+                    }
+                    finally
+                    {
+                        locker.Release();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -266,8 +287,60 @@ namespace NameServer
             {
 
             }
-            if (callEvent && LostConnection != null)
+            if (callEvent)
+            {
                 LostConnection(this, null);
+                locker.Wait();
+                try
+                {
+                    foreach (var i in registeredChannels)
+                        i.CallBack();
+                }
+                catch (Exception ex)
+                {
+                    Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
+                }
+                finally
+                {
+                    locker.Release();
+                }
+            }
+
+        }
+
+        internal void AddChannel(string channel, Action LostConnection)
+        {
+            locker.Wait();
+            uint currentCid = cid++;
+            try
+            {
+                registeredChannels.Add(new EpicsChannel { Name = channel, CallBack = LostConnection, CID = currentCid });
+            }
+            catch (Exception ex)
+            {
+                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
+            }
+            finally
+            {
+                locker.Release();
+            }
+
+            var createPacket = DataPacket.Create(16 + channel.Length + Padding(channel.Length));
+            createPacket.Command = (ushort)CommandID.CA_PROTO_CREATE_CHAN;
+            createPacket.DataType = 0;
+            createPacket.DataCount = 0;
+            createPacket.Parameter1 = currentCid;
+            createPacket.Parameter2 = 11;
+            createPacket.SetDataAsString(channel);
+            Send(createPacket);
+        }
+
+        int Padding(int size)
+        {
+            if (size % 8 == 0)
+                return 8;
+            else
+                return (8 - (size % 8));
         }
     }
 }

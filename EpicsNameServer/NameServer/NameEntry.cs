@@ -115,7 +115,8 @@ namespace NameServer
             {
                 CleanOldSearches();
                 Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
-                nameServer.Servers[Destination].LostConnection += NameEntry_LostConnection;
+                nameServer.Servers[Destination].AddChannel(this.Name, LostConnection);
+                //nameServer.Servers[Destination].LostConnection += NameEntry_LostConnection;
 
                 DataPacket newPacket = DataPacket.Create(8 + 16);
                 newPacket.Command = (ushort)CommandID.CA_PROTO_SEARCH;
@@ -142,7 +143,7 @@ namespace NameServer
             }
         }
 
-        void NameEntry_LostConnection(object sender, EventArgs e)
+        void LostConnection()
         {
             this.Dispose();
         }
