@@ -9,7 +9,7 @@ namespace NameServer
 {
     class NameCache
     {
-        SemaphoreSlim locker= new SemaphoreSlim(1, 1);
+        SemaphoreSlim locker = new SemaphoreSlim(1, 1);
         Dictionary<string, NameEntry> cache = new Dictionary<string, NameEntry>();
         readonly private NameServer nameServer;
 
@@ -36,7 +36,7 @@ namespace NameServer
             }
 
         }
-        
+
         public NameEntry this[string key]
         {
             get
@@ -58,6 +58,26 @@ namespace NameServer
                 }
                 return null;
             }
+        }
+
+        internal void Clear()
+        {
+            List<NameEntry> entries = null;
+            locker.Wait();
+            try
+            {
+                entries = cache.Values.ToList();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                locker.Release();
+            }
+            if(entries != null) foreach (var i in entries)
+                i.Dispose();
         }
     }
 }

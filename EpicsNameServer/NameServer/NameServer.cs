@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NameServer
@@ -27,6 +28,22 @@ namespace NameServer
         public int NodeId { get; set; }
 
         public int NodesInCluster { get; set; }
+
+        /// <summary>
+        /// Wakes up every 10 sec
+        /// </summary>
+        public event EventHandler TenSecJobs;
+        /// <summary>
+        /// Wakes up every 5 sec
+        /// </summary>
+        public event EventHandler FiveSecJobs;
+        /// <summary>
+        /// Wakes up every sec
+        /// </summary>
+        public event EventHandler OneSecJobs;
+        bool isRunning = false;
+
+        Thread bgJobs;
 
         public NameServer()
         {
@@ -100,8 +117,141 @@ namespace NameServer
                 Log.Write(System.Diagnostics.TraceEventType.Start, "We are node " + NodeId + " of " + NodesInCluster);
             }
 
+            isRunning = true;
+            bgJobs = new Thread(RunBgJobs);
+            bgJobs.IsBackground = true;
+            bgJobs.Start();
+
             udpReceiver.Start();
         }
+
+        public void Stop()
+        {
+            Log.Write(System.Diagnostics.TraceEventType.Stop, "Stopping name saver");
+
+            isRunning = false;
+            udpReceiver.Stop();
+            Servers.StopAll();
+            this.IdCache.Clear();
+            this.Cache.Clear();
+        }
+
+        void RunBgJobs()
+        {
+            int jobCounter = 0;
+            while (isRunning)
+            {
+                Thread.Sleep(1000);
+                if (jobCounter == 10)
+                {
+                    ThreadPool.QueueUserWorkItem(RunTenSecJob);
+                    jobCounter = 0;
+                }
+                if (jobCounter % 5 == 0 && FiveSecJobs != null)
+                    ThreadPool.QueueUserWorkItem(RunFiveSecJob);
+
+                ThreadPool.QueueUserWorkItem(RunOneSecJob);
+                jobCounter++;
+            }
+            // ReSharper disable FunctionNeverReturns
+        }
+
+        void RunTenSecJob(object state)
+        {
+            /*if(Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "10 sec job running");*/
+            if (TenSecJobs != null)
+            {
+                foreach (var i in TenSecJobs.GetInvocationList())
+                {
+                    bool faulty = false;
+                    for (var n = 0; n < 5; n++)
+                    {
+                        try
+                        {
+                            i.Method.Invoke(i.Target, new object[] { null, null });
+                            faulty = false;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Write(System.Diagnostics.TraceEventType.Critical, ex.Message + "\r\n" + ex.StackTrace);
+                            faulty = true;
+                            Thread.Sleep(500);
+                        }
+                    }
+                    if (faulty)
+                        Environment.Exit(1);
+                }
+                //TenSecJobs(null, null);
+            }
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "10 sec job done");*/
+        }
+
+        void RunFiveSecJob(object state)
+        {
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "5 sec job running");*/
+            if (FiveSecJobs != null)
+            {
+                foreach (var i in FiveSecJobs.GetInvocationList())
+                {
+                    bool faulty = false;
+                    for (var n = 0; n < 5; n++)
+                    {
+                        try
+                        {
+
+                            i.Method.Invoke(i.Target, new object[] { null, null });
+                            faulty = false;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.Message + "\r\n" + ex.StackTrace);
+                            faulty = true;
+                            Thread.Sleep(500);
+                        }
+                    }
+                    if (faulty)
+                        Environment.Exit(1);
+                }
+            }
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "5 sec job done");*/
+        }
+
+        void RunOneSecJob(object state)
+        {
+            /*if (Log.WillDisplay(TraceEventType.Verbose))
+                Log.TraceEvent(TraceEventType.Verbose, -1, "1 sec job running");*/
+            if (OneSecJobs != null)
+            {
+                foreach (var i in OneSecJobs.GetInvocationList())
+                {
+                    bool faulty = false;
+                    for (var n = 0; n < 5; n++)
+                    {
+                        try
+                        {
+                            i.Method.Invoke(i.Target, new object[] { null, null });
+                            faulty = false;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.Message + "\r\n" + ex.StackTrace);
+                            faulty = true;
+                            Thread.Sleep(500);
+                        }
+                    }
+                    if (faulty)
+                        Environment.Exit(1);
+                }
+            }
+        }
+
 
         internal void Send(DataPacket newPacket)
         {
