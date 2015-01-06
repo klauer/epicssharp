@@ -42,12 +42,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandID.cs" />
+    <Compile Include="ColorConsoleTraceListener.cs" />
     <Compile Include="DataPacket.cs" />
     <Compile Include="IdCache.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="NameCache.cs" />
     <Compile Include="NameEntry.cs" />
     <Compile Include="NameServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerCache.cs" />
+    <Compile Include="TcpLink.cs" />
     <Compile Include="UdpReceiver.cs" />
     <Compile Include="WaitingClient.cs" />
   </ItemGroup>

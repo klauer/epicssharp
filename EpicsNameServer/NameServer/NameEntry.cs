@@ -11,7 +11,7 @@ namespace NameServer
     {
         SemaphoreSlim locker = new SemaphoreSlim(1, 1);
 
-        public string Name { get; set; }
+        public string Name { get; private set; }
         public IPEndPoint Destination { get; set; }
 
         public List<WaitingClient> waitingList = null;
@@ -20,8 +20,9 @@ namespace NameServer
         private NameServer nameServer;
         internal uint SearchId;
 
-        public NameEntry(NameServer nameServer)
+        public NameEntry(string name, NameServer nameServer)
         {
+            this.Name = name;
             this.nameServer = nameServer;
         }
 
@@ -43,7 +44,7 @@ namespace NameServer
                     newPacket.Destination = iPEndPoint;
                     nameServer.Send(newPacket);
 
-                    Console.WriteLine("Sending back known channel");
+                    Log.Write(System.Diagnostics.TraceEventType.Verbose, "Sending back known channel");
                 }
                 else
                 {
@@ -55,14 +56,14 @@ namespace NameServer
 
                         if ((DateTime.Now - lastSearch).TotalSeconds > 1)
                         {
-                            Console.WriteLine("Search again as a long time passed");
+                            Log.Write(System.Diagnostics.TraceEventType.Verbose, "Search again as a long time passed");
                             ForwardSearch();
                         }
-                        if (!waitingList.Any(row => row.Destination != iPEndPoint && row.SearchId != row.SearchId))
-                        {
+                        /*if (!waitingList.Any(row => row.Destination != iPEndPoint && row.SearchId != row.SearchId))
+                        {*/
                             waitingList.Add(new WaitingClient { Destination = iPEndPoint, SearchId = searchId });
-                            Console.WriteLine("Adding to the waiting list");
-                        }
+                            Log.Write(System.Diagnostics.TraceEventType.Verbose, "Adding to the waiting list");
+                        /*}*/
                         return;
                     }
 
@@ -71,14 +72,14 @@ namespace NameServer
                     waitingList = new List<WaitingClient>();
                     waitingList.Add(new WaitingClient { Destination = iPEndPoint, SearchId = searchId });
 
-                    Console.WriteLine("Searching for the first time");
+                    Log.Write(System.Diagnostics.TraceEventType.Verbose, "Searching for the first time");
 
                     ForwardSearch();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
             }
             finally
             {
@@ -88,7 +89,8 @@ namespace NameServer
 
         private void CleanOldSearches()
         {
-            waitingList.RemoveAll(row => (DateTime.Now - row.CreatedOn).TotalSeconds > 2);
+            if (waitingList != null)
+                waitingList.RemoveAll(row => (DateTime.Now - row.CreatedOn).TotalSeconds > 2);
         }
 
         private void ForwardSearch()
@@ -113,6 +115,7 @@ namespace NameServer
             {
                 CleanOldSearches();
                 Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                nameServer.Servers[Destination].LostConnection += NameEntry_LostConnection;
 
                 DataPacket newPacket = DataPacket.Create(8 + 16);
                 newPacket.Command = (ushort)CommandID.CA_PROTO_SEARCH;
@@ -131,12 +134,17 @@ namespace NameServer
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
             }
             finally
             {
                 locker.Release();
             }
+        }
+
+        void NameEntry_LostConnection(object sender, EventArgs e)
+        {
+            nameServer.Cache.Remove(this.Name);
         }
     }
 }

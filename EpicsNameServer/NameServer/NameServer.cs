@@ -14,6 +14,7 @@ namespace NameServer
 
         UdpReceiver udpReceiver;
         readonly internal NameCache Cache;
+        readonly internal ServerCache Servers;
         readonly internal IdCache IdCache;
         public int Port { get; set; }
         public IPAddress BindingAddress { get; set; }
@@ -31,6 +32,7 @@ namespace NameServer
         {
             this.Cache = new NameCache(this);
             this.IdCache = new IdCache(this);
+            this.Servers = new ServerCache(this);
 
 
             if (!string.IsNullOrWhiteSpace(System.Configuration.ConfigurationManager.AppSettings["BindingAddress"]))
@@ -76,7 +78,7 @@ namespace NameServer
                 }
                 catch (Exception ex2)
                 {
-                    Console.WriteLine("Wrong IP: " + addr);
+                    Log.Write(System.Diagnostics.TraceEventType.Critical, "Wrong IP: " + addr);
                     throw ex2;
                 }
             }
@@ -90,6 +92,14 @@ namespace NameServer
                 .Split(new char[] { ';' })
                 .Select(row => ParseAddress(row))
                 .ToList();
+
+            Log.Write(System.Diagnostics.TraceEventType.Start, "Starting Name Service on " + BindingAddress + ":" + Port);
+            if (!string.IsNullOrEmpty(ClusterPrefix))
+            {
+                Log.Write(System.Diagnostics.TraceEventType.Start, "Cluster " + ClusterPrefix);
+                Log.Write(System.Diagnostics.TraceEventType.Start, "We are node " + NodeId + " of " + NodesInCluster);
+            }
+
             udpReceiver.Start();
         }
 
