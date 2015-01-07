@@ -52,6 +52,7 @@
     <Compile Include="NameServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerCache.cs" />
+    <Compile Include="StartStopFilter.cs" />
     <Compile Include="TcpLink.cs" />
     <Compile Include="UdpReceiver.cs" />
     <Compile Include="WaitingClient.cs" />

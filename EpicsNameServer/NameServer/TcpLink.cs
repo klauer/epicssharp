@@ -83,11 +83,11 @@ namespace NameServer
                 echoSent = true;
                 Send(echoPacket);
             }
-            if ((DateTime.Now - lastEcho).TotalSeconds > 40)
+            /*if ((DateTime.Now - lastEcho).TotalSeconds > 40)
             {
                 Log.Write(System.Diagnostics.TraceEventType.Error, "" + this.EndPoint + " doesn't answer to echo");
                 Dispose();
-            }
+            }*/
         }
 
         bool SocketConnect(Socket socket, EndPoint endPoint, int connTimeout)

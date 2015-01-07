@@ -125,7 +125,7 @@ namespace NameServer
                 newPacket.DataCount = 0;
                 newPacket.SetUInt16(16, NameServer.CA_PROTO_VERSION);
 
-                foreach (var i in waitingList)
+                if (waitingList != null)  foreach (var i in waitingList)
                 {
                     newPacket.Parameter2 = i.SearchId;
                     newPacket.Destination = i.Destination;
