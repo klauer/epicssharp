@@ -338,8 +338,9 @@ namespace PBCaGw.Workers
                 channelsToDrop = knownChains
                         .Where(row => row.Side != ChainSide.SERVER_CONN && row.ChannelCid.ContainsKey(channel)).ToList();
                 // Disonnect all clients which use a channel
-                foreach (WorkerChain chain in channelsToDrop)
-                    chain.Dispose();
+                TcpManager.DisposeGlobalChannel(channel);
+                /*foreach (WorkerChain chain in channelsToDrop)
+                    chain.Dispose();*/
 
                 try
                 {

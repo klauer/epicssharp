@@ -67,14 +67,26 @@ namespace PBCaGw.Handlers
                     else
                         searchService = InfoService.SearchChannelEndPointB;
 
-                    if (!searchService.Knows(channelName))
+                    if (searchService.Knows(channelName))
+                        channelInfo = searchService[channelName];
+                    else
                     {
+                        var tmp = searchService.Where(row => row.Key.Split('.').First() == channelName.Split('.').First()).Select(row => row.Value).FirstOrDefault();
+                        if (tmp == null)
+                            tmp = InfoService.ChannelEndPoint.Where(row => row.Key.Split('.').First() == channelName.Split('.').First()).Select(row => row.Value).FirstOrDefault();
+                        channelInfo = tmp;
+                        if (tmp != null)
+                            channelInfo = new Record { Destination = tmp.Destination, knownFromSideA = tmp.knownFromSideA, knownFromSideB = tmp.knownFromSideB, ChainSide = tmp.ChainSide, Server = tmp.Server };
+                    }
+                    if (channelInfo == null)
+                    {
+
                         if (Log.WillDisplay(TraceEventType.Error))
                             Log.TraceEvent(TraceEventType.Error, chain.ChainId, "Created channel (" + channelName + ") without knowing where it should point at...");
                         System.Threading.ThreadPool.QueueUserWorkItem(action => chain.Dispose());
                         return;
                     }
-                    channelInfo = searchService[channelName];
+                    //channelInfo = searchService[channelName];
                     channelInfo.ChainSide = chain.Side;
                     InfoService.ChannelEndPoint[channelName] = channelInfo;
 

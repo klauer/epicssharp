@@ -114,13 +114,22 @@ namespace PBCaGw.Services
             }
             foreach (var i in l)
             {
+                if (!i.Value.ChannelCid.ContainsKey(channelName))
+                    continue;
                 DataPacket packet = DataPacket.Create(16);
                 packet.Destination = i.Key;
                 packet.Command = 27;
                 packet.PayloadSize = 0;
                 packet.DataCount = 0;
                 packet.DataType = 0;
-                packet.Parameter1 = i.Value.ChannelCid[channelName];
+                try
+                {
+                    packet.Parameter1 = i.Value.ChannelCid[channelName];
+                }
+                catch
+                {
+                    continue;
+                }
                 packet.Parameter2 = 0;
                 ((TcpReceiver)i.Value[0]).Send(packet);
 
