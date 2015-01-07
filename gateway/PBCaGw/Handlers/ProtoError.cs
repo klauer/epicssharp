@@ -4,7 +4,7 @@ using PBCaGw.Services;
 namespace PBCaGw.Handlers
 {
     /// <summary>
-    /// 11 (0x0C) CA_PROTO_ERROR
+    /// 11 (0x0B) CA_PROTO_ERROR
     /// </summary>
     class ProtoError : CommandHandler
     {

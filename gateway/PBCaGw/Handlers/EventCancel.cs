@@ -18,7 +18,7 @@ namespace PBCaGw.Handlers
             {
                 if (Log.WillDisplay(System.Diagnostics.TraceEventType.Critical))
                     Log.TraceEvent(System.Diagnostics.TraceEventType.Critical, chain.ChainId, "Error while cancelling a monitor.");
-                chain.Dispose();
+                //chain.Dispose();
             }
         }
 
