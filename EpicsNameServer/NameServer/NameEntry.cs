@@ -58,6 +58,7 @@ namespace NameServer
                         {
                             Log.Write(System.Diagnostics.TraceEventType.Verbose, "Search again as a long time passed");
                             ForwardSearch();
+                            lastSearch = DateTime.Now;
                         }
                         /*if (!waitingList.Any(row => row.Destination != iPEndPoint && row.SearchId != row.SearchId))
                         {*/
@@ -93,7 +94,7 @@ namespace NameServer
                 waitingList.RemoveAll(row => (DateTime.Now - row.CreatedOn).TotalSeconds > 2);
         }
 
-        private void ForwardSearch()
+        private void ForwardSearch()        
         {
             nameServer.IdCache.Store(this);
 
