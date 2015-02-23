@@ -85,6 +85,10 @@ namespace NameServer
                 Console.WriteLine(ex.ToString());
             }
 
+            // Avoid ourself
+            if (packet.Sender.Address.ToString() == this.address.ToString() && packet.Sender.Port == this.port)
+                return;
+
             // Handle the buffer
             SplitMessage(packet);
         }
@@ -139,6 +143,8 @@ namespace NameServer
                     // Search request
                     else
                     {
+                        DebugServer.NbSearches++;
+
                         string channel = packet.GetDataAsString();
                         Log.Write(System.Diagnostics.TraceEventType.Verbose, "Search packet request for " + channel);
                         // We can't use the record name (without property) as gateways will have issues for non-existent properties
