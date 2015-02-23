@@ -4,16 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B5D510BB-7495-4454-B7CB-339416BBFB70}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{31C56F63-6A71-4D53-B83C-78ECB7498965}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NameServer</RootNamespace>
-    <AssemblyName>NameServer</AssemblyName>
+    <RootNamespace>NameService</RootNamespace>
+    <AssemblyName>NameService</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,39 +33,52 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandID.cs" />
-    <Compile Include="ColorConsoleTraceListener.cs" />
-    <Compile Include="DataPacket.cs" />
-    <Compile Include="DebugServer.cs" />
-    <Compile Include="EpicsChannel.cs" />
-    <Compile Include="IdCache.cs" />
-    <Compile Include="Log.cs" />
-    <Compile Include="NameCache.cs" />
-    <Compile Include="NameEntry.cs" />
-    <Compile Include="NameServer.cs" />
+    <Compile Include="ProjectInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ProjectInstaller.Designer.cs">
+      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CaNS.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CaNS.Designer.cs">
+      <DependentUpon>CaNS.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerCache.cs" />
-    <Compile Include="StartStopFilter.cs" />
-    <Compile Include="TcpLink.cs" />
-    <Compile Include="UdpReceiver.cs" />
-    <Compile Include="WaitingClient.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CaSharpServer\CaSharpServer.csproj">
-      <Project>{f4e955e5-e6d7-49a4-bd5b-43fed09e801a}</Project>
-      <Name>CaSharpServer</Name>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProjectInstaller.resx">
+      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NameServer\NameServer.csproj">
+      <Project>{b5d510bb-7495-4454-b7cb-339416bbfb70}</Project>
+      <Name>NameServer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /y "$(TargetDir)*.dll" \\ivc1\e$\manage\name_server
+copy /y "$(TargetDir)*.exe" \\ivc1\e$\manage\name_server
+copy /y "$(TargetDir)*.pdb" \\ivc1\e$\manage\name_server</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -43,6 +43,8 @@ namespace NameServer
         public event EventHandler OneSecJobs;
         bool isRunning = false;
 
+        DebugServer debugServer;
+
         Thread bgJobs;
 
         public NameServer()
@@ -105,7 +107,7 @@ namespace NameServer
         public void Start()
         {
             udpReceiver = new UdpReceiver(this, BindingAddress, Port);
-            dests = SearchAddress.Replace(" ", ";").Replace(",", ";")
+            dests = (SearchAddress + ";" + BindingAddress + ":7654").Replace(" ", ";").Replace(",", ";")
                 .Split(new char[] { ';' })
                 .Select(row => ParseAddress(row))
                 .ToList();
@@ -123,12 +125,15 @@ namespace NameServer
             bgJobs.Start();
 
             udpReceiver.Start();
+
+            debugServer = new DebugServer(BindingAddress);
         }
 
         public void Stop()
         {
             Log.Write(System.Diagnostics.TraceEventType.Stop, "Stopping name saver");
 
+            debugServer.Dispose();
             isRunning = false;
             udpReceiver.Stop();
             Servers.StopAll();
@@ -209,7 +214,7 @@ namespace NameServer
                         }
                         catch (Exception ex)
                         {
-                                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.Message + "\r\n" + ex.StackTrace);
+                            Log.Write(System.Diagnostics.TraceEventType.Critical, ex.Message + "\r\n" + ex.StackTrace);
                             faulty = true;
                             Thread.Sleep(500);
                         }
@@ -241,7 +246,7 @@ namespace NameServer
                         }
                         catch (Exception ex)
                         {
-                                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.Message + "\r\n" + ex.StackTrace);
+                            Log.Write(System.Diagnostics.TraceEventType.Critical, ex.Message + "\r\n" + ex.StackTrace);
                             faulty = true;
                             Thread.Sleep(500);
                         }
