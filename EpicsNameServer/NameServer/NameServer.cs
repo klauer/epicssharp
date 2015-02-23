@@ -265,6 +265,8 @@ namespace NameServer
 
         internal void SendSearch(DataPacket newPacket)
         {
+            Log.Write(System.Diagnostics.TraceEventType.Verbose, "-> Sending search for " + newPacket.GetDataAsString());
+
             foreach (var i in dests)
             {
                 newPacket.Destination = i;
