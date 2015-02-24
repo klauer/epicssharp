@@ -177,6 +177,11 @@ namespace PBCaGw.Handlers
             // Let's create the channel in parallel. That should speedup the communication.
             string channelName = record.Channel;
 
+            IPAddress iocAddress = packet.Sender.Address;
+            if (packet.Parameter1 != 0xFFFFFFFF)
+                iocAddress = IPAddress.Parse("" + packet.Data[8] + "." + packet.Data[8 + 1] + "." + packet.Data[8 + 2] + "." + packet.Data[8 + 3]);
+
+
             if (Gateway.AutoCreateChannel)
             {
                 lock (CreateChannel.lockObject)
@@ -190,13 +195,15 @@ namespace PBCaGw.Handlers
                         UInt32 gwcid = CidGenerator.Next();
 
                         channelInfo = InfoService.ChannelEndPoint.Create(record.Channel);
-                        channelInfo.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        //channelInfo.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        channelInfo.Destination = new IPEndPoint(iocAddress, packet.DataType);
                         channelInfo.GWCID = gwcid;
 
                         record = InfoService.ChannelCid.Create(gwcid);
                         record.Channel = channelName;
                         record.GWCID = gwcid;
-                        record.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        //record.Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        record.Destination = new IPEndPoint(iocAddress, packet.DataType);
 
                         DataPacket channelPacket = DataPacket.Create(16 + channelName.Length + DataPacket.Padding(channelName.Length));
                         channelPacket.PayloadSize = (ushort)(channelName.Length + DataPacket.Padding(channelName.Length));
@@ -206,7 +213,8 @@ namespace PBCaGw.Handlers
                         channelPacket.Parameter1 = gwcid;
                         // Version
                         channelPacket.Parameter2 = Gateway.CA_PROTO_VERSION;
-                        IPEndPoint dest = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        //IPEndPoint dest = new IPEndPoint(packet.Sender.Address, packet.DataType);
+                        IPEndPoint dest = new IPEndPoint(iocAddress, packet.DataType);
                         channelPacket.Destination = dest;
                         //channelPacket.NeedToFlush = true;
                         channelPacket.SetDataAsString(channelName);
@@ -235,7 +243,8 @@ namespace PBCaGw.Handlers
             else
                 InfoService.SearchChannelEndPointB.Remove(channelName);*/
 
-            IPEndPoint destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+            //IPEndPoint destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
+            IPEndPoint destination = new IPEndPoint(iocAddress, packet.DataType);
             WorkerChain ioc = TcpManager.GetIocChain(chain.Gateway, destination);
             // We can't connect to the IOC...
             if (ioc == null)

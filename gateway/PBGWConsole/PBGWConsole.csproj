@@ -65,7 +65,10 @@
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetDir)*.dll" \\fs02.psi.ch\gfa-it\gateway\
 copy /y "$(TargetDir)*.exe" \\fs02.psi.ch\gfa-it\gateway\
-copy /y "$(TargetDir)*.pdb" \\fs02.psi.ch\gfa-it\gateway\</PostBuildEvent>
+copy /y "$(TargetDir)*.pdb" \\fs02.psi.ch\gfa-it\gateway\
+copy /y "$(TargetDir)*.dll" \\ivc1\e$\manage\gateway
+copy /y "$(TargetDir)*.exe" \\ivc1\e$\manage\gateway
+copy /y "$(TargetDir)*.pdb" \\ivc1\e$\manage\gateway</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
