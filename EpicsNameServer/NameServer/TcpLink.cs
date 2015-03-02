@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,16 +35,20 @@ namespace NameServer
             echoPacket.Parameter2 = 0;
         }
 
-        public TcpLink(IPEndPoint endPoint, NameServer nameServer)
+        public bool IsConnected { get; private set; }
+
+        public TcpLink(string destination, NameServer nameServer)
         {
-            this.EndPoint = endPoint;
+            IsConnected = false;
+            var p = destination.Split(new char[] { ':' });
+            this.EndPoint = new IPEndPoint(IPAddress.Parse(p[0]), int.Parse(p[1]));
             this.nameServer = nameServer;
 
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             try
             {
-                if (!SocketConnect(socket, endPoint, 200))
+                if (!SocketConnect(socket, this.EndPoint, 2000))
                 {
                     try
                     {
@@ -53,14 +58,18 @@ namespace NameServer
                     {
 
                     }
+                    Log.Write(System.Diagnostics.TraceEventType.Critical, "Failed to open TCP connection to " + this.EndPoint);
                     Dispose();
+                    return;
                 }
             }
             catch (Exception ex)
             {
+                Log.Write(System.Diagnostics.TraceEventType.Critical, "Failed to open TCP connection to " + this.EndPoint);
                 Dispose();
+                return;
             }
-            Log.Write(System.Diagnostics.TraceEventType.Start, "Open TCP connection to " + endPoint);
+            Log.Write(System.Diagnostics.TraceEventType.Start, "Open TCP connection to " + this.EndPoint);
 
             nameServer.TenSecJobs += nameServer_TenSecJobs;
 
@@ -68,6 +77,7 @@ namespace NameServer
             try
             {
                 socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveTcpData, null);
+                IsConnected = true;
             }
             catch
             {
@@ -79,15 +89,15 @@ namespace NameServer
         {
             if ((DateTime.Now - lastEcho).TotalSeconds > 30)
             {
-                Log.Write(System.Diagnostics.TraceEventType.Verbose, "Echo sent to " + this.EndPoint);
+                Log.Write(System.Diagnostics.TraceEventType.Stop, "Echo sent to " + this.EndPoint);
                 echoSent = true;
                 Send(echoPacket);
             }
-            /*if ((DateTime.Now - lastEcho).TotalSeconds > 40)
+            if ((DateTime.Now - lastEcho).TotalSeconds > 40)
             {
                 Log.Write(System.Diagnostics.TraceEventType.Error, "" + this.EndPoint + " doesn't answer to echo");
                 Dispose();
-            }*/
+            }
         }
 
         bool SocketConnect(Socket socket, EndPoint endPoint, int connTimeout)
@@ -229,14 +239,14 @@ namespace NameServer
                 case CommandID.CA_PROTO_ECHO:
                     if (echoSent)
                     {
-                        Log.Write(System.Diagnostics.TraceEventType.Verbose, "Echo message received back from " + this.EndPoint);
+                        Log.Write(System.Diagnostics.TraceEventType.Stop, "Echo message received back from " + this.EndPoint);
                         lastEcho = DateTime.Now;
                         echoSent = false;
                     }
                     else
                     {
                         lastEcho = DateTime.Now;
-                        Log.Write(System.Diagnostics.TraceEventType.Verbose, "Echo message from " + this.EndPoint);
+                        Log.Write(System.Diagnostics.TraceEventType.Stop, "Echo message from " + this.EndPoint);
                         Send(packet);
                     }
                     break;
@@ -262,6 +272,14 @@ namespace NameServer
             }
         }
 
+        /*public void Dispose([CallerMemberName] string memberName = "",
+        [CallerFilePath] string sourceFilePath = "",
+        [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            Console.WriteLine("TcpLinkDispose Called from " + memberName + ":" + sourceLineNumber + "@" + sourceFilePath);
+            Dispose(true);
+        }*/
+
         public void Dispose()
         {
             Dispose(true);
@@ -269,11 +287,33 @@ namespace NameServer
 
         public void Dispose(bool callEvent)
         {
-            if (disposed)
+            /*if (disposed)
+            {
+                //Log.Write(System.Diagnostics.TraceEventType.Critical, "Already disposed!");
                 return;
+            }*/
+
             disposed = true;
 
-            this.nameServer.TenSecJobs -= nameServer_TenSecJobs;
+            try
+            {
+                if (LostConnection != null)
+                    LostConnection(this, null);
+            }
+            catch(Exception ex)
+            {
+                Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
+            }
+
+            locker.Wait();
+
+            try
+            {
+                this.nameServer.TenSecJobs -= nameServer_TenSecJobs;
+            }
+            catch
+            {
+            }
 
             Log.Write(System.Diagnostics.TraceEventType.Stop, "Closed connection to " + this.EndPoint);
 
@@ -289,8 +329,9 @@ namespace NameServer
             }
             if (callEvent)
             {
-                LostConnection(this, null);
-                locker.Wait();
+                var toCallBack = registeredChannels.ToList();
+
+                locker.Release();
                 try
                 {
                     foreach (var i in registeredChannels)
@@ -300,17 +341,21 @@ namespace NameServer
                 {
                     Log.Write(System.Diagnostics.TraceEventType.Critical, ex.ToString());
                 }
-                finally
-                {
-                    locker.Release();
-                }
             }
-
+            else
+            {
+                locker.Release();
+            }
         }
 
-        internal void AddChannel(string channel, Action LostConnection)
+        internal bool AddChannel(string channel, Action LostConnection)
         {
             locker.Wait();
+            if (disposed)
+            {
+                locker.Release();
+                return false;
+            }
             uint currentCid = cid++;
             try
             {
@@ -333,6 +378,7 @@ namespace NameServer
             createPacket.Parameter2 = 11;
             createPacket.SetDataAsString(channel);
             Send(createPacket);
+            return true;
         }
 
         int Padding(int size)
@@ -344,3 +390,4 @@ namespace NameServer
         }
     }
 }
+
