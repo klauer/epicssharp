@@ -60,11 +60,8 @@ namespace NameServer
                             ForwardSearch();
                             lastSearch = DateTime.Now;
                         }
-                        /*if (!waitingList.Any(row => row.Destination != iPEndPoint && row.SearchId != row.SearchId))
-                        {*/
-                            waitingList.Add(new WaitingClient { Destination = iPEndPoint, SearchId = searchId });
-                            Log.Write(System.Diagnostics.TraceEventType.Verbose, "Adding to the waiting list");
-                        /*}*/
+                        waitingList.Add(new WaitingClient { Destination = iPEndPoint, SearchId = searchId });
+                        Log.Write(System.Diagnostics.TraceEventType.Verbose, "Adding to the waiting list");
                         return;
                     }
 
@@ -94,7 +91,7 @@ namespace NameServer
                 waitingList.RemoveAll(row => (DateTime.Now - row.CreatedOn).TotalSeconds > 2);
         }
 
-        private void ForwardSearch()        
+        private void ForwardSearch()
         {
             nameServer.IdCache.Store(this);
 
@@ -111,13 +108,16 @@ namespace NameServer
         internal void GotAnswer(DataPacket packet)
         {
             nameServer.IdCache.Release(this);
+
+            IPAddress iocAddress = packet.Sender.Address;
+            if (packet.Parameter1 != 0xFFFFFFFF)
+                iocAddress = IPAddress.Parse("" + packet.Data[8] + "." + packet.Data[8 + 1] + "." + packet.Data[8 + 2] + "." + packet.Data[8 + 3]);
+
             locker.Wait();
             try
             {
                 CleanOldSearches();
-                Destination = new IPEndPoint(packet.Sender.Address, packet.DataType);
-                nameServer.Servers[Destination].AddChannel(this.Name, LostConnection);
-                //nameServer.Servers[Destination].LostConnection += NameEntry_LostConnection;
+                Destination = new IPEndPoint(iocAddress, packet.DataType);
 
                 DataPacket newPacket = DataPacket.Create(8 + 16);
                 newPacket.Command = (ushort)CommandID.CA_PROTO_SEARCH;
@@ -126,12 +126,12 @@ namespace NameServer
                 newPacket.DataCount = 0;
                 newPacket.SetUInt16(16, NameServer.CA_PROTO_VERSION);
 
-                if (waitingList != null)  foreach (var i in waitingList)
-                {
-                    newPacket.Parameter2 = i.SearchId;
-                    newPacket.Destination = i.Destination;
-                    nameServer.Send(newPacket);
-                }
+                if (waitingList != null) foreach (var i in waitingList)
+                    {
+                        newPacket.Parameter2 = i.SearchId;
+                        newPacket.Destination = i.Destination;
+                        nameServer.Send(newPacket);
+                    }
                 waitingList = null;
             }
             catch (Exception ex)
@@ -142,6 +142,15 @@ namespace NameServer
             {
                 locker.Release();
             }
+
+            try
+            {
+                nameServer.Servers[iocAddress.ToString() + ":" + packet.DataType].AddChannel(this.Name, LostConnection);
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         void LostConnection()
@@ -151,6 +160,8 @@ namespace NameServer
 
         public void Dispose()
         {
+            Log.Write(System.Diagnostics.TraceEventType.Verbose, "Remove cache entry for " + this.Name);
+            this.Destination = null;
             nameServer.Cache.Remove(this.Name);
             locker.Wait();
             try

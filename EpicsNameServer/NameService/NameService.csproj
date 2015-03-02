@@ -75,7 +75,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)*.dll" \\ivc1\e$\manage\name_server
+    <PostBuildEvent>copy /y "$(TargetDir)*.dll" \\fs02.psi.ch\GFA-IT\name_server
+copy /y "$(TargetDir)*.exe" \\fs02.psi.ch\GFA-IT\name_server
+copy /y "$(TargetDir)*.pdb" \\fs02.psi.ch\GFA-IT\name_server
+
+copy /y "$(TargetDir)*.dll" \\ivc1\e$\manage\name_server
 copy /y "$(TargetDir)*.exe" \\ivc1\e$\manage\name_server
 copy /y "$(TargetDir)*.pdb" \\ivc1\e$\manage\name_server</PostBuildEvent>
   </PropertyGroup>
