@@ -116,7 +116,8 @@ namespace EpicsSharp.ChannelAccess.Tests
             // Don't use server.CreateRecord here, because the
             // ArgumentException will be changed by the dynamic
             // constructor invocation in CreateRecord
-            var record = new CAEnumRecord<BadEnumTooManyValues>();
+            //var record = new CAEnumRecord<BadEnumTooManyValues>();
+            var record = server.CreateRecord<CAEnumRecord<BadEnumTooManyValues>>("ZZZ");
         }
 
         [TestMethod]
@@ -126,7 +127,8 @@ namespace EpicsSharp.ChannelAccess.Tests
             // Don't use server.CreateRecord here, because the
             // ArgumentException will be changed by the dynamic
             // constructor invocation in CreateRecord
-            var record = new CAEnumRecord<BadEnumTooLongValueName>();
+            //var record = new CAEnumRecord<BadEnumTooLongValueName>();
+            var record = server.CreateRecord<CAEnumRecord<BadEnumTooLongValueName>>("ZZZ");
         }
 
         [TestMethod]
@@ -136,7 +138,8 @@ namespace EpicsSharp.ChannelAccess.Tests
             // Don't use server.CreateRecord here, because the
             // ArgumentException will be changed by the dynamic
             // constructor invocation in CreateRecord
-            var record = new CAEnumRecord<BadEnumUnsupportedValue>();
+            //var record = new CAEnumRecord<BadEnumUnsupportedValue>();
+            var record = server.CreateRecord<CAEnumRecord<BadEnumUnsupportedValue>>("ZZZ");
         }
 
         [TestMethod]
