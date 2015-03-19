@@ -50,7 +50,6 @@
     <Compile Include="Client\ExtendedTypes\Decodable.cs" />
     <Compile Include="Client\ExtendedTypes\ExtAcknowledge.cs" />
     <Compile Include="Client\ExtendedTypes\extControl.cs" />
-    <Compile Include="Client\ExtendedTypes\extEnumType.cs" />
     <Compile Include="Client\ExtendedTypes\extGraphic.cs" />
     <Compile Include="Client\ExtendedTypes\extTimeType.cs" />
     <Compile Include="Client\ExtendedTypes\extType.cs" />
