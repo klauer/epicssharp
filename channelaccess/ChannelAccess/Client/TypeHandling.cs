@@ -69,7 +69,7 @@ namespace EpicsSharp.ChannelAccess.Client
             {typeof(ExtControl<int>)   ,EpicsType.Control_Int},
             {typeof(ExtControl<float>) ,EpicsType.Control_Float},
             {typeof(ExtControl<double>),EpicsType.Control_Double},
-            {typeof(ExtControlEnum)    ,EpicsType.Control_Enum},
+            {typeof(ExtControlEnum)    ,EpicsType.Labeled_Enum},
 
             // Array types
 
@@ -103,7 +103,7 @@ namespace EpicsSharp.ChannelAccess.Client
             {typeof(ExtControl<int[]>)   ,EpicsType.Control_Int},
             {typeof(ExtControl<float[]>) ,EpicsType.Control_Float},
             {typeof(ExtControl<double[]>),EpicsType.Control_Double},
-            {typeof(ExtControlEnum[])  ,EpicsType.Control_Enum},
+            {typeof(ExtControlEnum[])  ,EpicsType.Labeled_Enum},
         };
 
         public static Dictionary<EpicsType, Type> ReverseLookup;

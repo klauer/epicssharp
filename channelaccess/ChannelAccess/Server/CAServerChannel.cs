@@ -131,7 +131,9 @@ namespace EpicsSharp.ChannelAccess.Server
             {
                 using (Record.CreateAtomicChange(false))
                 {
-                    if (objVal.GetType().IsArray)
+                    if (type == EpicsType.Labeled_Enum)
+                        val = objVal.LabelsToByteArray(Record);
+                    else if (objVal.GetType().IsArray)
                         val = objVal.ToByteArray(type, Record, dataCount);
                     else
                         val = objVal.ToByteArray(type, Record);
@@ -185,7 +187,17 @@ namespace EpicsSharp.ChannelAccess.Server
                 {
                     val = payload.ByteToObject(type);
                     using (Record.CreateAtomicChange())
-                        Record[Property] = Convert.ChangeType(val, Record.GetPropertyType(Property));
+                    {
+                        if (Record[Property] is Enum)
+                        {
+                            if (val is String)
+                                Record[Property] = Enum.Parse(Record[Property].GetType(), (string)val);
+                            else
+                                Record[Property] = int.Parse(val.ToString());
+                        }
+                        else
+                            Record[Property] = Convert.ChangeType(val, Record.GetPropertyType(Property));
+                    }
                 }
                 else
                 {

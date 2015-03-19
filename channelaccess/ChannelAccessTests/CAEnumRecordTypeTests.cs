@@ -87,13 +87,14 @@ namespace EpicsSharp.ChannelAccess.Tests
             server = new CAServer(IPAddress.Parse("127.0.0.1"));
             client = new CAClient();
             client.Configuration.SearchAddress = "127.0.0.1";
-            client.Configuration.WaitTimeout = 30000;  // 30 seconds
+            client.Configuration.WaitTimeout = 500;  // .5 seconds
         }
 
         [TestCleanup]
         public void TearDown()
         {
             server.Dispose();
+            client.Dispose();
         }
 
         [TestMethod]
@@ -162,6 +163,21 @@ namespace EpicsSharp.ChannelAccess.Tests
             var channel = client.CreateChannel<string>("TEST");
             var result = channel.Get();
             Assert.AreEqual(result, "two");
+        }
+
+        [TestMethod]
+        public void TestReceivingEnumList()
+        {
+            var record = server.CreateRecord<CAEnumRecord<GoodEnumU8>>("TEST");
+            record.Value = GoodEnumU8.two;
+
+            var channel = client.CreateChannel<ExtControlEnum>("TEST");
+            var result = channel.Get();
+            Assert.AreEqual(result.NbStates, 3);
+            Assert.AreEqual(result.States[0], "zero");
+            Assert.AreEqual(result.States[1], "one");
+            Assert.AreEqual(result.States[2], "two");
+            Assert.AreEqual(result.Value, 2);
         }
     }
 }
