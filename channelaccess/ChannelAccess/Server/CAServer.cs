@@ -113,7 +113,15 @@ namespace EpicsSharp.ChannelAccess.Server
 
         public CAType CreateRecord<CAType>(string name) where CAType : CARecord
         {
-            CAType result = (CAType)(typeof(CAType)).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { }, null).Invoke(new object[] { });
+            CAType result=null;
+            try
+            {
+                 result =(CAType)(typeof(CAType)).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { }, null).Invoke(new object[] { });
+            }
+            catch(Exception ex)
+            {
+                throw ex.InnerException;
+            }
             result.Name = name;
             records.Add(result);
             return result;
