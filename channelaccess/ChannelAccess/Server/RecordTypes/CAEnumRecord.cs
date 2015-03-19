@@ -1,4 +1,5 @@
-﻿/*
+﻿using EpicsSharp.ChannelAccess.Constants;
+/*
  *  EpicsSharp - An EPICS Channel Access library for the .NET platform.
  *
  *  Copyright (C) 2013 - 2015  Paul Scherrer Institute, Switzerland
@@ -30,7 +31,7 @@ namespace EpicsSharp.ChannelAccess.Server
     /// For details see the CheckEnumType method.
     /// </summary>
     /// <typeparam name="TType">The enum type</typeparam>
-    public class CAEnumRecord<TType> : CARecord<TType>
+    public class CAEnumRecord<TType> : CARecord<TType> where TType : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
         /// The constructor will check the enum TType to validate for the
@@ -135,6 +136,25 @@ namespace EpicsSharp.ChannelAccess.Server
                 default:
                     // OK, the other types will fit in 16 bits
                     break;
+            }
+        }
+
+        TType currentValue;
+
+        [CAField("VAL")]
+        public TType Value
+        {
+            get
+            {
+                return this.currentValue;
+            }
+            set
+            {
+                if (!currentValue.Equals(value))
+                    this.IsDirty = true;
+                currentValue = value;
+                if (Scan == ScanAlgorithm.ON_CHANGE && this.IsDirty)
+                    ProcessRecord();
             }
         }
     }
