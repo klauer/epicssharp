@@ -54,6 +54,7 @@
     <Compile Include="RecordTypes\CAByteArrayRecord.cs" />
     <Compile Include="RecordTypes\CADoubleRecord.cs" />
     <Compile Include="RecordTypes\CAIntArrayRecord.cs" />
+    <Compile Include="RecordTypes\CAEnumRecord.cs" />
     <Compile Include="RecordTypes\CARecord.cs" />
     <Compile Include="CARecordCollection.cs" />
     <Compile Include="RecordTypes\CARecordGeneric.cs" />

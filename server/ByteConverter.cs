@@ -350,6 +350,28 @@ namespace CaSharpServer
             return ToFloat(bytes, 0);
         }
 
+        internal static byte[] LabelsToByteArray(this object src, CARecord record)
+        {
+            using (MemoryStream mem = new MemoryStream(424))
+            {
+                using (BinaryWriter writer = new BinaryWriter(mem))
+                {
+                    //writer.Write(ToByteArray(((IConvertible)src).ToInt32(null)));
+                    writer.Write(ToByteArray(0));
+                    /*writer.Write(ToByteArray((short)((int)src)));
+                    writer.Write(ToByteArray((short)((int)src)));*/
+                    //writer.Write(ToByteArray((int)src));
+                    string[] names = Enum.GetNames(src.GetType());
+                    writer.Write(ToByteArray((Int16)names.Length));
+                    foreach(var i in names)
+                        writer.Write(ToByteArray(i, 26));
+                    writer.Seek(422, SeekOrigin.Begin);
+                    writer.Write(ToByteArray((short)((int)src)));
+                }
+                return mem.GetBuffer();
+            }
+        }
+
         internal static byte[] ToByteArray(this object src, EpicsType epicsType, CARecord record)
         {
             return ToByteArray(src, epicsType, record, record.dataCount);
@@ -412,7 +434,7 @@ namespace CaSharpServer
             {
                 source = new dataType[dataCount];
                 int i = 0;
-                foreach(object element in ((System.Collections.IEnumerable)src))
+                foreach (object element in ((System.Collections.IEnumerable)src))
                 {
                     if (i >= source.Length)
                         break;
