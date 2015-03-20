@@ -380,7 +380,7 @@ namespace EpicsSharp.ChannelAccess.Server
                     foreach (var i in names)
                         writer.Write(ToByteArray(i, 26));
                     writer.Seek(422, SeekOrigin.Begin);
-                    writer.Write(ToByteArray((short)int.Parse(Convert.ChangeType(src, ((Enum)src).GetTypeCode()).ToString())));
+                    writer.Write(ToByteArray(short.Parse(Convert.ChangeType(src, ((Enum)src).GetTypeCode()).ToString())));
                 }
                 return mem.GetBuffer();
             }
