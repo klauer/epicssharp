@@ -22,11 +22,16 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using EpicsSharp.ChannelAccess.Constants;
+using EpicsSharp.Common.Pipes;
+using EpicsSharp.ChannelAccess.Common;
 
-namespace EpicsSharp.ChannelAccess.Client.Pipes
+namespace EpicsSharp.ChannelAccess.Client
 {
-    class HandleMessage : DataFilter
+    class ClientHandleMessage : DataFilter
     {
+        public CAClient Client { get; set; }
+
+
         static object lockObject = new object();
         public override void ProcessData(DataPacket packet)
         {
@@ -43,7 +48,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
                         else
                         {
                             // Send back the echo
-                            ((TcpReceiver)Pipe[0]).Send(packet);
+                            ((ClientTcpReceiver)Pipe[0]).Send(packet);
                         }
                         break;
                     case CommandID.CA_PROTO_SEARCH:
@@ -71,7 +76,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
                                 {
                                     channel.SetIoc(Client.GetIocConnection(new IPEndPoint(addr, port)));
                                 }
-                                catch
+                                catch(Exception ex)
                                 {
                                 }
                             }
@@ -93,7 +98,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
                         }
                     case CommandID.CA_PROTO_READ_NOTIFY:
                         {
-                            TcpReceiver ioc = (TcpReceiver)Pipe[0];
+                            ClientTcpReceiver ioc = (ClientTcpReceiver)Pipe[0];
                             Channel channel;
                             lock (ioc.PendingIo)
                             {
@@ -105,7 +110,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
                         }
                     case CommandID.CA_PROTO_WRITE_NOTIFY:
                         {
-                            TcpReceiver ioc = (TcpReceiver)Pipe[0];
+                            ClientTcpReceiver ioc = (ClientTcpReceiver)Pipe[0];
                             Channel channel;
                             lock (ioc.PendingIo)
                             {
@@ -125,7 +130,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
                     case CommandID.CA_PROTO_SERVER_DISCONN:
                         {
                             List<Channel> connectedChannels;
-                            TcpReceiver receiver = ((TcpReceiver)Pipe[0]);
+                            ClientTcpReceiver receiver = ((ClientTcpReceiver)Pipe[0]);
                             lock (receiver.ConnectedChannels)
                             {
                                 connectedChannels = receiver.ConnectedChannels.Where(row => row.CID == packet.Parameter1).ToList();

@@ -22,7 +22,7 @@ using System.Linq;
 using System.Text;
 using EpicsSharp.ChannelAccess.Constants;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// Monitor subscription and handling

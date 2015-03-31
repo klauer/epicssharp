@@ -23,7 +23,7 @@ using System.Text;
 using EpicsSharp.ChannelAccess.Constants;
 using System.Reflection;
 
-namespace EpicsSharp.ChannelAccess.Server.RecordTypes
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// A double record which handles the limits of the value and set the alarm accordingly.

@@ -23,8 +23,9 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using EpicsSharp.ChannelAccess.Constants;
+using EpicsSharp.ChannelAccess.Common;
 
-namespace EpicsSharp.ChannelAccess.Client.Pipes
+namespace EpicsSharp.Common.Pipes
 {
     internal class TcpReceiver : DataFilter, IDisposable
     {
@@ -32,10 +33,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
         bool disposed = false;
         byte[] buffer = new byte[8192 * 3];
 
-        internal Dictionary<string, uint> ChannelSID = new Dictionary<string, uint>();
-        internal Dictionary<uint, Channel> PendingIo = new Dictionary<uint, Channel>();
-        internal List<Channel> ConnectedChannels = new List<Channel>();
-        private IPEndPoint destination;
+        protected IPEndPoint destination;
 
         static readonly DataPacket echoPacket;
 
@@ -57,41 +55,12 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
             echoPacket.Parameter2 = 0;
         }
 
-        public void Start(IPEndPoint dest)
+        protected void Start(Socket socket)
         {
-            this.destination = dest;
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-
-            socket.Connect(dest);
+            this.socket = socket;
             socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveTcpData, null);
-
-            DataPacket p = DataPacket.Create(16);
-            p.Command = (ushort)CommandID.CA_PROTO_VERSION;
-            p.DataType = 1;
-            p.DataCount = (uint)CAConstants.CA_MINOR_PROTOCOL_REVISION;
-            p.Parameter1 = 0;
-            p.Parameter2 = 0;
-            Send(p);
-
-            p = DataPacket.Create(16 + this.Client.Configuration.Hostname.Length + TypeHandling.Padding(this.Client.Configuration.Hostname.Length));
-            p.Command = (ushort)CommandID.CA_PROTO_HOST_NAME;
-            p.DataCount = 0;
-            p.DataType = 0;
-            p.Parameter1 = 0;
-            p.Parameter2 = 0;
-            p.SetDataAsString(this.Client.Configuration.Hostname);
-            Send(p);
-
-            p = DataPacket.Create(16 + this.Client.Configuration.Username.Length + TypeHandling.Padding(this.Client.Configuration.Username.Length));
-            p.Command = (ushort)CommandID.CA_PROTO_CLIENT_NAME;
-            p.DataCount = 0;
-            p.DataType = 0;
-            p.Parameter1 = 0;
-            p.Parameter2 = 0;
-            p.SetDataAsString(this.Client.Configuration.Username);
-            Send(p);
         }
+
 
         void ReceiveTcpData(IAsyncResult ar)
         {
@@ -150,29 +119,6 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
             }
         }
 
-        internal void AddChannel(Channel channel)
-        {
-            lock (ConnectedChannels)
-            {
-                if (!ConnectedChannels.Contains(channel))
-                    ConnectedChannels.Add(channel);
-            }
-        }
-
-        internal void RemoveChannel(Channel channel)
-        {
-            lock (ConnectedChannels)
-            {
-                ConnectedChannels.Remove(channel);
-            }
-
-            lock (Client.Channels)
-            {
-                if (!Client.Channels.Any(row => row.Value.ChannelName == channel.ChannelName))
-                    ChannelSID.Remove(channel.ChannelName);
-            }
-        }
-
         internal void Send(DataPacket packet)
         {
             if (disposed)
@@ -197,16 +143,6 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
         {
             if (disposed)
                 return;
-            lock (Client.Iocs)
-                Client.Iocs.Remove(destination);
-            List<Channel> toDisconnect;
-            lock (ConnectedChannels)
-            {
-                toDisconnect = ConnectedChannels.ToList();
-            }
-            foreach (Channel channel in toDisconnect)
-                channel.Disconnect();
-
             try
             {
                 socket.Disconnect(false);
@@ -229,5 +165,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
             Pipe.GeneratedEcho = true;
             Send(echoPacket);
         }
+
+        public IPEndPoint RemoteEndPoint { get; set; }
     }
 }

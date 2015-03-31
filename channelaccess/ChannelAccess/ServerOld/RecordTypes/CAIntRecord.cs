@@ -20,32 +20,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EpicsSharp.ChannelAccess.Constants;
 
-namespace EpicsSharp.ChannelAccess.Client.Pipes
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
-    public delegate void ReceiveDataDelegate(DataPacket packet);
-
-    abstract class DataFilter : IDisposable
+    /// <summary>
+    /// A int record which handles the limits of the value and set the alarm accordingly.
+    /// </summary>
+    public class CAIntRecord : CAValueRecord<int>
     {
-        public event ReceiveDataDelegate ReceiveData;
-        public DataPipe Pipe;
-
-        public abstract void ProcessData(DataPacket packet);
-
-        /// <summary>
-        /// Sends the DataPacket further in the chain
-        /// </summary>
-        /// <param name="packet"></param>
-        public void SendData(DataPacket packet)
-        {
-            if (ReceiveData != null)
-                ReceiveData(packet);
-        }
-
-        public CAClient Client { get; set; }
-
-        public virtual void Dispose()
-        {
-        }
     }
 }

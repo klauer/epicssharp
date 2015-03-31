@@ -1,4 +1,5 @@
-﻿/*
+﻿using EpicsSharp.ChannelAccess.Common;
+/*
  *  EpicsSharp - An EPICS Channel Access library for the .NET platform.
  *
  *  Copyright (C) 2013 - 2015  Paul Scherrer Institute, Switzerland
@@ -21,12 +22,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EpicsSharp.ChannelAccess.Server.RecordTypes
+namespace EpicsSharp.Common.Pipes
 {
-    public class CAByteArrayRecord  : CAArrayRecord<byte>
+    public delegate void ReceiveDataDelegate(DataPacket packet);
+
+    abstract class DataFilter : IDisposable
     {
-        public CAByteArrayRecord(int size)
-            : base(size)
+        public event ReceiveDataDelegate ReceiveData;
+        public DataPipe Pipe;
+
+        public abstract void ProcessData(DataPacket packet);
+
+        /// <summary>
+        /// Sends the DataPacket further in the chain
+        /// </summary>
+        /// <param name="packet"></param>
+        public void SendData(DataPacket packet)
+        {
+            if (ReceiveData != null)
+                ReceiveData(packet);
+        }
+
+        public virtual void Dispose()
         {
         }
     }

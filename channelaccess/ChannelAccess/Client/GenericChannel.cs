@@ -1,4 +1,5 @@
-﻿/*
+﻿using EpicsSharp.ChannelAccess.Common;
+/*
  *  EpicsSharp - An EPICS Channel Access library for the .NET platform.
  *
  *  Copyright (C) 2013 - 2015  Paul Scherrer Institute, Switzerland

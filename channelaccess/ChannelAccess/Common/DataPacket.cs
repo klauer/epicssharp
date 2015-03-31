@@ -23,7 +23,7 @@ using System.Text;
 using System.Threading;
 using System.Net;
 
-namespace EpicsSharp.ChannelAccess.Client
+namespace EpicsSharp.ChannelAccess.Common
 {
     /// <summary>
     /// Handles messages between workers.
@@ -216,7 +216,7 @@ namespace EpicsSharp.ChannelAccess.Client
         /// Retreives the payload as string.
         /// </summary>
         /// <returns></returns>
-        public string GetDataAsString(int offset, int maxSize = 40)
+        public string GetDataAsString(int offset = 0, int maxSize = 40)
         {
             // If data is smaller than what it should... return empty string
             if ((ExtendedMessage ? 24 : 16) + (int)PayloadSize > Data.Length)
@@ -236,11 +236,14 @@ namespace EpicsSharp.ChannelAccess.Client
             return res;
         }
 
-        public void SetDataAsString(string str)
+        public void SetDataAsString(string str, int offset = 0, int size = 0)
         {
             byte[] b = Encoding.Default.GetBytes(str);
-            Array.Clear(Data, 16, Data.Length - 16);
-            Buffer.BlockCopy(b, 0, Data, 16, b.Length);
+            if (size == 0)
+                Array.Clear(Data, offset + 16, Data.Length - 16);
+            else
+                Array.Clear(Data, offset + 16, size);
+            Buffer.BlockCopy(b, 0, Data, offset + 16, b.Length);
         }
 
         private DataPacket()

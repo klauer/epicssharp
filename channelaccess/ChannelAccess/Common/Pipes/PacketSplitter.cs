@@ -1,4 +1,5 @@
-﻿/*
+﻿using EpicsSharp.ChannelAccess.Common;
+/*
  *  EpicsSharp - An EPICS Channel Access library for the .NET platform.
  *
  *  Copyright (C) 2013 - 2015  Paul Scherrer Institute, Switzerland
@@ -21,7 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EpicsSharp.ChannelAccess.Client.Pipes
+namespace EpicsSharp.Common.Pipes
 {
     /// <summary>
     /// Cuts TCP or UDP packet is EPICS messages

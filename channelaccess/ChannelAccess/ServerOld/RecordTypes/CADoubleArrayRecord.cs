@@ -21,11 +21,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EpicsSharp.ChannelAccess.Server.RecordTypes
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
-    public class CAByteArrayRecord  : CAArrayRecord<byte>
+    public class CADoubleArrayRecord : CAArrayRecord<double>
     {
-        public CAByteArrayRecord(int size)
+        public CADoubleArrayRecord(int size)
             : base(size)
         {
         }

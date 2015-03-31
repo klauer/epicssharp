@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.Server.RecordTypes
 {
     public class CAIntArrayRecord : CAArrayRecord<int>
     {
