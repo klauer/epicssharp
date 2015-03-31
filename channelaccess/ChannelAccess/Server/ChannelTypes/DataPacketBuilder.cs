@@ -27,6 +27,12 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Status_Double:
                 case EpicsType.Status_String:
                     return ExtChannel.Encode(type, source, record);
+                case EpicsType.Time_Int:
+                case EpicsType.Time_Short:
+                case EpicsType.Time_Float:
+                case EpicsType.Time_Double:
+                case EpicsType.Time_String:
+                    return TimeChannel.Encode(type, source, record);
                 default:
                     throw new Exception("Not yet supported");
             }
@@ -42,26 +48,32 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
             switch (type)
             {
                 case EpicsType.Status_Byte:
+                case EpicsType.Time_Byte:
                 case EpicsType.Byte:
                     result.SetInt32(16 + offset, Convert.ToByte(value));
                     break;
                 case EpicsType.Int:
+                case EpicsType.Time_Int:
                 case EpicsType.Status_Int:
                     result.SetInt32(16 + offset, Convert.ToInt32(value));
                     break;
                 case EpicsType.Float:
+                case EpicsType.Time_Float:
                 case EpicsType.Status_Float:
                     result.SetFloat(16 + offset, Convert.ToSingle(value));
                     break;
                 case EpicsType.Double:
+                case EpicsType.Time_Double:
                 case EpicsType.Status_Double:
                     result.SetDouble(16 + offset, Convert.ToDouble(value));
                     break;
                 case EpicsType.Short:
+                case EpicsType.Time_Short:
                 case EpicsType.Status_Short:
                     result.SetInt16(16 + offset, Convert.ToInt16(value));
                     break;
                 case EpicsType.String:
+                case EpicsType.Time_String:
                 case EpicsType.Status_String:
                     result.SetDataAsString(Convert.ToString(value), offset, 40);
                     break;

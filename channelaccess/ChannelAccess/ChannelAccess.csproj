@@ -105,6 +105,7 @@
     <Compile Include="Server\CARecordCollection.cs" />
     <Compile Include="Server\CAServer.cs" />
     <Compile Include="Server\ChannelTypes\DataPacketBuilder.cs" />
+    <Compile Include="Server\ChannelTypes\TimeChannel.cs" />
     <Compile Include="Server\ChannelTypes\ExtChannel.cs" />
     <Compile Include="Server\ChannelTypes\SimpleChannel.cs" />
     <Compile Include="Server\RecordTypes\ArrayContainer.cs" />

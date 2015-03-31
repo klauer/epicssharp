@@ -32,6 +32,19 @@ namespace EpicsSharp.ChannelAccess.Server
             }
         }
 
+        public string FindProperty(CAServer server, uint sid)
+        {
+            string channelName = null;
+            lock (locker)
+            {
+                channelName = channelIds.Where(row => row.Value == sid).Select(row => row.Key).First();
+            }
+            string property = "VAL";
+            if (channelName.IndexOf('.') != -1)
+                property = channelName.Split('.').Last();
+            return property;
+        }
+
         public CARecord FindRecord(CAServer server, uint sid)
         {
             string channelName = null;

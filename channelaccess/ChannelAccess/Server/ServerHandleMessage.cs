@@ -51,7 +51,7 @@ namespace EpicsSharp.ChannelAccess.Server
                         else
                         {
                             // Send back the echo
-                            //((ClientTcpReceiver)Pipe[0]).Send(packet);
+                            ((ServerTcpReceiver)Pipe[0]).Send(packet);
                         }
                         break;
                     case CommandID.CA_PROTO_SEARCH:
@@ -146,6 +146,29 @@ namespace EpicsSharp.ChannelAccess.Server
                         break;
                     case CommandID.CA_PROTO_EVENT_ADD:
                         {
+                            int sid = (int)packet.Parameter1;
+                            int subscriptionId = (int)packet.Parameter2;
+                            int dataCount = (int)packet.DataCount;
+                            EpicsType type = (EpicsType)packet.DataType;
+                            CARecord record = ((ServerTcpReceiver)this.Pipe.FirstFilter).FindRecord(this.Server, packet.Parameter1);
+                            string property=((ServerTcpReceiver)this.Pipe.FirstFilter).FindProperty(this.Server, packet.Parameter1);
+
+                            DataPacket response = DataPacketBuilder.Encode(type, record[property], record);
+                            response.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
+                            response.Parameter1 = 1;
+                            response.Parameter2 = (uint)subscriptionId;
+                            ((TcpReceiver)this.Pipe.FirstFilter).Send(response);
+
+                            record.RecordProcessed += delegate(object obj, EventArgs evt)
+                            {
+                                if (!record.IsDirty)
+                                    return;
+                                DataPacket p = DataPacketBuilder.Encode(type, record[property], record);
+                                p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
+                                p.Parameter1 = 1;
+                                p.Parameter2 = (uint)subscriptionId;
+                                ((TcpReceiver)this.Pipe.FirstFilter).Send(p);
+                            };
                             /*Channel channel = Client.GetChannelByCid(packet.Parameter2);
                             if (channel != null)
                                 channel.UpdateMonitor(packet);*/

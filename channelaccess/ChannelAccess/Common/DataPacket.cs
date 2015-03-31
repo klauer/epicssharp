@@ -33,7 +33,7 @@ namespace EpicsSharp.ChannelAccess.Common
     {
         public byte[] Data;
         public bool NeedToFlush = false;
-
+        private static DateTime TimestampBase = new DateTime(1990, 1, 1, 0, 0, 0);
         public IPEndPoint Destination;
         public IPEndPoint Sender;
 
@@ -398,6 +398,17 @@ namespace EpicsSharp.ChannelAccess.Common
             Buffer.BlockCopy(bytes, 0, Data, position, bytes.Length);*/
         }
 
+        internal void SetDateTime(int position, DateTime time)
+        {
+            long Diff = time.Ticks - TimestampBase.ToLocalTime().Ticks;
+
+            UInt32 secs = (UInt32)Math.Round((double)(Diff / 10000000));
+            UInt32 nanosecs = (UInt32)(Diff - (secs * 10000000)) * 100;
+
+            this.SetUInt32(position, secs);
+            this.SetUInt32(position + 4, nanosecs);
+        }
+
         /// <summary>
         /// Skips a given size from the data block
         /// </summary>
@@ -490,5 +501,6 @@ namespace EpicsSharp.ChannelAccess.Common
             newPacket.Data.CopyTo(p.Data, remaining.Data.Length);
             return p;
         }
+
     }
 }
