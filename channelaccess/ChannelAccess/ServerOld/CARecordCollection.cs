@@ -22,9 +22,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using EpicsSharp.ChannelAccess.Constants;
-using EpicsSharp.ChannelAccess.Server.RecordTypes;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// Contains all the records offered by the server and handle the process loop.

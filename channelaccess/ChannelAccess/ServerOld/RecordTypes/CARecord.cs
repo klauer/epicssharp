@@ -25,7 +25,7 @@ using EpicsSharp.ChannelAccess.Constants;
 using System.Globalization;
 using System.Threading;
 
-namespace EpicsSharp.ChannelAccess.Server.RecordTypes
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     public class PropertyDelegateEventArgs : EventArgs
     {
@@ -542,42 +542,5 @@ namespace EpicsSharp.ChannelAccess.Server.RecordTypes
         /// AtomicChange.Dispose if the record's ScanAlgorithm is ON_CHANGE.
         /// </summary>
         bool inAtomicDispose = false;
-
-        internal EpicsType FindType(string propertyName)
-        {
-            Type type = this[propertyName].GetType();
-
-            if (type.IsEnum)
-                return EpicsType.Enum;
-            string name;
-            if (type.IsGenericType && type.Name.Split(new char[] { '`' })[0] == "ArrayContainer")
-                name = type.GetGenericArguments()[0].Name;
-            else if (type.IsArray)
-                name = type.GetElementType().Name;
-            else
-                name = type.Name;
-
-            switch (name)
-            {
-                case "Short":
-                    return EpicsType.Short;
-                case "Double":
-                    return EpicsType.Double;
-                case "Int32":
-                    return EpicsType.Int;
-                case "Single":
-                case "Float":
-                    return EpicsType.Float;
-                case "String":
-                    return EpicsType.String;
-                case "Int16":
-                    return EpicsType.Short;
-                case "Byte":
-                    return EpicsType.Byte;
-                default:
-                    Console.WriteLine("Unkown type " + type.Name);
-                    return EpicsType.Invalid;
-            }
-        }
     }
 }

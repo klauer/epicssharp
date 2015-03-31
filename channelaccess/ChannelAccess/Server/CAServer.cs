@@ -1,124 +1,48 @@
-﻿/*
- *  EpicsSharp - An EPICS Channel Access library for the .NET platform.
- *
- *  Copyright (C) 2013 - 2015  Paul Scherrer Institute, Switzerland
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿using EpicsSharp.ChannelAccess.Server.RecordTypes;
+using EpicsSharp.Common.Pipes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Reflection;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace EpicsSharp.ChannelAccess.Server
 {
-    public class CAServer : IDisposable
+    public class CAServer
     {
-        static int sid = 1;
+        DataPipe udpPipe;
         internal CARecordCollection records = new CARecordCollection();
         internal CARecordCollection Records { get { return records; } }
-        CAUdpListener udp;
-        internal CAUdpListener UdpConnection { get { return udp; } }
-        CAServerFilter serverFilter;
-        internal CAServerFilter Filter { get { return serverFilter; } }
-        internal Dictionary<int, CAServerChannel> channelList = new Dictionary<int, CAServerChannel>();
-        internal Dictionary<string, CATcpConnection> openConnection = new Dictionary<string, CATcpConnection>();
-        public IPAddress ServerAddress;
-        CABeacon beacon;
+        CaServerListener listener;
 
-        int udpPort = 0;
-        public int UdpPort { get { return udpPort; } }
-        int tcpPort = 0;
-        public int TcpPort { get { return tcpPort; } }
-        bool running = true;
+        public int TcpPort { get; private set; }
+        public int UdpPort { get; private set; }
+        public int BeaconPort { get; private set; }
 
-        Thread checkConnections;
-
-        TcpListener tcpListener;
-
-        public CAServer()
-            : this(null, 5064, 5064, 5065)
+        public CAServer(IPAddress ipAddress = null, int tcpPort = 5064, int udpPort = 5064, int beaconPort = 0)
         {
-        }
+            if (ipAddress == null)
+                ipAddress = IPAddress.Any;
 
-        public CAServer(IPAddress serverAddress)
-            : this(serverAddress, 5064, 5064, 5065)
-        {
-        }
-
-        public CAServer(IPAddress serverAddress, int tcpPort)
-            : this(serverAddress, tcpPort, 5064, 5065)
-        {
-        }
-
-        public CAServer(IPAddress serverAddress, int tcpPort, int udpPort)
-            : this(serverAddress, tcpPort, udpPort, udpPort + 1)
-        {
-        }
-
-        public CAServer(IPAddress serverAddress, int tcpPort, int udpPort, int beaconPort)
-        {
-            //Console.WriteLine("Server on "+serverAddress+" "+tcpPort+" "+udpPort+" "+beaconPort);
-            if (serverAddress == null)
-                serverAddress = IPAddress.Any;
-            ServerAddress = serverAddress;
-            this.udpPort = udpPort;
-            this.tcpPort = tcpPort;
-            serverFilter = new CAServerFilter(this);
-            udp = new CAUdpListener(serverAddress, udpPort, serverFilter);
-            tcpListener = new TcpListener(serverAddress, tcpPort);
-            tcpListener.Start();
-            tcpListener.BeginAcceptSocket(RecieveConn, tcpListener);
-
-            checkConnections = new Thread(new ThreadStart(ConnectionChecker));
-            checkConnections.IsBackground = true;
-            checkConnections.Start();
-
-            beacon = new CABeacon(this, udpPort, beaconPort);
-        }
-
-        void ConnectionChecker()
-        {
-            while (running)
-            {
-                Thread.Sleep(10000);
-
-                CATcpConnection[] list;
-                lock (openConnection)
-                {
-                    list = openConnection.Values.Where(row => (DateTime.Now - row.EchoLastSent).TotalSeconds > 120).ToArray();
-                }
-                foreach (var i in list)
-                {
-                    i.EchoLastSent = DateTime.Now;
-                    i.Send(CAServerFilter.EchoMessage);
-                }
-            }
+            if (beaconPort == 0)
+                beaconPort = udpPort + 1;
+            this.TcpPort = tcpPort;
+            this.UdpPort = udpPort;
+            this.BeaconPort = beaconPort;
+            listener = new CaServerListener(this, new IPEndPoint(ipAddress, tcpPort));
+            udpPipe = DataPipe.CreateServerUdp(this, ipAddress, udpPort);
         }
 
         public CAType CreateRecord<CAType>(string name) where CAType : CARecord
         {
-            CAType result=null;
+            CAType result = null;
             try
             {
-                 result =(CAType)(typeof(CAType)).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { }, null).Invoke(new object[] { });
+                result = (CAType)(typeof(CAType)).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { }, null).Invoke(new object[] { });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex.InnerException;
             }
@@ -127,135 +51,9 @@ namespace EpicsSharp.ChannelAccess.Server
             return result;
         }
 
-        public CAType CreateArrayRecord<CAType>(string name, int size) where CAType : CAArrayRecord
+
+        internal void RegisterClient(IPEndPoint clientEndPoint, DataPipe chain)
         {
-            CAType result = (CAType)(typeof(CAType)).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(int) }, null).Invoke(new object[] { size });
-            result.Name = name;
-            records.Add(result);
-            return result;
-        }
-
-        void RecieveConn(IAsyncResult result)
-        {
-            TcpListener listener = null;
-            Socket client = null;
-
-            try
-            {
-                listener = (TcpListener)result.AsyncState;
-                client = listener.EndAcceptSocket(result);
-            }
-            catch (Exception ex)
-            {
-                if (running)
-                    throw ex;
-            }
-
-            if (!running)
-                return;
-
-            // Wait for the next one
-            lock (openConnection)
-            {
-                if (!openConnection.ContainsKey(client.RemoteEndPoint.ToString()))
-                {
-                    openConnection.Add(client.RemoteEndPoint.ToString(), new CATcpConnection(client, this));
-                }
-                else
-                {
-                    Console.WriteLine("Trying to connect to the same one!");
-                }
-            }
-            try
-            {
-                listener.BeginAcceptSocket(new AsyncCallback(RecieveConn), listener);
-            }
-            catch (Exception ex)
-            {
-                if (running)
-                    throw ex;
-            }
-        }
-
-        internal CAServerChannel CreateEpicsChannel(int clientId, EndPoint sender, string channelName)
-        {
-            lock (channelList)
-            {
-                sid++;
-                try
-                {
-                    channelList.Add(sid, new CAServerChannel(this, sid, clientId, channelName, openConnection[sender.ToString()]));
-                }
-                catch
-                {
-                }
-                if (channelList.ContainsKey(sid))
-                    return channelList[sid];
-                else
-                {
-                    DropEpicsConnection(sender.ToString());
-                    return null;
-                }
-            }
-        }
-
-        internal void DropEpicsChannel(int clientId)
-        {
-            lock (channelList)
-            {
-                channelList.Remove(clientId);
-            }
-        }
-
-        internal void DropEpicsConnection(string remoteKey)
-        {
-            lock (openConnection)
-            {
-                openConnection.Remove(remoteKey);
-            }
-        }
-
-        public void Dispose()
-        {
-            if (running == false)
-                return;
-            running = false;
-
-            try
-            {
-                if (ServerAddress == IPAddress.Any)
-                {
-                    TcpClient client = new TcpClient("127.0.0.1", tcpPort);
-                    client.Close();
-                }
-                else
-                {
-                    TcpClient client = new TcpClient(ServerAddress.ToString(), tcpPort);
-                    client.Close();
-                }
-            }
-            catch
-            {
-            }
-
-            tcpListener.Stop();
-            udp.Dispose();
-
-            beacon.Dispose();
-
-            Records.Dispose();
-
-            List<CAServerChannel> channelsToRemove;
-            lock (channelList)
-                channelsToRemove = channelList.Values.ToList();
-            foreach (var i in channelsToRemove)
-                i.Dispose();
-
-            List<CATcpConnection> connsToRemove;
-            lock (openConnection)
-                connsToRemove = openConnection.Values.ToList();
-            foreach (var i in connsToRemove)
-                i.Dispose();
         }
     }
 }

@@ -22,7 +22,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     internal class Pipe : IDisposable
     {

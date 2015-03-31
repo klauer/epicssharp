@@ -22,25 +22,38 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
+using EpicsSharp.ChannelAccess.Common;
 
-namespace EpicsSharp.ChannelAccess.Client.Pipes
+namespace EpicsSharp.Common.Pipes
 {
     internal class UdpReceiver : DataFilter
     {
         UdpClient udp;
         byte[] buff = new byte[8192 * 3];
         bool disposed = false;
+        IPAddress address = null;
+        int udpPort = 0;
 
         const int SIO_UDP_CONNRESET = -1744830452;
-
         public UdpReceiver()
+            : this(null, 0)
         {
-            InitUdp();
+
         }
 
-        void InitUdp()
+        public UdpReceiver(IPAddress address, int port)
         {
-            udp = new UdpClient(0);
+            udpPort = port;
+            this.address = address;
+            InitUdp(address, udpPort);
+        }
+
+        void InitUdp(IPAddress address = null, int port = 0)
+        {
+            if (address == null)
+                udp = new UdpClient(port);
+            else
+                udp = new UdpClient(new IPEndPoint(address, port));
             try
             {
                 udp.Client.IOControl(SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
@@ -102,7 +115,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
                     catch
                     {
                     }
-                    InitUdp();
+                    InitUdp(this.address, udpPort);
                     //udp = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
                     udp.BeginReceive(GotUdpMessage, null);
                 }
@@ -129,7 +142,7 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
                 catch
                 {
                 }
-                InitUdp();
+                InitUdp(this.address, udpPort);
                 udp.BeginReceive(GotUdpMessage, null);
             }
 

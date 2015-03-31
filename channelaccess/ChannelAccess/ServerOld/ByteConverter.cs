@@ -24,7 +24,7 @@ using System.IO;
 using EpicsSharp.ChannelAccess.Constants;
 using System.Globalization;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// Extension class which contains the converters from byte array or to byte array.

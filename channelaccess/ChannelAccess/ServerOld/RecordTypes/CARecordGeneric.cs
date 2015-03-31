@@ -22,12 +22,37 @@ using System.Linq;
 using System.Text;
 using EpicsSharp.ChannelAccess.Constants;
 
-namespace EpicsSharp.ChannelAccess.Server.RecordTypes
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
-    /// A double record which handles the limits of the value and set the alarm accordingly.
+    /// Generic CARecord allows to store a type in the VAL property
     /// </summary>
-    public class CADoubleRecord : CAValueRecord<double>
+    /// <typeparam name="TType"></typeparam>
+    public abstract class CARecord<TType> : CARecord
     {
+        /// <summary>
+        /// Stores the actual value of the record
+        /// </summary>
+        TType currentValue;
+
+        /// <summary>
+        /// Access the value linked to the record
+        /// </summary>
+        [CAField("VAL")]
+        public TType Value
+        {
+            get
+            {
+                return currentValue;
+            }
+            set
+            {
+                if ((currentValue == null && value != null) || !currentValue.Equals(value))
+                    this.IsDirty = true;
+                currentValue = value;
+                if (Scan == ScanAlgorithm.ON_CHANGE && this.IsDirty)
+                    ProcessRecord();
+            }
+        }
     }
 }

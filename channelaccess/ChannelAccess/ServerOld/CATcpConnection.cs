@@ -24,7 +24,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Diagnostics;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// TCP connection used to communicate with the server and built by the client.

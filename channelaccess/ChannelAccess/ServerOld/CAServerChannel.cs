@@ -23,7 +23,7 @@ using System.Text;
 using EpicsSharp.ChannelAccess.Constants;
 using System.Collections;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// Contain the communication for a given RECORD.PROPERTY (by default .VAL)

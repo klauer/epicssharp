@@ -24,7 +24,7 @@ using System.IO;
 using System.Net;
 using EpicsSharp.ChannelAccess.Constants;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// Message filter which decodes requests as well as create some pre-formated answers.

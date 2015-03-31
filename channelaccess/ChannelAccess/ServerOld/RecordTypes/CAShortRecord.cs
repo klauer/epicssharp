@@ -20,14 +20,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EpicsSharp.ChannelAccess.Constants;
 
-namespace EpicsSharp.ChannelAccess.Server.RecordTypes
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
-    public class CAByteArrayRecord  : CAArrayRecord<byte>
+    /// <summary>
+    /// A short record which handles the limits of the value and set the alarm accordingly.
+    /// </summary>
+    public class CAShortRecord : CAValueRecord<short>
     {
-        public CAByteArrayRecord(int size)
-            : base(size)
-        {
-        }
     }
 }

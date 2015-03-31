@@ -23,7 +23,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     /// <summary>
     /// Answers to the search requests

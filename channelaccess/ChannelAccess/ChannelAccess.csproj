@@ -42,7 +42,8 @@
   <ItemGroup>
     <Compile Include="Client\CAConfiguration.cs" />
     <Compile Include="Client\CAConstants.cs" />
-    <Compile Include="Client\DataPacket.cs" />
+    <Compile Include="Client\ClientTcpReceiver.cs" />
+    <Compile Include="Common\DataPacket.cs" />
     <Compile Include="Client\Channel.cs" />
     <Compile Include="Client\CAClient.cs" />
     <Compile Include="Client\ExtendedTypes\extControlEnum.cs" />
@@ -53,12 +54,12 @@
     <Compile Include="Client\ExtendedTypes\extGraphic.cs" />
     <Compile Include="Client\ExtendedTypes\extTimeType.cs" />
     <Compile Include="Client\ExtendedTypes\extType.cs" />
-    <Compile Include="Client\Pipes\DataFilter.cs" />
-    <Compile Include="Client\Pipes\DataPipe.cs" />
-    <Compile Include="Client\Pipes\HandleMessage.cs" />
-    <Compile Include="Client\Pipes\PacketSplitter.cs" />
-    <Compile Include="Client\Pipes\TcpReceiver.cs" />
-    <Compile Include="Client\Pipes\UdpReceiver.cs" />
+    <Compile Include="Common\Pipes\DataFilter.cs" />
+    <Compile Include="Common\Pipes\DataPipe.cs" />
+    <Compile Include="Client\ClientHandleMessage.cs" />
+    <Compile Include="Common\Pipes\PacketSplitter.cs" />
+    <Compile Include="Common\Pipes\TcpReceiver.cs" />
+    <Compile Include="Common\Pipes\UdpReceiver.cs" />
     <Compile Include="Client\Searcher.cs" />
     <Compile Include="Client\TypeHandling.cs" />
     <Compile Include="Constants\AccessRights.cs" />
@@ -72,23 +73,47 @@
     <Compile Include="Constants\AlarmSeverity.cs" />
     <Compile Include="Constants\AlarmStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\ByteConverter.cs" />
-    <Compile Include="Server\CABeacon.cs" />
-    <Compile Include="Server\CAChannelMonitor.cs" />
+    <Compile Include="ServerOld\ByteConverter.cs" />
+    <Compile Include="ServerOld\CABeacon.cs" />
+    <Compile Include="ServerOld\CAChannelMonitor.cs" />
+    <Compile Include="ServerOld\CAFieldAttribute.cs" />
+    <Compile Include="ServerOld\CARecordCollection.cs" />
+    <Compile Include="ServerOld\CAServer.cs" />
+    <Compile Include="ServerOld\CAServerChannel.cs" />
+    <Compile Include="ServerOld\CAServerFilter.cs" />
+    <Compile Include="ServerOld\CATcpConnection.cs" />
+    <Compile Include="ServerOld\CAUdpListener.cs" />
+    <Compile Include="ServerOld\Pipe.cs" />
+    <Compile Include="ServerOld\RecordTypes\ArrayContainer.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAArrayRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAByteArrayRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAByteRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CADoubleArrayRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CADoubleRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAFloatArrayRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAFloatRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAIntArrayRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAIntRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CARecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CARecordGeneric.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAShortRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAStringRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAValueRecord.cs" />
+    <Compile Include="ServerOld\RecordTypes\CAEnumRecord.cs" />
+    <Compile Include="ServerOld\UdpListener.cs" />
     <Compile Include="Server\CAFieldAttribute.cs" />
     <Compile Include="Server\CARecordCollection.cs" />
     <Compile Include="Server\CAServer.cs" />
-    <Compile Include="Server\CAServerChannel.cs" />
-    <Compile Include="Server\CAServerFilter.cs" />
-    <Compile Include="Server\CATcpConnection.cs" />
-    <Compile Include="Server\CAUdpListener.cs" />
-    <Compile Include="Server\Pipe.cs" />
+    <Compile Include="Server\ChannelTypes\DataPacketBuilder.cs" />
+    <Compile Include="Server\ChannelTypes\ExtChannel.cs" />
+    <Compile Include="Server\ChannelTypes\SimpleChannel.cs" />
     <Compile Include="Server\RecordTypes\ArrayContainer.cs" />
     <Compile Include="Server\RecordTypes\CAArrayRecord.cs" />
     <Compile Include="Server\RecordTypes\CAByteArrayRecord.cs" />
     <Compile Include="Server\RecordTypes\CAByteRecord.cs" />
     <Compile Include="Server\RecordTypes\CADoubleArrayRecord.cs" />
     <Compile Include="Server\RecordTypes\CADoubleRecord.cs" />
+    <Compile Include="Server\RecordTypes\CAEnumRecord.cs" />
     <Compile Include="Server\RecordTypes\CAFloatArrayRecord.cs" />
     <Compile Include="Server\RecordTypes\CAFloatRecord.cs" />
     <Compile Include="Server\RecordTypes\CAIntArrayRecord.cs" />
@@ -98,12 +123,14 @@
     <Compile Include="Server\RecordTypes\CAShortRecord.cs" />
     <Compile Include="Server\RecordTypes\CAStringRecord.cs" />
     <Compile Include="Server\RecordTypes\CAValueRecord.cs" />
-    <Compile Include="Server\RecordTypes\CAEnumRecord.cs" />
-    <Compile Include="Server\UdpListener.cs" />
+    <Compile Include="Server\ServerHandleMessage.cs" />
+    <Compile Include="Server\CaServerListener.cs" />
+    <Compile Include="Server\ServerTcpReceiver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ChannelAccess.nuspec" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del "$(TargetDir)*.nupkg"

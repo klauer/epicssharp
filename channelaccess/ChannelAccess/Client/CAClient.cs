@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using EpicsSharp.ChannelAccess.Client.Pipes;
+using EpicsSharp.Common.Pipes;
 using EpicsSharp.ChannelAccess.Constants;
 
 namespace EpicsSharp.ChannelAccess.Client
@@ -47,7 +47,7 @@ namespace EpicsSharp.ChannelAccess.Client
         /// </summary>
         public CAClient()
         {
-            Udp = DataPipe.CreateUdp(this);
+            Udp = DataPipe.CreateClientUdp(this);
             Searcher = new Searcher(this);
             echoThread = new Thread(Echoer);
             echoThread.IsBackground = true;
@@ -198,7 +198,7 @@ namespace EpicsSharp.ChannelAccess.Client
             {
                 if (!Iocs.ContainsKey(iPEndPoint))
                 {
-                    ioc = DataPipe.CreateTcp(this, iPEndPoint);
+                    ioc = DataPipe.CreateClientTcp(this, iPEndPoint);
                     Iocs.Add(iPEndPoint, ioc);
                 }
                 else

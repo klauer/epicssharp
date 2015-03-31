@@ -23,11 +23,12 @@ using System.Text;
 using System.Net;
 using System.Threading;
 using System.IO;
-using EpicsSharp.ChannelAccess.Client.Pipes;
+using EpicsSharp.Common.Pipes;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using EpicsSharp.ChannelAccess.Constants;
+using EpicsSharp.ChannelAccess.Common;
 
 namespace EpicsSharp.ChannelAccess.Client
 {
@@ -63,7 +64,7 @@ namespace EpicsSharp.ChannelAccess.Client
             }
         }
         protected CAClient Client;
-        internal TcpReceiver ioc;
+        internal ClientTcpReceiver ioc;
         protected static uint NextCid = 1;
         protected static uint NextIoId = 1;
         protected uint cid = (NextCid++);
@@ -647,7 +648,7 @@ namespace EpicsSharp.ChannelAccess.Client
 
         internal void SetIoc(DataPipe pipe)
         {
-            TcpReceiver tcpReceiver = (TcpReceiver)pipe[0];
+            ClientTcpReceiver tcpReceiver = (ClientTcpReceiver)pipe[0];
             tcpReceiver.AddChannel(this);
             lock (ConnectionLock)
             {

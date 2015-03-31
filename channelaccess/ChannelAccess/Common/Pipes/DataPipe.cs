@@ -21,8 +21,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using EpicsSharp.ChannelAccess.Client;
+using EpicsSharp.ChannelAccess.Server;
+using System.Net.Sockets;
+using System.Net;
 
-namespace EpicsSharp.ChannelAccess.Client.Pipes
+namespace EpicsSharp.Common.Pipes
 {
     internal class DataPipe : IDisposable
     {
@@ -58,32 +62,57 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
             }
         }
 
-        static Type[] UdpChainList = new Type[] { typeof(UdpReceiver), typeof(PacketSplitter), typeof(HandleMessage) };
-        internal static DataPipe CreateUdp(CAClient client)
+        internal static DataPipe CreateServerUdp(CAServer server, IPAddress address, int udpPort)
         {
-            DataPipe res = PopulatePipe(UdpChainList, client);
+            DataPipe res = new DataPipe();
+            res.Add(new UdpReceiver(address, udpPort));
+            res[0].Pipe = res;
+            AddToPipe(new Type[] { typeof(PacketSplitter), typeof(ServerHandleMessage) }, res);
+            ((ServerHandleMessage)res.LastFilter).Server = server;
             return res;
         }
 
-        static Type[] TcpChainList = new Type[] { typeof(TcpReceiver), typeof(PacketSplitter), typeof(HandleMessage) };
-        internal static DataPipe CreateTcp(CAClient client, System.Net.IPEndPoint iPEndPoint)
+        internal static DataPipe CreateClientUdp(CAClient client)
         {
-            DataPipe res = PopulatePipe(TcpChainList, client);
-            ((TcpReceiver)res[0]).Start(iPEndPoint);
+            DataPipe res = PopulatePipe(new Type[] { typeof(UdpReceiver), typeof(PacketSplitter), typeof(ClientHandleMessage) });
+            ((ClientHandleMessage)res.LastFilter).Client = client;
             return res;
         }
 
-        static DataPipe PopulatePipe(Type[] types, CAClient client)
+        internal static DataPipe CreateClientTcp(CAClient client, System.Net.IPEndPoint iPEndPoint)
+        {
+            DataPipe res = PopulatePipe(new Type[] { typeof(ClientTcpReceiver), typeof(PacketSplitter), typeof(ClientHandleMessage) });
+            ((ClientTcpReceiver)res[0]).Init(client, iPEndPoint);
+            ((ClientHandleMessage)res.LastFilter).Client = client;
+            return res;
+        }
+
+        internal static DataPipe CreateServerTcp(CAServer server, Socket client)
+        {
+            DataPipe res = PopulatePipe(new Type[] { typeof(ServerTcpReceiver), typeof(PacketSplitter), typeof(ServerHandleMessage) });
+            //((TcpReceiver)res[0]).Start(iPEndPoint);
+            ((ServerHandleMessage)res.LastFilter).Server = server;
+            ((ServerTcpReceiver)res.FirstFilter).Init(client);
+
+            return res;
+        }
+
+        static DataPipe PopulatePipe(Type[] types)
         {
             DataPipe pipe = new DataPipe();
+            AddToPipe(types, pipe);
+            return pipe;
+        }
+
+        static void AddToPipe(Type[] types, DataPipe pipe)
+        {
             foreach (Type t in types)
             {
                 DataFilter w = (DataFilter)t.GetConstructor(new Type[] { }).Invoke(new object[] { });
-                w.Client = client;
                 w.Pipe = pipe;
                 pipe.Add(w);
             }
-            return pipe;
+
         }
 
         public void Dispose()
@@ -93,5 +122,6 @@ namespace EpicsSharp.ChannelAccess.Client.Pipes
         }
 
         internal bool GeneratedEcho { get; set; }
+
     }
 }

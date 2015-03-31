@@ -26,7 +26,7 @@ using System.Threading;
 using System.IO;
 using EpicsSharp.ChannelAccess.Constants;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
     internal class CABeacon : IDisposable
     {

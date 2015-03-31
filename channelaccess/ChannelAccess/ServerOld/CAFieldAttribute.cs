@@ -21,13 +21,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EpicsSharp.ChannelAccess.Server.RecordTypes
+namespace EpicsSharp.ChannelAccess.ServerOld
 {
-    public class CAByteArrayRecord  : CAArrayRecord<byte>
+    /// <summary>
+    /// Defines the binding between a C# property and an EPICS record field
+    /// </summary>
+    public class CAFieldAttribute : Attribute
     {
-        public CAByteArrayRecord(int size)
-            : base(size)
+        public CAFieldAttribute(string name)
         {
+            Name = name;
         }
+
+        public string Name { get; set; }
     }
 }

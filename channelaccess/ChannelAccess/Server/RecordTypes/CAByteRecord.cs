@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace EpicsSharp.ChannelAccess.Server
+namespace EpicsSharp.ChannelAccess.Server.RecordTypes
 {
     /// <summary>
     /// A byte record which handles the limits of the value and set the alarm accordingly.
