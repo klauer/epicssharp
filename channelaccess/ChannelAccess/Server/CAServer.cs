@@ -2,20 +2,23 @@
 using EpicsSharp.Common.Pipes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EpicsSharp.ChannelAccess.Server
 {
-    public class CAServer
+    public class CAServer : IDisposable
     {
         DataPipe udpPipe;
         internal CARecordCollection records = new CARecordCollection();
         internal CARecordCollection Records { get { return records; } }
         CaServerListener listener;
+        bool disposed = false;
 
         public int TcpPort { get; private set; }
         public int UdpPort { get; private set; }
@@ -54,6 +57,16 @@ namespace EpicsSharp.ChannelAccess.Server
 
         internal void RegisterClient(IPEndPoint clientEndPoint, DataPipe chain)
         {
+        }
+
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+            disposed = true;
+            listener.Dispose();
+            udpPipe.Dispose();
+            records.Dispose();
         }
     }
 }
