@@ -29,7 +29,7 @@ using EpicsSharp.ChannelAccess.Server.RecordTypes;
 
 namespace EpicsSharp.ChannelAccess.Server
 {
-    class ServerHandleMessage : DataFilter
+    internal class ServerHandleMessage : DataFilter
     {
         public CAServer Server { get; set; }
 
@@ -99,7 +99,7 @@ namespace EpicsSharp.ChannelAccess.Server
                     case CommandID.CA_PROTO_READ_NOTIFY:
                         {
                             DataPacket response = DataPacketBuilder.Encode((EpicsType)packet.DataType, ((ServerTcpReceiver)this.Pipe.FirstFilter).RecordValue(this.Server, packet.Parameter1),
-                                 ((ServerTcpReceiver)this.Pipe.FirstFilter).FindRecord(this.Server, packet.Parameter1));
+                                 ((ServerTcpReceiver)this.Pipe.FirstFilter).FindRecord(this.Server, packet.Parameter1), (int)packet.DataCount);
                             response.Command = (ushort)CommandID.CA_PROTO_READ_NOTIFY;
                             response.Parameter1 = 1;
                             response.Parameter2 = packet.Parameter2;

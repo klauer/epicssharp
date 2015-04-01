@@ -54,6 +54,21 @@ namespace EpicsSharp.ChannelAccess.Server
             return result;
         }
 
+        public CAType CreateArrayRecord<CAType>(string name, int size) where CAType : CAArrayRecord
+        {
+            CAType result = null;
+            try
+            {
+                result = (CAType)(typeof(CAType)).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(int) }, null).Invoke(new object[] { size });
+            }
+            catch (Exception ex)
+            {
+                throw ex.InnerException;
+            }
+            result.Name = name;
+            records.Add(result);
+            return result;
+        }
 
         internal void RegisterClient(IPEndPoint clientEndPoint, DataPipe chain)
         {
