@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ChannelAccessTests
+namespace EpicsSharp.ChannelAccess.Tests
 {
     [TestClass]
     public class CATypesTest
