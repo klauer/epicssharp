@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleServer", "ExampleSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChannelAccessTests", "ChannelAccessTests\ChannelAccessTests.csproj", "{CECA35DD-4F61-4316-BF4E-61233CF75F9B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitorTest", "MonitorTest\MonitorTest.csproj", "{0E7FB0DD-745E-4C2A-9F70-8AE151B9DF76}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{FCD5CD65-9B89-45B5-A7C7-56A7C3ACDB7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceCheck", "PerformanceCheck\PerformanceCheck.csproj", "{15511C42-E254-4F8D-936F-8220FE68A21B}"
@@ -47,6 +49,10 @@ Global
 		{CECA35DD-4F61-4316-BF4E-61233CF75F9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CECA35DD-4F61-4316-BF4E-61233CF75F9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CECA35DD-4F61-4316-BF4E-61233CF75F9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E7FB0DD-745E-4C2A-9F70-8AE151B9DF76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E7FB0DD-745E-4C2A-9F70-8AE151B9DF76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E7FB0DD-745E-4C2A-9F70-8AE151B9DF76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E7FB0DD-745E-4C2A-9F70-8AE151B9DF76}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FCD5CD65-9B89-45B5-A7C7-56A7C3ACDB7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FCD5CD65-9B89-45B5-A7C7-56A7C3ACDB7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCD5CD65-9B89-45B5-A7C7-56A7C3ACDB7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
