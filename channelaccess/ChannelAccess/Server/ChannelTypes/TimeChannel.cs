@@ -11,33 +11,6 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
 {
     static class TimeChannel
     {
-        /*internal override void Decode(Channel channel, uint nbElements)
-        {
-            Status = (AlarmStatus)channel.DecodeData<ushort>(1, 0);
-            Severity = (AlarmSeverity)channel.DecodeData<ushort>(1, 2);
-            Time = channel.DecodeData<DateTime>(1, 4);
-            int pos = 12;
-            Type t = typeof(TType);
-            if (t.IsArray)
-                t = t.GetElementType();
-            if (t == typeof(object))
-                t = channel.ChannelDefinedType;
-            // padding for "RISC alignment"
-            if (t == typeof(byte))
-                pos += 3;
-            else if (t == typeof(double))
-                pos += 4;
-            else if (t == typeof(short))
-                pos += 2;
-            Value = channel.DecodeData<TType>(nbElements, pos);
-         * 
-         *                 long secs = RawData.GetUInt32((int)RawData.HeaderSize + startPost);
-                long nanoSecs = RawData.GetUInt32((int)RawData.HeaderSize + startPost + 4);
-                DateTime d = (new DateTime(timestampBase.Ticks + (secs * 10000000L) + (nanoSecs / 100L))).ToLocalTime();
-                return d;
-
-        }*/
-
         static public DataPacket Encode(EpicsType type, object value, CARecord record, int nbElements = 1)
         {
             int size = 12;
@@ -71,14 +44,14 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
             size += DataPacketBuilder.Padding(size);
 
             DataPacket res = DataPacket.Create(16 + size);
-            res.DataCount = 1;
+            res.DataCount = (uint)nbElements;
             res.DataType = (ushort)type;
 
             res.SetInt16(16, (short)record.AlarmStatus);
             res.SetInt16(16 + 2, (short)record.CurrentAlarmSeverity);
             res.SetDateTime(16 + 4, DateTime.Now);
 
-            DataPacketBuilder.Encode(res, type, 12 + startPos, value);
+            DataPacketBuilder.Encode(res, type, 12 + startPos, value, nbElements);
             return res;
         }
     }

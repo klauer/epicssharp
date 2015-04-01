@@ -29,7 +29,7 @@ namespace EpicsSharp.ChannelAccess.Server
     /// <summary>
     /// Contains all the records offered by the server and handle the process loop.
     /// </summary>
-    public class CARecordCollection
+    internal class CARecordCollection
     {
         Thread processThread;
         Dictionary<string, CARecord> records = new Dictionary<string, CARecord>();

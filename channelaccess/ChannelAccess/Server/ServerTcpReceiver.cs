@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace EpicsSharp.ChannelAccess.Server
 {
-    class ServerTcpReceiver : TcpReceiver
+    internal class ServerTcpReceiver : TcpReceiver
     {
         uint nextSid = 1;
         object locker = new object();
@@ -89,7 +89,7 @@ namespace EpicsSharp.ChannelAccess.Server
             CARecord record = ((ServerTcpReceiver)this.Pipe.FirstFilter).FindRecord(server, sid);
             string property = ((ServerTcpReceiver)this.Pipe.FirstFilter).FindProperty(server, sid);
 
-            DataPacket response = DataPacketBuilder.Encode(type, record[property], record);
+            DataPacket response = DataPacketBuilder.Encode(type, record[property], record, dataCount);
             response.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
             response.Parameter1 = 1;
             response.Parameter2 = (uint)subscriptionId;
@@ -99,7 +99,7 @@ namespace EpicsSharp.ChannelAccess.Server
             {
                 if (!record.IsDirty)
                     return;
-                DataPacket p = DataPacketBuilder.Encode(type, record[property], record);
+                DataPacket p = DataPacketBuilder.Encode(type, record[property], record, dataCount);
                 p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
                 p.Parameter1 = 1;
                 p.Parameter2 = (uint)subscriptionId;

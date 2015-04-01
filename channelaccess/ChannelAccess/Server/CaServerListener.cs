@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EpicsSharp.ChannelAccess.Server
 {
-    class CaServerListener: IDisposable
+    internal class CaServerListener : IDisposable
     {
             TcpListener tcpListener = null;
             bool disposed = false;
