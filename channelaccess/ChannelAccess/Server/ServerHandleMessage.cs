@@ -48,17 +48,12 @@ namespace EpicsSharp.ChannelAccess.Server
                         // We sent the echo... we should therefore avoid to answer it
                         if (Pipe.GeneratedEcho)
                             Pipe.GeneratedEcho = false;
+                        // Send back the echo
                         else
-                        {
-                            // Send back the echo
                             ((ServerTcpReceiver)Pipe[0]).Send(packet);
-                        }
                         break;
                     case CommandID.CA_PROTO_SEARCH:
                         {
-                            // Answer packet to a server? Drop it
-                            /*if (packet.PayloadSize == 8)
-                                break;*/
                             var channelName = packet.GetDataAsString(0).Split('.').First();
                             if (!Server.Records.Contains(channelName))
                                 break;
@@ -71,14 +66,6 @@ namespace EpicsSharp.ChannelAccess.Server
                             response.SetUInt16(16, (ushort)CAConstants.CA_MINOR_PROTOCOL_REVISION);
                             response.Destination = packet.Sender;
                             ((UdpReceiver)this.Pipe[0]).Send(response);
-                        }
-                        break;
-                    case CommandID.CA_PROTO_ACCESS_RIGHTS:
-                        {
-                            /*Channel channel = Client.GetChannelByCid(packet.Parameter1);
-                            if (channel != null)
-                                channel.AccessRight = (AccessRights)((ushort)packet.Parameter2);
-                            break;*/
                         }
                         break;
                     case CommandID.CA_PROTO_CREATE_CHAN:
@@ -107,10 +94,6 @@ namespace EpicsSharp.ChannelAccess.Server
                             response.Parameter1 = packet.Parameter1;
                             response.Parameter2 = ((ServerTcpReceiver)this.Pipe.FirstFilter).RegisterChannel(channelName + "." + property);
                             ((ServerTcpReceiver)this.Pipe.FirstFilter).Send(response);
-
-                            /*Channel channel = Client.GetChannelByCid(packet.Parameter1);
-                            if (channel != null)
-                                channel.SetServerChannel(packet.Parameter2, (EpicsType)packet.DataType, packet.DataCount);*/
                         }
                         break;
                     case CommandID.CA_PROTO_READ_NOTIFY:
@@ -121,76 +104,39 @@ namespace EpicsSharp.ChannelAccess.Server
                             response.Parameter1 = 1;
                             response.Parameter2 = packet.Parameter2;
                             ((TcpReceiver)this.Pipe.FirstFilter).Send(response);
-
-                            /*ClientTcpReceiver ioc = (ClientTcpReceiver)Pipe[0];
-                            Channel channel;
-                            lock (ioc.PendingIo)
-                            {
-                                channel = ioc.PendingIo[packet.Parameter2];
-                            }
-                            if (channel != null)
-                                channel.SetGetRawValue(packet);*/
+                        }
+                        break;
+                    case CommandID.CA_PROTO_WRITE:
+                        {
+                            ((ServerTcpReceiver)this.Pipe.FirstFilter).PutValue(this.Server, packet);
                         }
                         break;
                     case CommandID.CA_PROTO_WRITE_NOTIFY:
                         {
-                            /*ClientTcpReceiver ioc = (ClientTcpReceiver)Pipe[0];
-                            Channel channel;
-                            lock (ioc.PendingIo)
-                            {
-                                channel = ioc.PendingIo[packet.Parameter2];
-                            }
-                            if (channel != null)
-                                channel.SetWriteNotify();*/
+                            ((ServerTcpReceiver)this.Pipe.FirstFilter).PutValue(this.Server, packet);
+                            DataPacket response = DataPacket.Create(16);
+                            response.Command = (ushort)CommandID.CA_PROTO_WRITE_NOTIFY;
+                            response.DataType = packet.DataType;
+                            response.DataCount = packet.DataCount;
+                            response.Parameter1 = 1;
+                            response.Parameter2 = packet.Parameter2;
+                            ((ServerTcpReceiver)this.Pipe.FirstFilter).Send(response);
                         }
                         break;
                     case CommandID.CA_PROTO_EVENT_ADD:
                         {
-                            int sid = (int)packet.Parameter1;
-                            int subscriptionId = (int)packet.Parameter2;
-                            int dataCount = (int)packet.DataCount;
+
+                            uint sid = packet.Parameter1;
+                            uint subscriptionId = packet.Parameter2;
+                            uint dataCount = packet.DataCount;
                             EpicsType type = (EpicsType)packet.DataType;
-                            CARecord record = ((ServerTcpReceiver)this.Pipe.FirstFilter).FindRecord(this.Server, packet.Parameter1);
-                            string property=((ServerTcpReceiver)this.Pipe.FirstFilter).FindProperty(this.Server, packet.Parameter1);
 
-                            DataPacket response = DataPacketBuilder.Encode(type, record[property], record);
-                            response.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
-                            response.Parameter1 = 1;
-                            response.Parameter2 = (uint)subscriptionId;
-                            ((TcpReceiver)this.Pipe.FirstFilter).Send(response);
-
-                            record.RecordProcessed += delegate(object obj, EventArgs evt)
-                            {
-                                if (!record.IsDirty)
-                                    return;
-                                DataPacket p = DataPacketBuilder.Encode(type, record[property], record);
-                                p.Command = (ushort)CommandID.CA_PROTO_EVENT_ADD;
-                                p.Parameter1 = 1;
-                                p.Parameter2 = (uint)subscriptionId;
-                                ((TcpReceiver)this.Pipe.FirstFilter).Send(p);
-                            };
-                            /*Channel channel = Client.GetChannelByCid(packet.Parameter2);
-                            if (channel != null)
-                                channel.UpdateMonitor(packet);*/
+                            ((ServerTcpReceiver)this.Pipe.FirstFilter).RegisterEvent(this.Server, sid, subscriptionId, (int)dataCount, type);
                         }
                         break;
-                    case CommandID.CA_PROTO_SERVER_DISCONN:
+                    case CommandID.CA_PROTO_EVENT_CANCEL:
                         {
-                            /*List<Channel> connectedChannels;
-                            ClientTcpReceiver receiver = ((ClientTcpReceiver)Pipe[0]);
-                            lock (receiver.ConnectedChannels)
-                            {
-                                connectedChannels = receiver.ConnectedChannels.Where(row => row.CID == packet.Parameter1).ToList();
-                            }
-                            foreach (Channel channel in connectedChannels)
-                            {
-                                lock (receiver.ChannelSID)
-                                {
-                                    receiver.ChannelSID.Remove(channel.ChannelName);
-                                }
-
-                                channel.Disconnect();
-                            }*/
+                            ((ServerTcpReceiver)this.Pipe.FirstFilter).UnregisterEvent(this.Server, packet.Parameter2);
                         }
                         break;
                     default:
