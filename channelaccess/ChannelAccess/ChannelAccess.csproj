@@ -108,6 +108,7 @@
     <Compile Include="Server\ChannelTypes\TimeChannel.cs" />
     <Compile Include="Server\ChannelTypes\ExtChannel.cs" />
     <Compile Include="Server\ChannelTypes\SimpleChannel.cs" />
+    <Compile Include="Server\EpicsEvent.cs" />
     <Compile Include="Server\RecordTypes\ArrayContainer.cs" />
     <Compile Include="Server\RecordTypes\CAArrayRecord.cs" />
     <Compile Include="Server\RecordTypes\CAByteArrayRecord.cs" />
