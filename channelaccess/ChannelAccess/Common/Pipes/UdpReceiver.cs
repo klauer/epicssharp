@@ -156,6 +156,7 @@ namespace EpicsSharp.Common.Pipes
 
             disposed = true;
             udp.Close();
+
         }
 
         public override void ProcessData(DataPacket packet)

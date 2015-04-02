@@ -85,7 +85,7 @@ namespace EpicsSharp.ChannelAccess.Server
 
                         chain = DataPipe.CreateServerTcp(this.server, client);
 
-                        server.RegisterClient(clientEndPoint, chain);
+                        server.RegisterClient(chain);
 
                         // Send version
                         DataPacket packet = DataPacket.Create(16);
@@ -132,6 +132,16 @@ namespace EpicsSharp.ChannelAccess.Server
                 if (disposed)
                     return;
                 disposed = true;
+                tcpListener.Stop();
+
+                try
+                {
+                    TcpClient client = new TcpClient(ipSource);
+                    client.Close();
+                }
+                catch
+                {
+                }
             }
     }
 }

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace EpicsSharp.ChannelAccess.Server
 {
-    internal class ServerTcpReceiver : TcpReceiver
+    internal class ServerTcpReceiver : TcpReceiver, IDisposable
     {
         uint nextSid = 1;
         object locker = new object();
@@ -295,6 +295,12 @@ namespace EpicsSharp.ChannelAccess.Server
                     break;
             }
             record[property] = dest;
+        }
+
+        public override void Dispose()
+        {
+            ((ServerHandleMessage)this.Pipe.LastFilter).Server.DisposeClient(this.Pipe);
+            base.Dispose();
         }
     }
 }
