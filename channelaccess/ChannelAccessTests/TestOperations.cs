@@ -18,6 +18,7 @@
  */
 using EpicsSharp.ChannelAccess.Client;
 using EpicsSharp.ChannelAccess.Server;
+using EpicsSharp.ChannelAccess.Server.RecordTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -149,7 +150,7 @@ namespace EpicsSharp.ChannelAccess.Tests
         {
             var channel = client.CreateChannel("TEST:DBL:5");
             AutoResetEvent waitOne = new AutoResetEvent(false);
-            double findValue=0;
+            double findValue = 0;
             channel.MonitorChanged += delegate(Channel sender, object newValue)
             {
                 findValue = (double)newValue;
@@ -191,13 +192,15 @@ namespace EpicsSharp.ChannelAccess.Tests
                 findValue = (double)newValue;
                 waitOne.Set();
             };
-            waitOne.WaitOne();
-            records[5].Value = 2;
+            if (!waitOne.WaitOne(500))
+                throw new Exception("Timeout 1");
+            //records[5].Value = 2;
             findValue = 0;
             server.Dispose();
             Thread.Sleep(100);
             serverInit();
-            waitOne.WaitOne();
+            if (!waitOne.WaitOne(500))
+                throw new Exception("Timeout 2");
             Assert.AreEqual(10.0, findValue);
         }
     }

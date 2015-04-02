@@ -1,5 +1,6 @@
 ﻿using EpicsSharp.ChannelAccess.Client;
 using EpicsSharp.ChannelAccess.Server;
+using EpicsSharp.ChannelAccess.Server.RecordTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
