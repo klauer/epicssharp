@@ -19,8 +19,9 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EpicsSharp.ChannelAccess.Client;
-using EpicsSharp.ChannelAccess.Server;
 using System.Net;
+using EpicsSharp.ChannelAccess.Server;
+using EpicsSharp.ChannelAccess.Server.RecordTypes;
 
 namespace EpicsSharp.ChannelAccess.Tests
 {

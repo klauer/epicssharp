@@ -18,6 +18,7 @@
  */
 using EpicsSharp.ChannelAccess.Client;
 using EpicsSharp.ChannelAccess.Server;
+using EpicsSharp.ChannelAccess.Server.RecordTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
@@ -63,15 +64,16 @@ namespace EpicsSharp.ChannelAccess.Tests
         [TestMethod]
         public void TestMonitorReconnection()
         {
-            const int MAX_WAIT = 13000; // msec
+            const int MAX_WAIT = 500; // msec
             // Unfortunately the problem does not always occur.
             // Let's try to repeat this test, until it breaks, for ... EVER!
             // NOTE: We need to change that later to a more useful value
-            for (long i = 1; ; i++)
+            //for (long i = 1; ; i++)
+            for (long i = 1; i < 10;i++)
             {
                 StartServer();
                 CAClient client = new CAClient();
-                client.Configuration.WaitTimeout = 30000;
+                client.Configuration.WaitTimeout = 300;
                 client.Configuration.SearchAddress = "127.0.0.1";
                 var channel = client.CreateChannel<int>("SECOND");
                 channel.MonitorChanged += channel_MonitorChanged;
