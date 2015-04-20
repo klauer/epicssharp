@@ -45,6 +45,8 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Display_Double:
                 case EpicsType.Display_String:
                     return DisplayChannel.Encode(type, source, record, nbElements);
+                case EpicsType.Labeled_Enum:
+                    return EnumControlChannel.Encode(type, source, record, nbElements);
                 default:
                     throw new Exception("Not yet supported");
             }
