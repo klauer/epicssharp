@@ -187,7 +187,7 @@ namespace PBCaGw.Services
                 {
                 }
                 Debug.Assert(endPoint != null, "endPoint != null");
-                if (iocConnections.ContainsKey(endPoint))
+                if (iocConnections.ContainsKey(endPoint) && iocChains.ContainsKey(endPoint))
                     return iocChains[endPoint];
             }
 
@@ -199,7 +199,7 @@ namespace PBCaGw.Services
 
             lock (iocConnections)
             {
-                if (iocConnections.ContainsKey(endPoint))
+                if (iocConnections.ContainsKey(endPoint) && iocChains.ContainsKey(endPoint))
                     result = iocChains[endPoint];
 
                 if (result == null)
@@ -227,10 +227,29 @@ namespace PBCaGw.Services
                         return null;
                     }
 
-                    iocConnections.Add(endPoint, socket);
+                    try
+                    {
+                        ((TcpReceiver)chain[0]).Socket = socket;
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            chain.Dispose();
+                        }
+                        catch
+                        {
+
+                        }
+                        return null;
+                    }
+
+
                     // Add a monitor on the known channels
                     chain.Channels.BagModified += (ConcurrentBagModification<string>)((bag, newItem, oldItem) => gateway.DoIocConnectedChannels(endPoint.ToString(), newItem, oldItem));
-                    ((TcpReceiver)chain[0]).Socket = socket;
+                    if (iocConnections.ContainsKey(endPoint))
+                        iocConnections.Remove(endPoint);
+                    iocConnections.Add(endPoint, socket);
                     iocChains.Add(endPoint, chain);
 
                     if (Log.WillDisplay(System.Diagnostics.TraceEventType.Start))
