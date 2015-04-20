@@ -107,6 +107,7 @@
     <Compile Include="Server\ChannelTypes\DisplayChannel.cs" />
     <Compile Include="Server\ChannelTypes\DataPacketBuilder.cs" />
     <Compile Include="Server\ChannelTypes\ControlChannel.cs" />
+    <Compile Include="Server\ChannelTypes\EnumControlChannel.cs" />
     <Compile Include="Server\ChannelTypes\TimeChannel.cs" />
     <Compile Include="Server\ChannelTypes\ExtChannel.cs" />
     <Compile Include="Server\ChannelTypes\SimpleChannel.cs" />
