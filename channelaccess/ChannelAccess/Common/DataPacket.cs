@@ -243,7 +243,7 @@ namespace EpicsSharp.ChannelAccess.Common
                 Array.Clear(Data, offset + 16, Data.Length - 16);
             else
                 Array.Clear(Data, offset + 16, size);
-            Buffer.BlockCopy(b, 0, Data, offset + 16, b.Length);
+            Buffer.BlockCopy(b, 0, Data, offset + 16, size == 0 ? b.Length : Math.Min(size, b.Length));
         }
 
         private DataPacket()
