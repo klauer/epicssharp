@@ -33,6 +33,18 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Time_Double:
                 case EpicsType.Time_String:
                     return TimeChannel.Encode(type, source, record, nbElements);
+                case EpicsType.Control_Int:
+                case EpicsType.Control_Short:
+                case EpicsType.Control_Float:
+                case EpicsType.Control_Double:
+                case EpicsType.Control_String:
+                    return ControlChannel.Encode(type, source, record, nbElements);
+                case EpicsType.Display_Int:
+                case EpicsType.Display_Short:
+                case EpicsType.Display_Float:
+                case EpicsType.Display_Double:
+                case EpicsType.Display_String:
+                    return DisplayChannel.Encode(type, source, record, nbElements);
                 default:
                     throw new Exception("Not yet supported");
             }
