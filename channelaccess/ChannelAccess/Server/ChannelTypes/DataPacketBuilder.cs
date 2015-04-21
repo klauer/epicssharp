@@ -57,8 +57,10 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
             return (8 - (size % 8));
         }
 
-        public static void Encode(DataPacket result, EpicsType type, int offset, object value, int nbElements = 1)
+        public static void Encode(DataPacket result, EpicsType type, int offset, object value, int nbElements = 1)        
         {
+            Type sourceType=value.GetType();
+
             switch (type)
             {
                 case EpicsType.Control_Byte:
@@ -67,7 +69,7 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Time_Byte:
                 case EpicsType.Byte:
                     {
-                        if (nbElements == 1)
+                        if (nbElements == 1 && !sourceType.IsArray && !sourceType.IsGenericType)
                             result.SetInt32(16 + offset, Convert.ToByte(value));
                         else
                         {
@@ -83,7 +85,7 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Time_Int:
                 case EpicsType.Status_Int:
                     {
-                        if (nbElements == 1)
+                        if (nbElements == 1 && !sourceType.IsArray && !sourceType.IsGenericType)
                             result.SetInt32(16 + offset, Convert.ToInt32(value));
                         else
                         {
@@ -99,7 +101,7 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Control_Float:
                 case EpicsType.Display_Float:
                     {
-                        if (nbElements == 1)
+                        if (nbElements == 1 && !sourceType.IsArray && !sourceType.IsGenericType)
                             result.SetFloat(16 + offset, Convert.ToSingle(value));
                         else
                         {
@@ -115,7 +117,7 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Control_Double:
                 case EpicsType.Display_Double:
                     {
-                        if (nbElements == 1)
+                        if (nbElements == 1 && !sourceType.IsArray && !sourceType.IsGenericType)
                             result.SetDouble(16 + offset, Convert.ToDouble(value));
                         else
                         {
@@ -131,7 +133,7 @@ namespace EpicsSharp.ChannelAccess.Server.ChannelTypes
                 case EpicsType.Control_Short:
                 case EpicsType.Display_Short:
                     {
-                        if (nbElements == 1)
+                        if (nbElements == 1 && !sourceType.IsArray && !sourceType.IsGenericType)
                             result.SetInt16(16 + offset, Convert.ToInt16(value));
                         else
                         {

@@ -37,7 +37,7 @@ namespace EpicsSharp.ChannelAccess.Server
         static object lockObject = new object();
         public override void ProcessData(DataPacket packet)
         {
-            //Console.WriteLine("Pipe " + (Pipe.FirstFilter is UdpReceiver ? "UDP" : "TCP") + ": " + ((CommandID)packet.Command));
+            Console.WriteLine("Pipe " + (Pipe.FirstFilter is UdpReceiver ? "UDP" : "TCP") + ": " + ((CommandID)packet.Command));
             lock (lockObject)
             {
                 switch ((CommandID)packet.Command)
