@@ -263,11 +263,11 @@ namespace EpicsSharp.ChannelAccess.Server.RecordTypes
                         }
                     }
 
-                    if (knownProps[key.ToUpper()].PropertyType.IsArray)
+                    if (knownProps[key.ToUpper()].PropertyType.IsArray || knownProps[key.ToUpper()].PropertyType.IsGenericType)
                     {
-                        int nb = Math.Min(((Array)knownProps[key.ToUpper()].GetValue(this, null)).Length, ((Array)value).Length);
+                        int nb = Math.Min(((dynamic)(knownProps[key.ToUpper()].GetValue(this,null))).Length, ((Array)value).Length);
                         for (int i = 0; i < nb; i++)
-                            SetArrayValue(key, i, value);
+                            SetArrayValue(key, i, ((dynamic)value)[i]);
                         /*for (int i = 0; i < nb; i++)
                             knownProps[key.ToUpper()].SetValue(this, value, new object[] { i });*/
                     }

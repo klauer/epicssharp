@@ -208,14 +208,18 @@ namespace EpicsSharp.ChannelAccess.Server
                     break;
             }
             object dest = null;
-            switch (record.GetPropertyType(property).ToString())
+            Type destType = record.GetPropertyType(property);
+            string destTypeName = destType.ToString();
+            if (destType.IsGenericType)
+                destTypeName = destType.GenericTypeArguments[0].ToString();
+            switch (destTypeName)
             {
                 case "System.String":
                     dest = Convert.ToString(obj);
                     break;
                 case "System.Int32":
                     {
-                        if (packet.DataCount == 1)
+                        if (packet.DataCount == 1 && !destType.IsGenericType && !destType.IsArray)
                         {
                             dest = Convert.ToInt32(obj);
                         }
@@ -231,7 +235,7 @@ namespace EpicsSharp.ChannelAccess.Server
                     break;
                 case "System.Byte":
                     {
-                        if (packet.DataCount == 1)
+                        if (packet.DataCount == 1 && !destType.IsGenericType && !destType.IsArray)
                         {
                             dest = Convert.ToByte(obj);
                         }
@@ -247,7 +251,7 @@ namespace EpicsSharp.ChannelAccess.Server
                     break;
                 case "System.Int16":
                     {
-                        if (packet.DataCount == 1)
+                        if (packet.DataCount == 1 && !destType.IsGenericType && !destType.IsArray)
                         {
                             dest = Convert.ToInt16(obj);
                         }
@@ -263,7 +267,7 @@ namespace EpicsSharp.ChannelAccess.Server
                     break;
                 case "System.Single":
                     {
-                        if (packet.DataCount == 1)
+                        if (packet.DataCount == 1 && !destType.IsGenericType && !destType.IsArray)
                         {
                             dest = Convert.ToSingle(obj);
                         }
@@ -279,7 +283,7 @@ namespace EpicsSharp.ChannelAccess.Server
                     break;
                 case "System.Double":
                     {
-                        if (packet.DataCount == 1)
+                        if (packet.DataCount == 1 && !destType.IsGenericType && !destType.IsArray)
                         {
                             dest = Convert.ToDouble(obj);
                         }
