@@ -823,6 +823,7 @@ namespace PSI.EpicsClient2
             if (Disposed)
                 return;
             Disposed = true;
+            Client.Searcher.Remove(this);
             lock (Client.Channels)
                 Client.Channels.Remove(this.CID);
             if (ioc != null)
